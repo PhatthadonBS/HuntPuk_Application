@@ -1,0 +1,7 @@
+{
+  "name": "HuntPuk_APK",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
