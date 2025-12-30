@@ -1,0 +1,24 @@
+<div class="footer-container">
+  
+  <div class="nav-item home-item" routerLink="/home">
+    <div class="floating-circle-wrapper">
+      <div class="circle-bg">
+        <img src="assets/icon/logo.png" alt="logo" class="logo-img"> 
+      </div>
+    </div>
+    <span class="label-text">หน้าหลัก</span>
+  </div>
+
+  <div class="nav-item menu-item" (click)="onMenuClick()">
+    <ion-icon name="list" class="menu-icon"></ion-icon>
+    <span class="label-text">เมนู</span>
+  </div>
+
+  <div class="nav-item auth-item" routerLink="/login">
+    <div class="text-group">
+      <span>ลงทะเบียน&</span>
+      <span>เข้าสู่ระบบ</span>
+    </div>
+  </div>
+
+</div>

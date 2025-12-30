@@ -1,27 +1,42 @@
-#container {
-  text-align: center;
+#map {
+  position: absolute;
+  touch-action: none;
+  inset: 0;
+}
 
+.top-ui {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  z-index: 10;
+}
+
+.bottom-sheet {
   position: absolute;
   left: 0;
   right: 0;
-  top: 50%;
-  transform: translateY(-50%);
+  bottom: 0;
+  height: 90px;
+  background: #fff;
+  border-radius: 16px 16px 0 0;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.15);
+  transition: height 0.3s ease;
+  z-index: 20;
 }
 
-#container strong {
-  font-size: 20px;
-  line-height: 26px;
+.bottom-sheet.open {
+  height: 280px;
 }
 
-#container p {
-  font-size: 16px;
-  line-height: 22px;
-
-  color: #8c8c8c;
-
-  margin: 0;
+.handle {
+  width: 40px;
+  height: 4px;
+  background: #ccc;
+  border-radius: 2px;
+  margin: 8px auto;
 }
 
-#container a {
-  text-decoration: none;
+.content {
+  padding: 12px 16px;
 }

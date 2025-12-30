@@ -1,0 +1,146 @@
+<ion-content [fullscreen]="true">
+  <div class="background-container">
+    <div class="dark-shape"></div>
+  </div>
+
+  <div class="content-wrapper">
+    <div class="relative z-[999] text-white mt-[10rem] mb-5">
+      <span class="text-4xl">สมัครสมาชิก</span>
+    </div>
+    <form
+      [formGroup]="registerForm"
+      (ngSubmit)="onSubmit()"
+      class="register-form"
+    >
+      <div class="input-group ">
+        <ion-input
+          placeholder="ชื่อผู้ใช้"
+          formControlName="username"
+          class="custom-input"
+          errorText="โปรดป้อนชื่อผู้ใช้"
+        >
+          <ion-icon slot="end" name="person" color="medium"></ion-icon>
+        </ion-input>
+      </div>
+
+      <div class="input-group">
+        <ion-input
+          mode="md"
+          type="email"
+          placeholder="อีเมล"
+          formControlName="email"
+          class="custom-input"
+          errorText="โปรดป้อนอีเมลผู้ใช้"
+        >
+          <ion-icon slot="end" name="mail" color="medium"></ion-icon>
+        </ion-input>
+      </div>
+
+      <div class="input-group">
+        <ion-input
+          mode="md"
+          type="password"
+          placeholder="รหัสผ่าน"
+          formControlName="password"
+          class="custom-input"
+          errorText="โปรดป้อนรหัสผ่านอย่างน้อย 8 ตัว"
+          counter="true"
+        >
+          <ion-input-password-toggle
+            slot="end"
+            color="medium"
+            class="-mt-4 -mb-4"
+            style="margin-right: -0.6rem"
+          ></ion-input-password-toggle>
+        </ion-input>
+      </div>
+
+      <div class="input-group">
+        <ion-input
+          mode="md"
+          type="password"
+          placeholder="รหัสผ่านอีกครั้ง"
+          formControlName="confirmPassword"
+          class="custom-input -mb-3"
+          errorText="โปรดป้อนรหัสผ่านอย่างน้อย 8 ตัว"
+          style="margin-bottom: -0.25rem;"
+        >
+          <ion-input-password-toggle
+            slot="end"
+            color="medium"
+            class="-mt-4 -mb-4 -mr-7"
+            style="margin-right: -0.6rem"
+          ></ion-input-password-toggle>
+        </ion-input>
+        <ion-text
+          color="danger"
+          class="text-xs ml-6"
+          
+          *ngIf="registerForm.hasError('passwordMismatch') && registerForm.get('confirmPassword')?.touched"
+        >
+          รหัสผ่านไม่ตรงกัน
+        </ion-text>
+      </div>
+
+      <div class="input-group mt-5">
+        <ion-input
+          mode="md"
+          type="tel"
+          placeholder="เบอร์โทรศัพท์"
+          formControlName="phone"
+          class="custom-input"
+          errorText="โปรดป้อนเบอร์"
+        >
+          <ion-icon slot="end" name="call" color="medium"></ion-icon>
+        </ion-input>
+      </div>
+
+      <div class="footer-action">
+        <ion-button fill="clear" class="nav-btn back-btn" routerLink="/" [hidden]="nextBtnHidden()">
+          <ion-icon
+            name="arrow-back-circle-outline"
+            slot="start"
+            class="border-red-400"
+            style="margin-left: -1.5rem; width: 50px;"
+            size="large"
+            
+          ></ion-icon>
+          กลับ
+        </ion-button>
+
+        <ion-button
+          type="submit"
+          fill="clear"
+          class="nav-btn next-btn"
+          [disabled]="registerForm.invalid"
+          [hidden]="nextBtnHidden()"
+        >
+          ถัดไป
+          <ion-icon
+            name="arrow-forward-circle-outline"
+            slot="end"
+            size="large"
+            style="margin-right: -1.5rem; width: 50px;"
+          ></ion-icon>
+        </ion-button>
+      </div>
+    </form>
+  </div>
+  <ion-toast
+    [isOpen]="errMsg() !== null"
+    [message]="errMsg()"
+    [duration]="5000"
+    color="danger"
+    position="bottom"
+  ></ion-toast>
+
+  <ion-toast
+    [isOpen]="succMsg() !== null"
+    [message]="succMsg()"
+    [duration]="5000"
+    color="success"
+    position="bottom"
+  ></ion-toast>
+  <app-loading-ui *ngIf="isLoading()"></app-loading-ui>
+  <app-otp-verify *ngIf="isOpenPopUpVerify()" (close)="closeOTP_popup()" (resVerifyStatus)="getVerify($event)"></app-otp-verify>
+</ion-content>

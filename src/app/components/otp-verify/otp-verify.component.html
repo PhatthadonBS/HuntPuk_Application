@@ -1,0 +1,74 @@
+<div class="overlay cursor-pointer" (click)="closePopup()"></div>
+
+<div class="popup">
+  <button class="close-btn" (click)="closePopup()">✕</button>
+  <p class="text-2xl text-center mb-4">ยืนยันตัวตน</p>
+  <div class="form-box">
+    <ion-input
+      placeholder="อีเมล"
+      type="email"
+      class="input pl-5"
+      style="padding-left: 1rem"
+      [formControl]="emailCtl"
+    >
+      <ion-icon name="mail" slot="end" size="large"></ion-icon>
+    </ion-input>
+    <p
+      class="text-xs text-red-800 pl-8 -mt-2"
+      *ngIf="emailCtl.invalid && emailCtl.touched"
+    >
+      กรุณากรอกอีเมลให้ถูกต้อง
+    </p>
+
+    <div class="otp-row mt-4 -mb-3">
+      <ion-input
+        placeholder="รหัส OTP"
+        type="text"
+        class="input"
+        [formControl]="otpCtl"
+      ></ion-input>
+
+      <ion-button
+        fill="outline"
+        size="small"
+        class="otp-btn"
+        [disabled]="isCounting()"
+        (click)="sendOtp()"
+      >
+        <ng-container
+          *ngIf="!isCounting(); else counting"
+          class="border-red-600"
+        >
+          ส่งคำขอ
+        </ng-container>
+
+        <ng-template #counting> ขอใหม่ ({{ countdown() }}s) </ng-template>
+      </ion-button>
+    </div>
+
+    <ion-text
+      color="danger"
+      class="text-xs ml-6"
+      *ngIf="otpCtl.invalid && otpCtl.touched"
+    >
+      กรุณากรอกให้ครบ 6 ตัว
+    </ion-text>
+    <br />
+    <ion-button
+      expand="block"
+      class="confirm-btn"
+      (click)="confirm()"
+      [disabled]="emailCtl.valid && otpCtl.valid"
+    >
+      ยืนยัน
+    </ion-button>
+  </div>
+  <ion-toast
+    [isOpen]="errMsg() !== null"
+    [message]="errMsg()"
+    [duration]="5000"
+    color="danger"
+    position="bottom"
+  ></ion-toast>
+</div>
+<app-loading-ui *ngIf="isLoading()"></app-loading-ui>

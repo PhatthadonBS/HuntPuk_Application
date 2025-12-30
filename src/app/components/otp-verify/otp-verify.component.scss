@@ -1,0 +1,87 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(6px);
+  z-index: 500;
+}
+
+.popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 360px;
+  background: #3f3f3f;
+  border-radius: 24px;
+  padding: 24px 20px 28px;
+  z-index: 999;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+}
+
+.close-btn {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  border: none;
+  background: transparent;
+  font-size: 20px;
+  color: #fff;
+  cursor: pointer;
+}
+
+.title {
+  color: #000000;
+  text-align: center;
+  margin: 0;
+  font-size: 20px;
+}
+
+.subtitle {
+  color: #fff;
+  text-align: center;
+  margin: 6px 0 16px;
+  font-size: 26px;
+}
+
+.form-box {
+  background: linear-gradient(
+    135deg,
+    #bfbfbf 0%,
+    #bfbfbf 50%,
+    #f7d24b 50%,
+    #f7d24b 100%
+  );
+  border-radius: 20px;
+  padding: 20px;
+}
+
+.input {
+  background: #fff;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  color: #000;
+  --padding-start: 15px;
+  --padding-end: 10px;
+  font-size: 20px;
+}
+
+.otp-row {
+  display: flex;
+  gap: 8px;
+  align-items: start;
+}
+
+.otp-btn {
+  height: 42px;
+  --border-color: #000;
+  --color: #000;
+}
+
+.confirm-btn {
+  margin-top: 16px;
+  --background: #000;
+  --color: #fff;
+  border-radius: 22px;
+}

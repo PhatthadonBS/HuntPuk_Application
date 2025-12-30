@@ -1,0 +1,25 @@
+.notfound-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.notfound-icon {
+  font-size: 96px;
+  color: var(--ion-color-danger);
+  margin-bottom: 16px;
+}
+
+h1 {
+  font-size: 64px;
+  margin: 0;
+}
+
+p {
+  font-size: 18px;
+  color: var(--ion-color-medium);
+  margin-bottom: 24px;
+}

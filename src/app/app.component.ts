@@ -1,7 +1,6 @@
-import { Component, signal } from '@angular/core';
+import { Component, NgZone, signal } from '@angular/core';
 import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
-import { LoadingUIComponent } from "./components/loading-ui/loading-ui.component";
-import { LoadingState } from './services/loadingState';
+import { LoadingUIComponent } from './components/loading-ui/loading-ui.component';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -10,12 +9,5 @@ import { CommonModule } from '@angular/common';
   imports: [IonApp, IonRouterOutlet, LoadingUIComponent, CommonModule],
 })
 export class AppComponent {
-  isLoading = signal<boolean>(false);
-  constructor(private loadState: LoadingState) {
 
-  }
-
-  clickLoad(){
-    this.loadState.changeState(true);
-  }
 }

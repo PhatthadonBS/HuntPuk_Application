@@ -5,12 +5,8 @@ import { IonContent, IonSpinner } from "@ionic/angular/standalone";
   selector: 'app-loading-ui',
   templateUrl: './loading-ui.component.html',
   styleUrls: ['./loading-ui.component.scss'],
-  imports: [IonSpinner, IonContent],
+  imports: [IonSpinner],
 })
-export class LoadingUIComponent  implements OnInit {
-
-  constructor() { }
-
-  ngOnInit() {}
+export class LoadingUIComponent{
 
 }

@@ -107,7 +107,8 @@
                 "glob": "**/*",
                 "input": "src/assets",
                 "output": "assets"
-              }
+              },
+              "src/favicon.ico","src/assets"
             ],
             "styles": ["src/global.scss", "src/theme/variables.scss"],
             "scripts": []
