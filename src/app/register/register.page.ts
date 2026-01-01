@@ -34,8 +34,8 @@ import { UserRegPostReqForm } from 'src/app/model/formModel/user_reg_post_req_fo
 import { UserRegPostReq } from 'src/app/model/requests/user_reg_post_req';
 import { UserServices } from 'src/app/services/userServices';
 import { delay, finalize, take, timeout, timer } from 'rxjs';
-import { OTPVerifyComponent } from 'src/app/components/otp-verify/otp-verify.component';
-import { LoadingUIComponent } from 'src/app/components/loading-ui/loading-ui.component';
+import { LoadingUIComponent } from '../main-layout/components/loading-ui/loading-ui.component';
+import { OTPVerifyComponent } from '../main-layout/components/otp-verify/otp-verify.component';
 
 @Component({
   selector: 'app-register',

@@ -27,8 +27,16 @@ export class UserServices {
     const url = `${this.endPoint}/user/registerSec1`;
     return this.http.post<UserRegPostReq>(url, formdata);
   }
-  register2(datum: UserRegPostReq, status: boolean, isAdmin: boolean): Observable<UserRegPostReq> {
+  register2(
+    datum: UserRegPostReq,
+    status: boolean,
+    isAdmin: boolean
+  ): Observable<UserRegPostReq> {
     const url = `${this.endPoint}/user/registerSec2`;
-    return this.http.post<UserRegPostReq>(url, {userData: datum, verify: status, admin: isAdmin});
+    return this.http.post<UserRegPostReq>(url, {
+      userData: datum,
+      verify: status,
+      admin: isAdmin,
+    });
   }
 }

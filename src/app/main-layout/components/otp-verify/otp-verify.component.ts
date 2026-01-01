@@ -26,7 +26,7 @@ import { finalize, switchMap, take, tap, timeout } from 'rxjs';
 import { UserOtpVerifyPostRes } from 'src/app/model/responses/user_otpVerify_post_res';
 import { UserServices } from 'src/app/services/userServices';
 import { LoadingUIComponent } from '../loading-ui/loading-ui.component';
-import { extractErrorMessage } from 'src/app/pages/register/register.page';
+import { extractErrorMessage } from 'src/app/register/register.page';
 
 @Component({
   selector: 'app-otp-verify',

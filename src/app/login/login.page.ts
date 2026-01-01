@@ -24,10 +24,11 @@ import { addIcons } from 'ionicons';
 import { arrowForwardCircleOutline, person } from 'ionicons/icons';
 import { UserServices } from 'src/app/services/userServices';
 import { finalize, Subscription, timeout } from 'rxjs';
-import { LoadingUIComponent } from 'src/app/components/loading-ui/loading-ui.component';
 import { AuthenService } from 'src/app/services/authenService';
 import { UserDataGetRes } from 'src/app/model/responses/user_data_get_res';
 import { extractErrorMessage } from '../register/register.page';
+import { LoadingUIComponent } from '../main-layout/components/loading-ui/loading-ui.component';
+import { UserLoggedInPostRes } from '../model/responses/user_loggedIn_post_res';
 
 @Component({
   selector: 'app-login',
@@ -84,7 +85,7 @@ export class LoginPage {
         })
       )
       .subscribe({
-        next: (u: UserDataGetRes) => {
+        next: (u: UserLoggedInPostRes) => {
           localStorage.setItem('user', JSON.stringify(u));
           this.authSv.setLoggedInUser(u);
           this.router.navigateByUrl('/');

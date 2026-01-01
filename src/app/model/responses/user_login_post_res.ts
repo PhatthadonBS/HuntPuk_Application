@@ -1,6 +1,5 @@
-import { RowDataPacket } from "mysql2";
 
-export interface UserLoginPostRes extends RowDataPacket{
+export interface UserLoginPostRes{
     USER_ID:        number;
     USERNAME:       string;
     EMAIL:          string;

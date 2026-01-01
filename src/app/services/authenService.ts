@@ -11,18 +11,19 @@ import {
 import { BehaviorSubject, Observable } from 'rxjs';
 import { UserDataGetRes } from '../model/responses/user_data_get_res';
 import { environment } from 'src/environments/environment';
+import { UserLoggedInPostRes } from '../model/responses/user_loggedIn_post_res';
 @Injectable({
   providedIn: 'root',
 })
 export class AuthenService implements CanActivate {
   constructor(private router: Router, private http: HttpClient) {}
   endPoint = environment.ENDPOINT;
-  private userState = new BehaviorSubject<UserDataGetRes | null>(
+  private userState = new BehaviorSubject<UserLoggedInPostRes | null>(
     this.getUserFromStorage()
   );
   user$ = this.userState.asObservable();
 
-  private getUserFromStorage(): UserDataGetRes | null {
+  private getUserFromStorage(): UserLoggedInPostRes | null {
     const uLog = localStorage.getItem('user');
     if (uLog) {
       try {
@@ -34,7 +35,7 @@ export class AuthenService implements CanActivate {
     return null;
   }
 
-  setLoggedInUser(user: UserDataGetRes) {
+  setLoggedInUser(user: UserLoggedInPostRes) {
     localStorage.setItem('user', JSON.stringify(user));
     this.userState.next(user);
   }
@@ -48,7 +49,7 @@ export class AuthenService implements CanActivate {
   canActivate(): boolean {
     const user = this.userState.getValue();
 
-    if (user && user.ACCOUNT_STATUS == 0) {
+    if (user && user.user.accout_status == 0) {
       return true;
     }
     this.router.navigateByUrl('/login');

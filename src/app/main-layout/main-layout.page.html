@@ -1,0 +1,15 @@
+<ion-content fullscreen>
+  <ion-router-outlet></ion-router-outlet>
+</ion-content>
+<app-nav-footer
+  *ngIf="!isOpenMenu()"
+  (menuClick)="openMenu()"
+  (accountClick)="goTo($event)"
+  (homeClick)="goHome()"
+  (loginClick)="goTo($event)"
+></app-nav-footer>
+<app-menu-list
+  *ngIf="isOpenMenu()"
+  (close)="closeMenu()"
+  (selectMenu)="goTo($event)"
+></app-menu-list>

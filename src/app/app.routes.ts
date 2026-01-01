@@ -1,45 +1,54 @@
 import { Routes } from '@angular/router';
-import { LoggedInServices } from './services/logged-in-services';
-import { AuthenService } from './services/authenService';
+import { MainLayoutPage } from './main-layout/main-layout.page';
 
 export const routes: Routes = [
   {
-    path: 'home',
-    loadComponent: () => import('./home/home.page').then((m) => m.HomePage),
-  },
-  {
     path: '',
-    redirectTo: 'home',
-    pathMatch: 'full',
+    component: MainLayoutPage,
+    children: [
+      { path: '', redirectTo: 'home', pathMatch: 'full' },
+      {
+        path: 'home',
+        loadComponent: () =>
+          import('./main-layout/pages/home/home.page').then((m) => m.HomePage),
+        runGuardsAndResolvers: 'always',
+      },
+      {
+        path: 'dorms',
+        loadComponent: () =>
+          import('./main-layout/pages/dorm-list/dorm-list.page').then(
+            (m) => m.DormListPage
+          ),
+      },
+      {
+        path: 'profile/:user_id',
+        loadComponent: () =>
+          import('./main-layout/pages/user-detail/user-detail.page').then(
+            (m) => m.UserDetailPage
+          ),
+      },
+      {
+        path: 'forgotPasswd',
+        loadComponent: () =>
+          import(
+            './main-layout/pages/forget-password/forget-password.page'
+          ).then((m) => m.ForgetPasswordPage),
+      },
+    ],
   },
+
   {
     path: 'login',
-    loadComponent: () =>
-      import('./pages/login/login.page').then((m) => m.LoginPage),
-    // canActivate: [LoggedInServices],
+    loadComponent: () => import('./login/login.page').then((m) => m.LoginPage),
   },
   {
     path: 'register',
     loadComponent: () =>
-      import('./pages/register/register.page').then((m) => m.RegisterPage),
-    // canActivate: [LoggedInServices],
-  },
-  {
-    path: 'forget-password',
-    loadComponent: () =>
-      import('./pages/forget-password/forget-password.page').then(
-        (m) => m.ForgetPasswordPage
-      ),
-    // canActivate: [AuthenService],
-  },
-  {
-    path: 'dorm-list',
-    loadComponent: () =>
-      import('./pages/dorm-list/dorm-list.page').then((m) => m.DormListPage),
-    // canActivate: [AuthenService]
+      import('./register/register.page').then((m) => m.RegisterPage),
   },
   {
     path: '**',
-    loadComponent: () => import('./pages/not-found/not-found.page').then( m => m.NotFoundPage)
+    loadComponent: () =>
+      import('./not-found/not-found.page').then((m) => m.NotFoundPage),
   },
 ];

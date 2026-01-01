@@ -1,3 +1,7 @@
 <ion-app >
   <ion-router-outlet></ion-router-outlet>
+  <app-loading-ui 
+    *ngIf="loadingSv.isLoading()"
+    class="global-loading-overlay">
+  </app-loading-ui>
 </ion-app>

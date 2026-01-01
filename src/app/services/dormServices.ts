@@ -13,6 +13,8 @@ export class DormServices {
   constructor(private http: HttpClient) {}
 
   getDorms(): Observable<DormAllGetRes> {
+    console.log(this.endPoint);
+    
     const url = `${this.endPoint}/dorms`;
     return this.http.get<DormAllGetRes>(url);
   }
