@@ -129,7 +129,7 @@ export class MenuListComponent {
 
   onSelect(menuKey: string, uid: number | null) {
     if (uid) {
-      return this.selectMenu.emit({ destination: menuKey, id: this.user_id });
+      return this.selectMenu.emit({ destination: menuKey, id: uid });
     }
     return this.selectMenu.emit({ destination: menuKey, id: null });
   }

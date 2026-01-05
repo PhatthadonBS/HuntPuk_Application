@@ -34,6 +34,13 @@ export const routes: Routes = [
             './main-layout/pages/forget-password/forget-password.page'
           ).then((m) => m.ForgetPasswordPage),
       },
+      {
+        path: 'profile-update/:user_id',
+        loadComponent: () =>
+          import('./main-layout/pages/profile-update/profile-update.page').then(
+            (m) => m.ProfileUpdatePage
+          ),
+      },
     ],
   },
 

@@ -26,6 +26,7 @@ import { MenuListComponent } from '../menu-list/menu-list.component';
 })
 export class NavFooterComponent implements OnInit {
   isLoggedIn = signal<boolean>(false);
+  userId = signal<number | null>(null)
   @Output() menuClick = new EventEmitter<void>();
   @Output() homeClick = new EventEmitter<{destination: string, id: null}>();
   @Output() loginClick = new EventEmitter<{destination: string, id: null}>();
@@ -41,11 +42,13 @@ export class NavFooterComponent implements OnInit {
       personCircleOutline,
     });
     this.authSv.user$.subscribe((u) => {
-      if (u?.logged_in == true) {
+      if (u &&(u.logged_in == true)) {
+        this.userId.set(u.user.id)
         this.isLoggedIn.set(true);
+      }else{
+        this.isLoggedIn.set(false)
       }
     });
-    console.log('login: ', this.isLoggedIn());
   }
 
   ngOnInit() {}
@@ -59,7 +62,7 @@ export class NavFooterComponent implements OnInit {
   }
 
   onAccountClick() {
-    this.accountClick.emit({destination: "profile", id: 1});
+    this.accountClick.emit({destination: "profile", id: this.userId()});
   }
 
   onHomeClick() {

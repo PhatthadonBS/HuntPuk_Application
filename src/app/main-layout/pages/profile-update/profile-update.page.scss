@@ -36,8 +36,9 @@ ion-content.profile-content {
 
 // สไตล์ของ Card ตรงกลาง
 .profile-card {
-  width: 100%;
-  // max-width: 400px;
+  width: 90%;
+  height: 25rem;
+  max-width: 400px;
   border-radius: 25px;
   padding: 30px 20px;
   box-shadow: 0 8px 16px rgba(0,0,0,0.2);
@@ -59,9 +60,9 @@ ion-content.profile-content {
     }
   }
 
-  
+  // Wrapper ของตัว Input สีขาว
   .custom-input-wrapper {
-    flex: 1; 
+    flex: 1; // ขยายเต็มพื้นที่ที่เหลือ
     background: var(--input-bg);
     border-radius: 12px;
     padding: 5px 15px;
@@ -69,15 +70,14 @@ ion-content.profile-content {
     align-items: center;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 
-    
+    // ตัว html input
     input {
       flex: 1;
       border: none;
       outline: none;
-      width: 90%;
       background: transparent;
       padding: 10px 5px;
-      font-size: 20px;
+      font-size: 16px;
       font-weight: bold;
       color: #666;
 

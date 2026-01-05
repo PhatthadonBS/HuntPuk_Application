@@ -1,0 +1,55 @@
+<ion-content [fullscreen]="true" class="profile-content">
+  <div class="yellow-shape-bg"></div>
+
+  <div class="content-container ion-padding">
+        <div class="bg-slate-300 w-[18rem] h-16 text-center mt-[3rem] -mb-[8rem] pt-3 rounded-lg">
+      <span class="text-3xl text-black font-bold">
+        แก้ไขข้อมูลส่วนตัว
+      </span>
+    </div>
+
+    <form [formGroup]="updateForm" (ngSubmit)="update()">
+      <div class="profile-card bg-gray-600/70">
+        <div class="input-row flex flex-col" style=" margin-bottom: 2rem;">
+          <ion-label  class="-ml-[12rem] text-xl mb-2">ชื่อผู้ใช้</ion-label>
+          <div class="custom-input-wrapper">
+            <input
+              type="text"
+              placeholder="Username"
+              formControlName="username"
+            />
+            <ion-icon name="person" color="medium"></ion-icon>
+          </div>
+        </div>
+        <div class="input-row flex flex-col">
+          <ion-label class="-ml-[9rem] text-xl mb-2">เบอร์โทรศัพท์</ion-label>
+          <div class="custom-input-wrapper">
+            <input
+              type="tel"
+              placeholder="0xx-xxx-xxxx"
+              formControlName="phone_number"
+            />
+            <ion-icon name="call" color="medium"></ion-icon>
+          </div>
+        </div>
+        <div class="flex justify-center align-middle p-5 " style="margin-top: 3rem;">
+          <ion-button size="large" type="submit">บันทึก</ion-button>
+        </div>
+      </div>
+    </form>
+  </div>
+    <ion-toast
+    [isOpen]="succMsg() !== null"
+    [message]="succMsg()"
+    [duration]="5000"
+    color="success"
+    position="bottom"
+  ></ion-toast>
+    <ion-toast
+    [isOpen]="errMsg() !== null"
+    [message]="errMsg()"
+    [duration]="5000"
+    color="danger"
+    position="bottom"
+  ></ion-toast>
+</ion-content>

@@ -12,11 +12,13 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { UserDataGetRes } from '../model/responses/user_data_get_res';
 import { environment } from 'src/environments/environment';
 import { UserLoggedInPostRes } from '../model/responses/user_loggedIn_post_res';
+import { NavController } from '@ionic/angular';
+
 @Injectable({
   providedIn: 'root',
 })
 export class AuthenService implements CanActivate {
-  constructor(private router: Router, private http: HttpClient) {}
+  constructor(private router: Router, private http: HttpClient, private navCtrl: NavController) {}
   endPoint = environment.ENDPOINT;
   private userState = new BehaviorSubject<UserLoggedInPostRes | null>(
     this.getUserFromStorage()
@@ -43,7 +45,7 @@ export class AuthenService implements CanActivate {
   logoutUser() {
     localStorage.clear();
     this.userState.next(null);
-    return this.router.navigateByUrl('/login');
+    return this.navCtrl.navigateRoot('/login')
   }
 
   canActivate(): boolean {

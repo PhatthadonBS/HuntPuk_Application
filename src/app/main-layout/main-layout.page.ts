@@ -14,6 +14,7 @@ import { Router } from '@angular/router';
 import { MenuListComponent } from './components/menu-list/menu-list.component';
 import { LoadingUIComponent } from './components/loading-ui/loading-ui.component';
 import { LoadingService } from '../services/loading-service';
+import { NavController } from '@ionic/angular';
 
 @Component({
   selector: 'app-main-layout',
@@ -31,7 +32,11 @@ import { LoadingService } from '../services/loading-service';
 })
 export class MainLayoutPage implements OnInit {
   menuSelected = signal<string | null>(null);
-  constructor(private router: Router, public loadingSv: LoadingService) {}
+  constructor(
+    private router: Router,
+    public loadingSv: LoadingService,
+    private navCtrl: NavController
+  ) {}
   isOpenMenu = signal<boolean>(false);
   menuComp = signal<boolean>(false);
 
@@ -45,18 +50,19 @@ export class MainLayoutPage implements OnInit {
 
   ngOnInit() {}
 
-  goTo({ destination, id }: { destination: string; id: number | null }) {
-    if (destination == '/') {
+  goTo({ destination, id }: { destination: string; id?: number | null }) {
+    if (destination === 'home' || destination === '/') {
+      return this.goHome();
     }
 
-    if (!id) {
-      return this.router.navigateByUrl(`/${destination}`);
+    if (id == null) {
+      return this.router.navigate([`/${destination}`]);
     }
-    return this.router.navigateByUrl(`/${destination}/${id}`);
+
+    return this.router.navigate([`/${destination}`, id]);
   }
+
   goHome() {
-    this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
-      this.router.navigate(['/home']);
-    });
+    return this.navCtrl.navigateRoot('/home');
   }
 }

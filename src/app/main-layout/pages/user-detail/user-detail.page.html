@@ -1,13 +1,80 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>userDetail</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content [fullscreen]="true" class="profile-content">
+  <div class="yellow-shape-bg"></div>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">userDetail</ion-title>
-    </ion-toolbar>
-  </ion-header>
+  <div class="content-container ion-padding">
+    <div
+      class="bg-slate-300 w-[18rem] h-16 text-center mt-[3rem] -mb-[8rem] pt-3 rounded-lg"
+    >
+      <span class="text-3xl text-black font-bold"> ข้อมูลส่วนตัว </span>
+    </div>
+    <div class="profile-card bg-gray-600/70">
+      <div class="input-row">
+        <div class="custom-input-wrapper">
+          <input
+            type="text"
+            placeholder="Username"
+            [value]="user()?.USERNAME"
+            readonly
+          />
+          <ion-icon name="person" color="medium"></ion-icon>
+        </div>
+      </div>
+
+      <div class="input-row">
+        <div class="custom-input-wrapper">
+          <input
+            type="email"
+            placeholder="xxx@gmail.com"
+            [value]="user()?.EMAIL"
+            readonly
+          />
+          <ion-icon name="mail" color="medium"></ion-icon>
+        </div>
+      </div>
+
+      <div class="input-row">
+        <div class="custom-input-wrapper">
+          <input
+            type="tel"
+            placeholder="0xx-xxx-xxxx"
+            [value]="user()?.PHONE_NUMBER"
+            readonly
+          />
+          <ion-icon name="call" color="medium"></ion-icon>
+        </div>
+      </div>
+
+      <div class="flex justify-center align-middle p-5">
+        <ion-button size="large" (click)="logout()">ออกจากระบบ</ion-button>
+      </div>
+    </div>
+    <div class="bottom-actions">
+      <div class="action-button" (click)="profileUpdate()">
+        <ion-icon name="create"></ion-icon>
+        <span>แก้ไขข้อมูล</span>
+      </div>
+      <div class="action-button" (click)="resetPasswd()">
+        <ion-icon name="ellipsis-horizontal-outline"></ion-icon>
+        <span>เปลี่ยนรหัสผ่าน</span>
+      </div>
+      <div class="action-button" (click)="deleteAccount()">
+        <ion-icon name="trash-bin"></ion-icon>
+        <span>ลบบัญชี</span>
+      </div>
+    </div>
+  </div>
+  <ion-toast
+    [isOpen]="succMsg() !== null"
+    [message]="succMsg()"
+    [duration]="5000"
+    color="success"
+    position="bottom"
+  ></ion-toast>
+  <ion-toast
+    [isOpen]="errMsg() !== null"
+    [message]="errMsg()"
+    [duration]="5000"
+    color="danger"
+    position="bottom"
+  ></ion-toast>
 </ion-content>

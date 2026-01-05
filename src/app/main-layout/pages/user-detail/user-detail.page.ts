@@ -1,20 +1,132 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonContent, IonHeader, IonTitle, IonToolbar } from '@ionic/angular/standalone';
+import {
+  IonContent,
+  IonHeader,
+  IonTitle,
+  IonToolbar,
+  IonIcon,
+  IonButton,
+  IonBackButton,
+  IonButtons,
+  IonToast,
+} from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import {
+  arrowBackCircleOutline,
+  call,
+  callOutline,
+  create,
+  createOutline,
+  ellipsisHorizontalOutline,
+  mail,
+  mailOutline,
+  person,
+  trashBin,
+} from 'ionicons/icons';
+import {
+  ActivatedRoute,
+  Router,
+  RouterLink,
+  RouterLinkActive,
+} from '@angular/router';
+import { UserServices } from 'src/app/services/userServices';
+import { Observable, timer } from 'rxjs';
+import { UserDataGetRes } from 'src/app/model/responses/user_data_get_res';
+import { AuthenService } from 'src/app/services/authenService';
+import { UserLoggedInPostRes } from 'src/app/model/responses/user_loggedIn_post_res';
+import { extractErrorMessage } from 'src/app/register/register.page';
+import { NavController } from '@ionic/angular';
 
 @Component({
   selector: 'app-user-detail',
   templateUrl: './user-detail.page.html',
   styleUrls: ['./user-detail.page.scss'],
   standalone: true,
-  imports: [IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule]
+  imports: [
+    IonToast,
+    IonButtons,
+    IonBackButton,
+    IonIcon,
+    IonContent,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    CommonModule,
+    FormsModule,
+    RouterLink,
+    IonButton,
+  ],
 })
 export class UserDetailPage implements OnInit {
-
-  constructor() { }
-
-  ngOnInit() {
+  user = signal<UserDataGetRes | null>(null);
+  errMsg = signal<string | null>(null);
+  succMsg = signal<string | null>(null);
+  constructor(
+    private userSv: UserServices,
+    private authSv: AuthenService,
+    private router: Router,
+    private actRouter: ActivatedRoute,
+    private navCtrl: NavController
+  ) {
+    addIcons({
+      arrowBackCircleOutline,
+      person,
+      createOutline,
+      mail,
+      call,
+      trashBin,
+      create,
+      ellipsisHorizontalOutline,
+    });
   }
 
+  ngOnInit() {
+    const user_id = this.actRouter.snapshot.paramMap.get('user_id');
+    if (user_id) {
+      this.userSv.getUserByID(Number(user_id)).subscribe({
+        next: (u) => {
+          this.user.set(u);
+        },
+        error: (err: any) => {
+          this.errMsg.set(extractErrorMessage(err));
+
+          timer(3000).subscribe(() => {
+            return this.navCtrl.navigateRoot('/');
+          });
+        },
+      });
+    } else {
+      this.errMsg.set('not found user id');
+      timer(3000).subscribe(() => {
+        return this.router.navigateByUrl('/', { replaceUrl: true });
+      });
+    }
+  }
+
+  logout() {
+    return this.authSv.logoutUser();
+  }
+
+  profileUpdate() {
+    return this.router.navigate(['/profile-update', this.user()?.USER_ID]);
+  }
+
+  resetPasswd() {
+    return this.router.navigate(['/forgotPasswd']);
+  }
+
+  deleteAccount() {
+    const reCon = confirm('ต้องการลบบัญชีหรือไม่?');
+
+    if (reCon) {
+      this.userSv.deleteAccount(this.user()!.USER_ID).subscribe({
+        next: () => {
+          return this.logout();
+        },
+      });
+    }
+    return;
+  }
 }

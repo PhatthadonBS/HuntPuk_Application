@@ -49,7 +49,6 @@ import { UserLoggedInPostRes } from '../model/responses/user_loggedIn_post_res';
     LoadingUIComponent,
   ],
 })
-
 export class LoginPage {
   loginForm: FormGroup;
   isLoading = signal(false);
@@ -76,7 +75,8 @@ export class LoginPage {
     this.isLoading.set(true);
     this.errMsg.set(null);
 
-    this.userSv.login(this.loginForm.getRawValue())
+    this.userSv
+      .login(this.loginForm.getRawValue())
       .pipe(
         timeout(5000),
         finalize(() => {
@@ -86,15 +86,19 @@ export class LoginPage {
       )
       .subscribe({
         next: (u: UserLoggedInPostRes) => {
-          localStorage.setItem('user', JSON.stringify(u));
-          this.authSv.setLoggedInUser(u);
-          this.router.navigateByUrl('/');
+          if (u) {
+            localStorage.setItem('user', JSON.stringify(u));
+            this.authSv.setLoggedInUser(u);
+            this.router.navigateByUrl('/');
+          }
+          
         },
         error: (err) => {
           if (err.name === 'TimeoutError') {
             this.errMsg.set('เชื่อมต่อเซิร์ฟเวอร์ไม่ได้');
-          }this.errMsg.set(extractErrorMessage(err))
-        }
+          }
+          this.errMsg.set(extractErrorMessage(err));
+        },
       });
   }
 }

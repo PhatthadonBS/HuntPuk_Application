@@ -4,6 +4,7 @@ import { UserDataGetRes } from '../model/responses/user_data_get_res';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { UserRegPostReq } from '../model/requests/user_reg_post_req';
+import { UserUpdatePostReq } from '../model/requests/user_update_post_req';
 
 @Injectable({
   providedIn: 'root',
@@ -38,5 +39,15 @@ export class UserServices {
       verify: status,
       admin: isAdmin,
     });
+  }
+
+  profileUpdate(user_id: number, formData: UserUpdatePostReq): Observable<any>{
+    const url = `${this.endPoint}/spec/user/${user_id}`
+    return this.http.put(url, formData)
+  }
+
+  deleteAccount(user_id: number): Observable<any>{
+    const url = `${this.endPoint}/spec/delAccount/${user_id}`
+    return this.http.delete(url)
   }
 }
