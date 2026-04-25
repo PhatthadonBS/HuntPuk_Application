@@ -20,8 +20,6 @@ import { LoadingUIComponent } from '../../components/loading-ui/loading-ui.compo
 import { NavFooterComponent } from '../../components/nav-footer/nav-footer.component';
 import { filter, finalize, Subscription } from 'rxjs';
 
-declare const google: any;
-
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
@@ -73,6 +71,7 @@ export class HomePage implements AfterViewInit, OnDestroy {
       });
       
       this.loadDormMarkers(); 
+      this.isLoading.set(false);
     } catch (error) {
       console.error(error);
     } finally {

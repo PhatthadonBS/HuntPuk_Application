@@ -104,7 +104,7 @@ export class RegisterPage {
   }
 
   onSubmit() {
-    this.errMsg.set(null);
+    this.errMsg.set(null) ;
     if (this.registerForm.invalid) {
       this.registerForm.markAllAsTouched();
 

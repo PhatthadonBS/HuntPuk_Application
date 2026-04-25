@@ -6,6 +6,7 @@ import { LoadingUIComponent } from "./main-layout/components/loading-ui/loading-
 
 @Component({
   selector: 'app-root',
+  standalone: true,
   templateUrl: 'app.component.html',
   imports: [IonApp, IonRouterOutlet, CommonModule, LoadingUIComponent],
 })
@@ -14,3 +15,4 @@ export class AppComponent {
     
   }
 }
+ 
