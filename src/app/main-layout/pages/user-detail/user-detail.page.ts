@@ -33,9 +33,8 @@ import {
 } from '@angular/router';
 import { UserServices } from 'src/app/services/userServices';
 import { Observable, timer } from 'rxjs';
-import { UserDataGetRes } from 'src/app/model/responses/user_data_get_res';
+import { UserDataGetRes, UserLoggedInPostRes } from 'src/app/model/user.model';
 import { AuthenService } from 'src/app/services/authenService';
-import { UserLoggedInPostRes } from 'src/app/model/responses/user_loggedIn_post_res';
 import { extractErrorMessage } from 'src/app/register/register.page';
 import { NavController } from '@ionic/angular';
 

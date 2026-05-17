@@ -13,8 +13,7 @@ import { IonIcon } from '@ionic/angular/standalone';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { AuthenService } from 'src/app/services/authenService';
-import { UserLoggedInPostRes } from 'src/app/model/responses/user_loggedIn_post_res';
-import { UserDataGetRes } from 'src/app/model/responses/user_data_get_res';
+import { UserDataGetRes, UserLoggedInPostRes } from 'src/app/model/user.model';
 import { MenuListComponent } from '../menu-list/menu-list.component';
 
 @Component({

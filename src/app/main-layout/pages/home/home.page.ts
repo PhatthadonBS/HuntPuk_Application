@@ -13,7 +13,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { Datum } from 'src/app/model/responses/dorm_all_get_res';
+import { DormSummary } from 'src/app/model/dorm.model';
 import { DormServices } from 'src/app/services/dormServices';
 import { GoogleMapService } from 'src/app/services/google-map-service';
 import { LoadingUIComponent } from '../../components/loading-ui/loading-ui.component';
@@ -38,10 +38,10 @@ export class HomePage implements AfterViewInit, OnDestroy {
   map!: google.maps.Map;
   markers: google.maps.Marker[] = [];
 
-  dorms: Datum[] = [];
-  filteredDorms: Datum[] = [];
+  dorms: DormSummary[] = [];
+  filteredDorms: DormSummary[] = [];
 
-  selectedDorm: Datum | null = null;
+  selectedDorm: DormSummary | null = null;
   sheetOpen = false;
   isLoading = signal(false);
   private routerSub: Subscription;
@@ -53,7 +53,7 @@ export class HomePage implements AfterViewInit, OnDestroy {
     private router: Router,
     private zone: NgZone
   ) {
-    
+
     this.routerSub = this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe(() => {
@@ -65,11 +65,11 @@ export class HomePage implements AfterViewInit, OnDestroy {
     try {
       this.isLoading.set(true);
       await this.ggmService.load();
-      
+
       this.zone.runOutsideAngular(() => {
         this.initMap(); 
       });
-      
+
       this.loadDormMarkers(); 
       this.isLoading.set(false);
     } catch (error) {
@@ -96,13 +96,13 @@ export class HomePage implements AfterViewInit, OnDestroy {
       clickableIcons: false,
       scrollwheel: true,
     });
-    
+
     this.mapInitialized = true;
   }
 
   loadDormMarkers() {
     this.isLoading.set(true); 
-    
+
     this.dormService
       .getDorms()
       .pipe(finalize(() => this.isLoading.set(false)))
@@ -116,7 +116,7 @@ export class HomePage implements AfterViewInit, OnDestroy {
       });
   }
 
-  renderMarkers(dorms: Datum[]) {
+  renderMarkers(dorms: DormSummary[]) {
     this.clearMarkers();
 
     if (!this.map) return;
@@ -148,12 +148,12 @@ export class HomePage implements AfterViewInit, OnDestroy {
     this.markers.length = 0;
   }
 
-  onMarkerClick(dorm: Datum) {
+  onMarkerClick(dorm: DormSummary) {
     this.selectedDorm = dorm;
     this.sheetOpen = true;
 
     this.map.panTo({ lat: dorm.lat, lng: dorm.lng });
-    
+
     const targetZoom = 17;
     let currentZoom = this.map.getZoom() ?? 15;
     if(currentZoom < targetZoom) {
@@ -175,7 +175,7 @@ export class HomePage implements AfterViewInit, OnDestroy {
         this.map.setZoom(15);
     }
   }
-  
+
   ngOnDestroy() {
       if(this.routerSub) {
           this.routerSub.unsubscribe();

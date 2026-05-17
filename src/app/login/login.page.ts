@@ -25,10 +25,9 @@ import { arrowForwardCircleOutline, person } from 'ionicons/icons';
 import { UserServices } from 'src/app/services/userServices';
 import { finalize, Subscription, timeout } from 'rxjs';
 import { AuthenService } from 'src/app/services/authenService';
-import { UserDataGetRes } from 'src/app/model/responses/user_data_get_res';
+import { UserDataGetRes, UserLoggedInPostRes } from 'src/app/model/user.model';
 import { extractErrorMessage } from '../register/register.page';
 import { LoadingUIComponent } from '../main-layout/components/loading-ui/loading-ui.component';
-import { UserLoggedInPostRes } from '../model/responses/user_loggedIn_post_res';
 
 @Component({
   selector: 'app-login',

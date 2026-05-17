@@ -30,8 +30,7 @@ import {
   mail,
 } from 'ionicons/icons';
 import { Router, RouterLink } from '@angular/router';
-import { UserRegPostReqForm } from 'src/app/model/formModel/user_reg_post_req_form';
-import { UserRegPostReq } from 'src/app/model/requests/user_reg_post_req';
+import { UserRegPostReq, UserRegPostReqForm } from 'src/app/model/user.model';
 import { UserServices } from 'src/app/services/userServices';
 import { delay, finalize, take, timeout, timer } from 'rxjs';
 import { LoadingUIComponent } from '../main-layout/components/loading-ui/loading-ui.component';

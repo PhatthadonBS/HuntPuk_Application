@@ -16,14 +16,13 @@ import {
   IonText,
   IonToast,
 } from '@ionic/angular/standalone';
-import { UserRegPostReq } from 'src/app/model/requests/user_reg_post_req';
+import { UserOtpVerifyPostRes, UserRegPostReq } from 'src/app/model/user.model';
 import { AuthenService } from 'src/app/services/authenService';
 import { addIcons } from 'ionicons';
 import { mail, personOutline } from 'ionicons/icons';
 import { CommonModule } from '@angular/common';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { finalize, switchMap, take, tap, timeout } from 'rxjs';
-import { UserOtpVerifyPostRes } from 'src/app/model/responses/user_otpVerify_post_res';
 import { UserServices } from 'src/app/services/userServices';
 import { LoadingUIComponent } from '../loading-ui/loading-ui.component';
 import { extractErrorMessage } from 'src/app/register/register.page';

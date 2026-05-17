@@ -18,7 +18,7 @@ import {
   readerOutline,
 } from 'ionicons/icons';
 import { AuthenService } from 'src/app/services/authenService';
-import { UserLoggedInPostRes } from 'src/app/model/responses/user_loggedIn_post_res';
+import { UserLoggedInPostRes } from 'src/app/model/user.model';
 
 @Component({
   selector: 'app-menu-list',

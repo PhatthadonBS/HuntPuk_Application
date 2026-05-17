@@ -19,8 +19,7 @@ import {
 } from '@ionic/angular/standalone';
 import { UserServices } from 'src/app/services/userServices';
 import { AuthenService } from 'src/app/services/authenService';
-import { UserLoggedInPostRes } from 'src/app/model/responses/user_loggedIn_post_res';
-import { UserUpdatePostReqForm } from 'src/app/model/formModel/user_update_post_req_form';
+import { UserLoggedInPostRes, UserUpdatePostReqForm } from 'src/app/model/user.model';
 import { timer } from 'rxjs';
 import { NavController } from '@ionic/angular';
 import { extractErrorMessage } from 'src/app/register/register.page';

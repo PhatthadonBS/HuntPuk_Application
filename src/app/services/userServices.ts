@@ -1,10 +1,8 @@
 import { Injectable } from '@angular/core';
 import { catchError, Observable, shareReplay, take } from 'rxjs';
-import { UserDataGetRes } from '../model/responses/user_data_get_res';
+import { UserDataGetRes, UserRegPostReq, UserUpdatePostReq } from '../model/user.model';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-import { UserRegPostReq } from '../model/requests/user_reg_post_req';
-import { UserUpdatePostReq } from '../model/requests/user_update_post_req';
 
 @Injectable({
   providedIn: 'root',

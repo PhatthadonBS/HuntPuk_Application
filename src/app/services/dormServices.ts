@@ -1,9 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { DormAllGetRes } from '../model/responses/dorm_all_get_res';
+import { DormAllGetRes, FacOfDormGetRes } from '../model/dorm.model';
 import { environment } from 'src/environments/environment';
-import { FacOfDormGetRes } from '../model/responses/fac_ofDorm_get_res';
 
 @Injectable({
   providedIn: 'root',

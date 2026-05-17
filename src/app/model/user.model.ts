@@ -1,0 +1,132 @@
+import { FormControl } from "@angular/forms";
+
+export interface User {
+  id: number;
+  username: string;
+  email: string;
+  phone: string;
+  role_id: number;
+  accout_status: number;
+  token?: string;
+}
+
+export interface UserRegPostReq {
+  username: string;
+  email: string;
+  password: string;
+  phone: string;
+}
+
+export interface UserUpdatePostReq {
+  username: string | null;
+  phone_number: string | null;
+}
+
+export interface UserRegPostReqForm {
+  username: FormControl<string>;
+  email: FormControl<string>;
+  password: FormControl<string>;
+  confirmPassword: FormControl<string>;
+  phone: FormControl<string>;
+}
+
+export interface UserUpdatePostReqForm {
+  username: FormControl<string | null>;
+  phone_number: FormControl<string | null>;
+}
+
+export interface UserDormOwnerReqPostReq {
+  user_id: number;
+  first_name: string;
+  last_name: string;
+  facebook: string | null;
+  line: string | null;
+  x: string | null;
+  instagram: string | null;
+  telegram: string | null;
+}
+
+export interface UserAllGetRes {
+  USER_ID: number;
+  USERNAME: string;
+  EMAIL: string;
+  PHONE_NUMBER: string;
+  ROLE_TYPE_ID: number;
+  ACCOUNT_STATUS: number;
+}
+
+export interface UserDataGetRes {
+  USER_ID: number;
+  USERNAME: string;
+  EMAIL: string;
+  PHONE_NUMBER: string;
+  ROLE_TYPE_ID: number;
+  ACCOUNT_STATUS: number;
+}
+
+export interface UserDataPostRes {
+  USER_ID: number;
+  USERNAME: string;
+  EMAIL: string;
+  PASSWORD: string;
+  PHONE_NUMBER: string;
+  ROLE_TYPE_ID: number;
+  ACCOUNT_STATUS: number;
+}
+
+export interface UserDormOwnerGetRes {
+  user_id: number;
+  first_name: string;
+  last_name: string;
+  facebook: string | null;
+  instagram: string | null;
+  line: string | null;
+  telegram: string | null;
+  x: string | null;
+  REQ_STATUS: number;
+  PROFILE_IMAGE: string;
+  USERNAME: string;
+  EMAIL: string;
+  PHONE_NUMBER: string;
+  ROLE_TYPE_ID: number;
+  ACCOUNT_STATUS: number;
+}
+
+export interface UserFavGetRes {
+  DORMID: number;
+  DORMNAME: string;
+  OWNERNAME: string;
+  UPDATEDAT: string;
+  ADDRESS: string;
+  COVERIMAGE: string;
+  SCORE: string;
+  DORM_STATUS_NAME: string;
+}
+
+export interface UserLoggedInPostRes {
+  logged_in: boolean;
+  message: string;
+  user: User;
+}
+
+export interface UserLoginPostRes {
+  USER_ID: number;
+  USERNAME: string;
+  EMAIL: string;
+  PASSWORD: string;
+  PHONE_NUMBER: string;
+  ROLE_TYPE_ID: number;
+  ACCOUNT_STATUS: number;
+}
+
+export interface UserOtpVerifyPostRes {
+  status: boolean;
+  email: string;
+  msg: string;
+}
+
+export interface OtpVerifyPostRes {
+  OTP_CODE: string;
+  CREATE_AT: string;
+  EMAIL: string;
+}
