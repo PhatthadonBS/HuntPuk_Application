@@ -87,7 +87,7 @@ export class LoginPage {
       .subscribe({
         next: (u: UserLoggedInPostRes) => {
           if (u) {
-            localStorage.setItem('user', JSON.stringify(u));
+            localStorage.setItem('token', JSON.stringify(u.user.token));
             this.authSv.setLoggedInUser(u);
             this.router.navigateByUrl('/');
           }

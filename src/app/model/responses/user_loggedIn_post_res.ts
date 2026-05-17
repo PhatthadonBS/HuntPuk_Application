@@ -11,4 +11,5 @@ export interface User {
     phone:         string;
     role_id:       number;
     accout_status: number;
+    token:         string;
 }

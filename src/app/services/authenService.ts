@@ -13,6 +13,7 @@ import { UserDataGetRes } from '../model/responses/user_data_get_res';
 import { environment } from 'src/environments/environment';
 import { UserLoggedInPostRes } from '../model/responses/user_loggedIn_post_res';
 import { NavController } from '@ionic/angular';
+import { jwtDecode } from 'jwt-decode';
 
 @Injectable({
   providedIn: 'root',
@@ -21,24 +22,35 @@ export class AuthenService implements CanActivate {
   constructor(private router: Router, private http: HttpClient, private navCtrl: NavController) {}
   endPoint = environment.ENDPOINT;
   private userState = new BehaviorSubject<UserLoggedInPostRes | null>(
-    this.getUserFromStorage()
+    this.getUserFromToken()
   );
   user$ = this.userState.asObservable();
 
-  private getUserFromStorage(): UserLoggedInPostRes | null {
-    const uLog = localStorage.getItem('user');
-    if (uLog) {
+  private getUserFromToken(): any | null {
+    const token = localStorage.getItem('token');
+    
+    if (token) {
       try {
-        return JSON.parse(uLog);
+        // ถอดรหัส Token ออกมาเป็น Object
+        const decodedToken: any = jwtDecode(token);
+        console.log( decodedToken);
+        // (Option) เช็กว่า Token หมดอายุหรือยัง (exp เป็น Unix Timestamp)
+        const currentTime = Math.floor(Date.now() / 1000);
+        if (decodedToken.exp < currentTime) {
+          console.log('Token expired!');
+          this.logoutUser();
+          return null;
+        }
+
+        return decodedToken; 
       } catch (e) {
-        return null;
+        return null; // ถ้า Token พังหรือถอดรหัสไม่ได้
       }
     }
     return null;
   }
 
   setLoggedInUser(user: UserLoggedInPostRes) {
-    localStorage.setItem('user', JSON.stringify(user));
     this.userState.next(user);
   }
 

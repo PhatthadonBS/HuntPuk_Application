@@ -18,6 +18,7 @@ import {
 import { routes } from './app/app.routes';
 import { AppComponent } from './app/app.component';
 import { loadingInterceptor } from './app/services/loading-interceptor'; 
+import { authInterceptor } from './app/services/auth-interceptor';
 
 bootstrapApplication(AppComponent, {
   providers: [
@@ -33,7 +34,7 @@ bootstrapApplication(AppComponent, {
       })
     ),
     provideHttpClient(
-      withInterceptors([loadingInterceptor]) 
+      withInterceptors([loadingInterceptor, authInterceptor]) 
     ),
   ],
 });
