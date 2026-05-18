@@ -26,7 +26,7 @@ import { UserServices } from 'src/app/services/userServices';
 import { finalize, Subscription, timeout } from 'rxjs';
 import { AuthenService } from 'src/app/services/authenService';
 import { UserDataGetRes, UserLoggedInPostRes } from 'src/app/model/user.model';
-import { extractErrorMessage } from '../register/register.page';
+import { extractErrorMessage } from '../utils/error.util';
 import { LoadingUIComponent } from '../main-layout/components/loading-ui/loading-ui.component';
 
 @Component({
@@ -95,7 +95,19 @@ export class LoginPage {
         error: (err) => {
           if (err.name === 'TimeoutError') {
             this.errMsg.set('เชื่อมต่อเซิร์ฟเวอร์ไม่ได้');
+            return;
           }
+          
+          if (err.status === 404) {
+            this.errMsg.set('ไม่พบบัญชีผู้ใช้ กรุณาลงทะเบียนก่อนเข้าสู่ระบบ');
+            return;
+          }
+
+          if (err.status === 400 || err.status === 401) {
+            this.errMsg.set('อีเมลหรือรหัสผ่านไม่ถูกต้อง');
+            return;
+          }
+
           this.errMsg.set(extractErrorMessage(err));
         },
       });
