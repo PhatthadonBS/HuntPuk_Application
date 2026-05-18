@@ -15,6 +15,6 @@ export class SplashScreenComponent implements OnInit {
     // Keep splash screen for 2.5 seconds
     setTimeout(() => {
       this.isVisible.set(false);
-    }, 2500);
+    }, 5000);
   }
 }

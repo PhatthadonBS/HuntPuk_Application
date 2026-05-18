@@ -2,7 +2,7 @@
   <app-splash-screen></app-splash-screen>
   <ion-router-outlet></ion-router-outlet>
   <app-loading-ui 
-    *ngIf="loadingSv.isLoading()"
+    *ngIf="loadingSv.isLoading() && !isSplashActive()"
     class="global-loading-overlay">
   </app-loading-ui>
 </ion-app>
