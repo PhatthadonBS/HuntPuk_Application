@@ -35,6 +35,7 @@ import { UserServices } from 'src/app/services/userServices';
 import { delay, finalize, take, timeout, timer } from 'rxjs';
 import { LoadingUIComponent } from '../main-layout/components/loading-ui/loading-ui.component';
 import { OTPVerifyComponent } from '../main-layout/components/otp-verify/otp-verify.component';
+import { extractErrorMessage } from 'src/app/utils/error.util';
 
 @Component({
   selector: 'app-register',
@@ -213,21 +214,3 @@ export const passwordMatchValidator: ValidatorFn = (
 
   return password === confirmPassword ? null : { passwordMismatch: true };
 };
-
-export function extractErrorMessage(err: any): string {
-  if (!err) return 'เกิดข้อผิดพลาด';
-
-  if (typeof err?.error === 'string') {
-    return err?.error;
-  }
-
-  if (err?.error?.message) {
-    return err?.error?.message;
-  }
-
-  if (err?.message) {
-    return err?.message;
-  }
-
-  return 'เกิดข้อผิดพลาด !!!';
-}
