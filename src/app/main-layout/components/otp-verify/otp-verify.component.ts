@@ -19,13 +19,13 @@ import {
 import { UserOtpVerifyPostRes, UserRegPostReq } from 'src/app/model/user.model';
 import { AuthenService } from 'src/app/services/authenService';
 import { addIcons } from 'ionicons';
-import { mail, personOutline } from 'ionicons/icons';
+import { closeOutline, mail, personOutline } from 'ionicons/icons';
 import { CommonModule } from '@angular/common';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { finalize, switchMap, take, tap, timeout } from 'rxjs';
 import { UserServices } from 'src/app/services/userServices';
 import { LoadingUIComponent } from '../loading-ui/loading-ui.component';
-import { extractErrorMessage } from 'src/app/register/register.page';
+import { extractErrorMessage } from 'src/app/utils/error.util';
 
 @Component({
   selector: 'app-otp-verify',
@@ -70,10 +70,11 @@ export class OTPVerifyComponent implements OnDestroy {
       this.uData = JSON.parse(this.localData);
       if (this.uData) {
         this.emailCtl.setValue(this.uData.email);
+        this.emailCtl.disable();
       }
     }
 
-    addIcons({ personOutline, mail });
+    addIcons({ personOutline, mail, closeOutline });
   }
 
   emailCtl = new FormControl('', [Validators.email, Validators.required]);
@@ -92,14 +93,14 @@ export class OTPVerifyComponent implements OnDestroy {
   }
 
   sendOtp() {
-    if (this.emailCtl.invalid) {
+    if (this.emailCtl.disabled ? !this.emailCtl.value : this.emailCtl.invalid) {
       this.emailCtl.markAsTouched();
       return;
     }
 
     if (this.isCounting()) return;
-    this.emailCtl.disable();
     const email = this.emailCtl.value;
+    this.emailCtl.disable();
     this.startCountdown(60);
     this.authSv.reqOTP(email!).subscribe();
   }
@@ -158,7 +159,9 @@ export class OTPVerifyComponent implements OnDestroy {
     this.isCounting.set(false);
     this.countdown.set(0);
 
-    this.emailCtl.enable();
+    if (!this.uData) {
+      this.emailCtl.enable();
+    }
   }
 
   ngOnDestroy() {
@@ -170,7 +173,9 @@ export class OTPVerifyComponent implements OnDestroy {
   this.otpCtl.reset();
   this.isCounting.set(false);
   this.countdown.set(0);
-  this.emailCtl.enable();
+  if (!this.uData) {
+    this.emailCtl.enable();
+  }
 }
 
 }

@@ -1,44 +1,46 @@
-<div class="overlay cursor-pointer" (click)="closePopup()"></div>
+<div class="overlay" (click)="closePopup()"></div>
 
 <div class="popup">
-  <button class="close-btn" (click)="closePopup()">✕</button>
-  <p class="text-2xl text-center mb-4">ยืนยันตัวตน</p>
+  <button class="close-btn" (click)="closePopup()">
+    <ion-icon name="close-outline" size="large"></ion-icon>
+  </button>
+  
+  <h2 class="title">ยืนยันตัวตน</h2>
+  
   <div class="form-box">
     <ion-input
       placeholder="อีเมล"
       type="email"
-      class="input pl-5"
-      style="padding-left: 1rem"
+      class="custom-input mb-2"
       [formControl]="emailCtl"
     >
-      <ion-icon name="mail" slot="end" size="large"></ion-icon>
+      <ion-icon name="mail" slot="end"></ion-icon>
     </ion-input>
-    <p
-      class="text-xs text-red-800 pl-8 -mt-2"
+    
+    <span
+      class="text-xs text-red-600 pl-4 mb-2 block"
       *ngIf="emailCtl.invalid && emailCtl.touched"
     >
       กรุณากรอกอีเมลให้ถูกต้อง
-    </p>
+    </span>
 
-    <div class="otp-row mt-4 -mb-3">
-      <ion-input
-        placeholder="รหัส OTP"
-        type="text"
-        class="input"
-        [formControl]="otpCtl"
-      ></ion-input>
+    <div class="otp-row">
+      <div class="otp-input-wrapper">
+        <ion-input
+          placeholder="รหัส OTP"
+          type="text"
+          class="custom-input"
+          [formControl]="otpCtl"
+        ></ion-input>
+      </div>
 
       <ion-button
         fill="outline"
-        size="small"
         class="otp-btn"
         [disabled]="isCounting()"
         (click)="sendOtp()"
       >
-        <ng-container
-          *ngIf="!isCounting(); else counting"
-          class="border-red-600"
-        >
+        <ng-container *ngIf="!isCounting(); else counting">
           ส่งคำขอ
         </ng-container>
 
@@ -46,23 +48,23 @@
       </ion-button>
     </div>
 
-    <ion-text
-      color="danger"
-      class="text-xs ml-6"
+    <span
+      class="text-xs text-red-600 pl-4 mt-1 block"
       *ngIf="otpCtl.invalid && otpCtl.touched"
     >
       กรุณากรอกให้ครบ 6 ตัว
-    </ion-text>
-    <br />
+    </span>
+    
     <ion-button
       expand="block"
       class="confirm-btn"
       (click)="confirm()"
-      [disabled]="emailCtl.valid && otpCtl.valid"
+      [disabled]="emailCtl.invalid || otpCtl.invalid"
     >
       ยืนยัน
     </ion-button>
   </div>
+  
   <ion-toast
     [isOpen]="errMsg() !== null"
     [message]="errMsg()"
