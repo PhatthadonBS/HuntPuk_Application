@@ -1,133 +1,114 @@
-// กำหนดสีหลักตามภาพ
 :host {
-  --app-dark-bg: #333333;    // สีเทาเข้มด้านบน
-  --app-yellow: #ffcc00;      // สีเหลือง
-  --card-top-bg: #b0b0b0;     // สีเทาของส่วนบนการ์ด
-  --input-bg: #ffffff;        // สีพื้นหลัง input
-  --link-blue: #4a4aff;       // สีลิงก์
+  --app-bg: #f9f9f9;
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+  --border-color: #e5e7eb;
 }
 
+ion-content.minimal-style {
+  --background: var(--app-bg);
 
-ion-content.profile-content {
-  --background: var(--app-dark-bg);
-  position: relative;
-
-  .yellow-shape-bg {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 60%; 
-    background-color: var(--app-yellow);
-    clip-path: polygon(0 30%, 100% 0, 100% 100%, 0% 100%);
-    z-index: 0;
-  }
-
-  // Container หลักสำหรับเนื้อหา
-  .content-container {
-    position: relative;
-    z-index: 1; // ให้อยู่เหนือ shape สีเหลือง
+  .profile-header {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding-top: 40px;
-  }
-}
+    padding: 2rem 1rem;
 
-// สไตล์ของ Card ตรงกลาง
-.profile-card {
-  width: 100%;
-  // max-width: 400px;
-  border-radius: 25px;
-  padding: 30px 20px;
-  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-  margin-top: 10rem;
-  margin-bottom: 5rem;
-  // border: 1px solid red;
+    .avatar-placeholder {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background-color: #fbbf24;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 1rem;
+      box-shadow: 0 4px 10px rgba(251, 191, 36, 0.3);
 
-  .input-row {
-    display: flex;
-    align-items: center;
-    margin-bottom: 15px;
-
-    // ปุ่มแก้ไขด้านข้าง input
-    .edit-icon-btn {
-      --padding-start: 8px;
-      --padding-end: 8px;
-      margin: 0;
-      font-size: 20px;
-    }
-  }
-
-  
-  .custom-input-wrapper {
-    flex: 1; 
-    background: var(--input-bg);
-    border-radius: 12px;
-    padding: 5px 15px;
-    display: flex;
-    align-items: center;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-
-    
-    input {
-      flex: 1;
-      border: none;
-      outline: none;
-      width: 90%;
-      background: transparent;
-      padding: 10px 5px;
-      font-size: 20px;
-      font-weight: bold;
-      color: #666;
-
-      &::placeholder {
-        color: #aaa;
-        font-weight: normal;
+      ion-icon {
+        font-size: 80px;
+        color: #ffffff;
       }
     }
 
-    ion-icon {
-      font-size: 24px;
+    .page-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin: 0;
+    }
+
+    .user-handle {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      margin: 0.25rem 0 0 0;
     }
   }
 
-  .forgot-pass-link {
-    text-align: center;
-    margin-top: 20px;
-    a {
-      color: var(--link-blue);
-      text-decoration: none;
-      font-weight: bold;
-      font-size: 16px;
+  .minimal-list {
+    background: transparent;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+
+    ion-item {
+      --background: #ffffff;
+      --border-color: var(--border-color);
+      --padding-start: 16px;
+
+      // Add slight rounding to the list block
+      &:first-child {
+        --border-radius: 12px 12px 0 0;
+      }
+      &:last-child {
+        --border-radius: 0 0 12px 12px;
+      }
+
+      ion-icon[slot="start"] {
+        margin-right: 16px;
+        font-size: 22px;
+      }
+
+      ion-label {
+        font-size: 0.85rem;
+        font-weight: 500;
+        margin-bottom: 4px;
+      }
+
+      ion-input {
+        --padding-top: 4px;
+        --padding-bottom: 8px;
+        --padding-start: 0;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
     }
   }
-}
 
-.bottom-actions {
-  display: flex;
-  width: 100%;
-  justify-content: space-around;
-  padding-bottom: 20px;
+  .action-list {
+    ion-item {
+      --padding-top: 8px;
+      --padding-bottom: 8px;
 
-  .action-button {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    color: black;
-    font-weight: bold;
-
-    ion-icon {
-      font-size: 40px;
-      margin-bottom: 10px;
-    }
-
-    span {
-      font-size: 18px;
+      ion-label {
+        font-size: 1rem;
+        font-weight: 500;
+        margin: 0; // reset stacked label margin
+      }
     }
   }
-}
 
-ion-button{
-  --background: var(--app-yellow)
+  .logout-section {
+    padding: 0 1rem 2rem 1rem;
+    margin-top: 2rem;
+
+    .logout-btn {
+      --border-radius: 12px;
+      --border-color: var(--border-color);
+      --border-width: 1px;
+      font-weight: 600;
+      text-transform: none;
+      letter-spacing: normal;
+    }
+  }
 }

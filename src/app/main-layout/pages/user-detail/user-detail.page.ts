@@ -11,6 +11,10 @@ import {
   IonBackButton,
   IonButtons,
   IonToast,
+  IonList,
+  IonItem,
+  IonLabel,
+  IonInput,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -23,7 +27,11 @@ import {
   mail,
   mailOutline,
   person,
+  personOutline,
+  personCircleOutline,
   trashBin,
+  trashOutline,
+  lockClosedOutline
 } from 'ionicons/icons';
 import {
   ActivatedRoute,
@@ -35,7 +43,7 @@ import { UserServices } from 'src/app/services/userServices';
 import { Observable, timer } from 'rxjs';
 import { UserDataGetRes, UserLoggedInPostRes } from 'src/app/model/user.model';
 import { AuthenService } from 'src/app/services/authenService';
-import { extractErrorMessage } from 'src/app/register/register.page';
+import { extractErrorMessage } from 'src/app/utils/error.util';
 import { NavController } from '@ionic/angular';
 
 @Component({
@@ -52,6 +60,10 @@ import { NavController } from '@ionic/angular';
     IonHeader,
     IonTitle,
     IonToolbar,
+    IonList,
+    IonItem,
+    IonLabel,
+    IonInput,
     CommonModule,
     FormsModule,
     RouterLink,
@@ -72,12 +84,18 @@ export class UserDetailPage implements OnInit {
     addIcons({
       arrowBackCircleOutline,
       person,
+      personOutline,
+      personCircleOutline,
       createOutline,
       mail,
+      mailOutline,
       call,
+      callOutline,
       trashBin,
+      trashOutline,
       create,
       ellipsisHorizontalOutline,
+      lockClosedOutline
     });
   }
 
