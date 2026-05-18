@@ -1,41 +1,108 @@
 
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
 .menu-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  z-index: 2000; 
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 2000;
+  display: flex;
+  align-items: flex-end;
+  animation: fadeIn 0.3s ease-out;
 }
 
 .menu-wrapper {
-  position: absolute;
-  bottom: 0; 
-  left: 0;
-  right: 0;
-  padding: 16px;
-  padding-bottom: 1rem;
-  padding-top: 4em;
-  height: 60%;
-  border-radius: 30px 30px 0 0 ;
-  background-color: #333333;
+  position: relative;
+  width: 100%;
+  padding: 1.5rem;
+  padding-top: 3.5rem;
+  padding-bottom: calc(2rem + env(safe-area-inset-bottom));
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 32px 32px 0 0;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.1);
+  height: 80vh;
+  overflow-y: auto;
+  animation: slideUp 0.4s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
-/* card */
+.close-button {
+  position: absolute;
+  right: 1.5rem;
+  top: 1.5rem;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fbbf24;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:active {
+    transform: scale(0.9);
+    opacity: 0.8;
+  }
+
+  ion-icon {
+    font-size: 20px;
+    color: #374151;
+  }
+}
+
+.menu-grid {
+  margin-top: 1rem;
+}
+
 .menu-card {
-  height: 110px;
-  border-radius: 18px;
-  background: #939393;
+  height: 100px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.5);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  margin: 0.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+
+  &:active {
+    background: #fbbf24;
+    transform: scale(0.95);
+    
+    ion-icon {
+      color: #374151;
+    }
+    p {
+      color: #374151;
+    }
+  }
 
   ion-icon {
-    font-size: 32px;
-    margin-bottom: 6px;
+    font-size: 28px;
+    margin-bottom: 8px;
+    color: #fbbf24;
   }
 
   p {
-    font-size: 14px;
+    font-size: 13px;
+    font-weight: 600;
     margin: 0;
+    color: #4b5563;
+    text-align: center;
   }
 }

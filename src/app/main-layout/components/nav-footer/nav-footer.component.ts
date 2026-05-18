@@ -8,13 +8,13 @@ import {
   list,
   personAdd,
   personCircleOutline,
+  logInOutline,
 } from 'ionicons/icons';
 import { IonIcon } from '@ionic/angular/standalone';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 import { AuthenService } from 'src/app/services/authenService';
-import { UserDataGetRes, UserLoggedInPostRes } from 'src/app/model/user.model';
-import { MenuListComponent } from '../menu-list/menu-list.component';
+import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-nav-footer',
@@ -25,7 +25,9 @@ import { MenuListComponent } from '../menu-list/menu-list.component';
 })
 export class NavFooterComponent implements OnInit {
   isLoggedIn = signal<boolean>(false);
-  userId = signal<number | null>(null)
+  userId = signal<number | null>(null);
+  currentPath = signal<string>('');
+  
   @Output() menuClick = new EventEmitter<void>();
   @Output() homeClick = new EventEmitter<{destination: string, id: null}>();
   @Output() loginClick = new EventEmitter<{destination: string, id: null}>();
@@ -39,13 +41,22 @@ export class NavFooterComponent implements OnInit {
       home,
       gridOutline,
       personCircleOutline,
+      logInOutline,
     });
+
+    this.currentPath.set(this.router.url);
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: any) => {
+      this.currentPath.set(event.urlAfterRedirects);
+    });
+
     this.authSv.user$.subscribe((u) => {
-      if (u &&(u.logged_in == true)) {
-        this.userId.set(u.user.id)
+      if (u && (u.logged_in == true)) {
+        this.userId.set(u.user.id);
         this.isLoggedIn.set(true);
-      }else{
-        this.isLoggedIn.set(false)
+      } else {
+        this.isLoggedIn.set(false);
       }
     });
   }

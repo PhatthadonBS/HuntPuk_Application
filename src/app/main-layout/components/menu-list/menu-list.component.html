@@ -1,27 +1,25 @@
 <div class="menu-overlay" (click)="closeMenu()">
-  <div class="menu-wrapper relative ">
-    <div (click)="closeMenu()">
-      <ion-icon
-        name="close-outline"
-        slot="end"
-        class="absolute right-3 top-3 text-5xl"
-      ></ion-icon>
+  <div class="menu-wrapper" (click)="$event.stopPropagation()">
+    <div class="close-button" (click)="closeMenu()">
+      <ion-icon name="close-outline"></ion-icon>
     </div>
 
-    <ion-grid>
-      <ion-row>
-        <ng-container *ngFor="let m of filterMenu">
-          <ion-col size="4">
-            <div
-              class="menu-card m-2"
-              (click)="onSelect(m.key, m.user_id ?? null)"
-            >
-              <ion-icon [name]="m.icon" color="light"></ion-icon>
-              <p class="text-center text-black">{{ m.label }}</p>
-            </div>
-          </ion-col>
-        </ng-container>
-      </ion-row>
-    </ion-grid>
+    <div class="menu-grid">
+      <ion-grid>
+        <ion-row>
+          <ng-container *ngFor="let m of filterMenu">
+            <ion-col size="4">
+              <div
+                class="menu-card"
+                (click)="onSelect(m.key, m.user_id ?? null)"
+              >
+                <ion-icon [name]="m.icon"></ion-icon>
+                <p>{{ m.label }}</p>
+              </div>
+            </ion-col>
+          </ng-container>
+        </ion-row>
+      </ion-grid>
+    </div>
   </div>
 </div>
