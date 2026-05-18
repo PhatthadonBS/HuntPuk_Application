@@ -3,16 +3,16 @@ import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
 import { CommonModule } from '@angular/common';
 import { LoadingService } from './services/loading-service';
 import { LoadingUIComponent } from "./main-layout/components/loading-ui/loading-ui.component";
+import { SplashScreenComponent } from "./main-layout/components/splash-screen/splash-screen.component";
 
 @Component({
   selector: 'app-root',
   standalone: true,
   templateUrl: 'app.component.html',
-  imports: [IonApp, IonRouterOutlet, CommonModule, LoadingUIComponent],
+  imports: [IonApp, IonRouterOutlet, CommonModule, LoadingUIComponent, SplashScreenComponent],
 })
 export class AppComponent {
   constructor(public loadingSv: LoadingService) {
     
   }
 }
- 
