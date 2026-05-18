@@ -22,7 +22,7 @@ import { AuthenService } from 'src/app/services/authenService';
 import { UserLoggedInPostRes, UserUpdatePostReqForm } from 'src/app/model/user.model';
 import { timer } from 'rxjs';
 import { NavController } from '@ionic/angular';
-import { extractErrorMessage } from 'src/app/register/register.page';
+import { extractErrorMessage } from 'src/app/utils/error.util';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
