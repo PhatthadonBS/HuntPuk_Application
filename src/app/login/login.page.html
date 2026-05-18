@@ -1,12 +1,10 @@
 <ion-content [fullscreen]="true"> 
-  <div class="background-container">
-    <div class="dark-shape"></div>
-  </div>
+  <div class="background-container"></div>
 
-  <div class="content-wrapper  mt-10">
+  <div class="content-wrapper">
     <div class="logo-container">
       <div class="logo-circle">
-        <img src="assets/icon/logo.png" alt="Logo" />
+        <img src="assets/icon/logo.png" alt="HuntPuk Logo" />
       </div>
     </div>
 
@@ -15,17 +13,10 @@
         <ion-input
           mode="md"
           placeholder="อีเมล"
-          labelPlacement="stacked"
           formControlName="email"
-          errorText="รูปแบบอีเมลไม่ถูกต้อง"
           class="custom-input"
         >
-          <ion-icon
-            name="person"
-            slot="end"
-            class="text-2xl pr-2"
-            color="medium"
-          ></ion-icon>
+          <ion-icon name="person" slot="end" color="medium"></ion-icon>
         </ion-input>
       </div>
 
@@ -33,53 +24,41 @@
         <ion-input
           mode="md"
           type="password"
-          labelPlacement="stacked"
-          errorText="invalid password"
           placeholder="รหัสผ่าน"
           formControlName="password"
-          class="custom-input"
+          class="custom-input "
         >
-          <ion-input-password-toggle
-            slot="end"
-            class="-mb-5 -mt-5"
-            color="medium"
-          ></ion-input-password-toggle>
+          <ion-input-password-toggle slot="end" color="medium" class="!-mr-3"></ion-input-password-toggle>
         </ion-input>
       </div>
 
-      <div class="forgot-password text-right mt-3">
-        <a routerLink="/forget-password"><b class="text-lg">ลืมรหัสผ่าน</b></a>
+      <div class="forgot-password text-right">
+        <a routerLink="/forget-password">ลืมรหัสผ่าน?</a>
       </div>
 
       <ion-button
         type="submit"
         expand="block"
         class="login-btn"
-        shape="round"
         [disabled]="loginForm.invalid"
       >
         เข้าสู่ระบบ
       </ion-button>
 
-      <div class="register-text mb-10">
-        ยังไม่มีบัญชี?&emsp;<span class="highlight"
-          ><a routerLink="/register" class="text-lg">สมัครสมาชิก</a></span
-        >
+      <div class="register-text">
+        ยังไม่มีบัญชี? <span class="highlight"><a routerLink="/register">สมัครสมาชิก</a></span>
       </div>
 
-      <ion-button class="skip-btn ml-52 mt-4 " fill="clear" routerLink="/" slot="end">
-        <span class="label">ข้าม</span>
-
-        <span class="icon-wrapper">
-          <ion-icon
-            name="arrow-forward-circle-outline"
-            size="large"
-            color="medium"
-          ></ion-icon>
-        </span>
+      <ion-button class="skip-btn" fill="clear" routerLink="/">
+        <span>ข้ามเข้าสู่แอป</span>
+        <div class="icon-wrapper">
+          <ion-icon name="arrow-forward-circle-outline"></ion-icon>
+        </div>
       </ion-button>
     </form>
+    <div class="bottom-spacer"></div>
   </div>
+
   <ion-toast
     [isOpen]="errMsg() !== null"
     [message]="errMsg()"
@@ -89,4 +68,4 @@
   ></ion-toast>
 </ion-content>
 
-<app-loading-ui *ngIf="isLoading()" ></app-loading-ui>
+<app-loading-ui *ngIf="isLoading()"></app-loading-ui>

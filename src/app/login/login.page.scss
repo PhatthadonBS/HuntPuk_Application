@@ -1,146 +1,226 @@
 
-$bg-yellow: #fcd34d;
-$bg-dark: #333333;
-$text-blue: #2563eb; 
+$primary-yellow: var(--ion-color-primary);
+$dark-gray: var(--ion-color-dark);
+$light-gray: #f3f4f6;
 
 ion-content {
-  --background: #{$bg-yellow};
+  --background: #f9fafb;
 }
 
 .background-container {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   z-index: 0;
-  pointer-events: none;
+  background: linear-gradient(135deg, #fbbf24 0%, #fef3c7 100%);
+  overflow: hidden;
 
-  .dark-shape {
-    background-color: $bg-dark;
-    width: 100%;
-    height: 70%;
+  &::before {
+    content: "";
     position: absolute;
-    top: 0;
-    left: 0;
-    clip-path: polygon(0 0, 100% 0, 100% 45%, 0 65%);
+    width: 150%;
+    height: 100%;
+    background: #1f2937;
+    top: -50%;
+    left: -25%;
+    transform: rotate(-10deg);
+    border-radius: 0 0 50% 50%;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   }
 }
 
 .content-wrapper {
   position: relative;
   z-index: 10;
-  padding: 0 2rem;
-  height: 100%;
+  padding: 2rem;
+  padding-bottom: 4rem;
+  min-height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  align-items: center;
+
+  &::before,
+  &::after {
+    content: "";
+    flex: 1;
+  }
 }
 
 .logo-container {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 2rem;
-  margin-top: -3rem;
+  margin-top: 2rem;
+  margin-bottom: 3rem;
 
   .logo-circle {
-    width: 180px;
-    height: 180px;
-    background: #fff; 
-    border-radius: 50%;
-    overflow: hidden;
-    border: 4px solid #333;
-    
+    width: 140px;
+    height: 140px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border-radius: 40px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+
     img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: contain;
     }
   }
 }
 
+.login-form {
+  width: 100%;
+  max-width: 400px;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 2.5rem 2rem;
+  border-radius: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+  min-height: 33rem;
+  margin-bottom: -8rem;
+}
+
 .input-group {
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .custom-input {
-  --background: #ffffff;
-  --padding-start: 24px;
-  --padding-end: 20px;       
-  --padding-top: 15px;
-  --padding-bottom: 15px;
-  --placeholder-color: #9ca3af;
-  --color: #333;
-  
+  --background: rgba(255, 255, 255, 0.5);
+  --border-radius: 16px !important;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --color: #1f2937;
+  --placeholder-color: #6b7280;
+  --highlight-color-focused: #fbbf24;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  margin-bottom: 0 !important;
+
+  /* Remove all default Ionic borders and underlines */
+  --highlight-height: 0 !important;
   --box-shadow: none !important;
+  --border-width: 0 !important;
+  --inner-border-width: 0 !important;
+  --border-style: none !important;
+
+  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+  border-bottom: none !important;
+  border-radius: 16px !important;
+  box-shadow: none !important;
+
+  &:focus-within {
+    border: 1px solid #fbbf24 !important;
+    border-radius: 16px !important;
+    background: white;
+    --background: white;
+  }
+
+  ion-icon {
+    font-size: 20px;
+    color: var(--ion-color-medium, #9ca3af) !important;
+  }
+
+  ion-input-password-toggle {
+    &::part(icon) {
+      color: var(--ion-color-medium, #9ca3af) !important; 
+    }
+  }
 }
 
-
 .forgot-password {
-  text-align: right;
-  margin-bottom: 1.5rem;
-  
+  margin-top: -0.5rem;
+  margin-bottom: 2rem;
+
   a {
-    color: $text-blue;
+    color: #4b5563;
     text-decoration: none;
     font-size: 0.9rem;
-    font-weight: 500;
+    font-weight: 600;
+    transition: color 0.2s;
+
+    &:active {
+      color: #fbbf24;
+    }
   }
 }
 
 .login-btn {
-  --background: #{$bg-dark}; 
-  --color: white;
-  --border-radius: 30px;
-  height: 50px;
+  --background: #fbbf24;
+  --background-activated: #d97706;
+  --color: #1f2937;
+  --border-radius: 16px;
+  height: 56px;
   font-size: 1.1rem;
-  font-weight: bold;
-  margin-bottom: 1.5rem;
-  --box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  font-weight: 700;
+  margin: 0;
+  box-shadow: 0 10px 20px rgba(251, 191, 36, 0.3);
+  transition: all 0.3s ease;
+
+  &[disabled] {
+    opacity: 0.5;
+  }
 }
 
 .register-text {
+  margin-top: 2rem;
   text-align: center;
-  color: #555;
+  color: #4b5563;
   font-size: 0.95rem;
+  font-weight: 500;
 
   .highlight {
-    color: $text-blue;
-    font-weight: bold;
-    cursor: pointer;
+    a {
+      color: #fbbf24;
+      font-weight: 700;
+      text-decoration: none;
+    }
   }
 }
+
 .skip-btn {
-  position: static;
-  z-index: 9999;
+  position: absolute;
+  bottom: 2rem;
+  right: 1.5rem;
+  margin: 0;
+  --color: #374151;
+  --background: rgba(255, 255, 255, 0.9);
+  --border-radius: 24px;
+  height: 48px;
+  font-weight: 700;
+  font-size: 1rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 100;
+  --padding-start: 1.2rem;
+  --padding-end: 0.6rem;
 
-  --background: white;
-  --border-radius: 999px;
-  --padding-start: 18px;
-  --padding-end: 6px;
-  height: 44px;
-  width: 100px;
-  
-  display: flex;
-  align-items: center;
+  &:active {
+    transform: scale(0.95);
+    opacity: 0.9;
+  }
+
+  .icon-wrapper {
+    margin-left: 10px;
+    display: flex;
+    align-items: center;
+    color: #fbbf24;
+
+    ion-icon {
+      font-size: 30px;
+    }
+  }
 }
 
-.skip-btn .label {
-  font-size: 16px;
-  font-weight: 500;
-  margin-right: 8px;
-  color: #767676;
-  font-weight: 800;
+.bottom-spacer {
+  height: 6rem;
 }
-
-.skip-btn .icon-wrapper {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: #e0e0e0;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
