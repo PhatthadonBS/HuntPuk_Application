@@ -57,7 +57,7 @@ export class LoginPage {
     private fb: FormBuilder,
     private userSv: UserServices,
     private authSv: AuthenService,
-    private router: Router
+    private router: Router,
   ) {
     addIcons({ person, arrowForwardCircleOutline });
 
@@ -81,30 +81,35 @@ export class LoginPage {
         finalize(() => {
           this.isLoading.set(false);
           this.loginForm.enable();
-        })
+        }),
       )
       .subscribe({
         next: (u: UserLoggedInPostRes) => {
-          if (u) {
-            localStorage.setItem('token', JSON.stringify(u.user.token));
-            this.authSv.setLoggedInUser(u);
+          if (u && u.token) {
+            localStorage.setItem('token', u.token); // Store raw token without stringify
+            this.authSv.loadUserFromToken();
             this.router.navigateByUrl('/');
           }
-          
         },
         error: (err) => {
+          console.log(err);
           if (err.name === 'TimeoutError') {
             this.errMsg.set('เชื่อมต่อเซิร์ฟเวอร์ไม่ได้');
             return;
           }
-          
-          if (err.status === 404) {
-            this.errMsg.set('ไม่พบบัญชีผู้ใช้ กรุณาลงทะเบียนก่อนเข้าสู่ระบบ');
+
+          if (err.status === 400) {
+            this.errMsg.set('บัญชีผู้ใช้นี้ถูกระงับการใช้งาน');
             return;
           }
 
-          if (err.status === 400 || err.status === 401) {
+          if (err.status === 401) {
             this.errMsg.set('อีเมลหรือรหัสผ่านไม่ถูกต้อง');
+            return;
+          }
+
+          if (err.status === 404) {
+            this.errMsg.set('ไม่พบบัญชีผู้ใช้ กรุณาลงทะเบียนก่อนเข้าสู่ระบบ');
             return;
           }
 

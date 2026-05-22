@@ -52,10 +52,12 @@ export class NavFooterComponent implements OnInit {
     });
 
     this.authSv.user$.subscribe((u) => {
-      if (u && (u.logged_in == true)) {
-        this.userId.set(u.user.id);
+      if (u) {
+        // Correctly extract 'id' from DecodedToken interface
+        this.userId.set(u.id);
         this.isLoggedIn.set(true);
       } else {
+        this.userId.set(null);
         this.isLoggedIn.set(false);
       }
     });

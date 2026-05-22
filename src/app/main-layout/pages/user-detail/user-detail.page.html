@@ -1,57 +1,79 @@
-<ion-content [fullscreen]="true" class="ion-padding profile-content minimal-style">
-  <div class="profile-header">
-    <div class="avatar-placeholder">
-      <ion-icon name="person-circle-outline"></ion-icon>
+<ion-content [fullscreen]="true" class="profile-content minimal-style">
+  <div class="background-container"></div>
+ 
+  <div class="content-wrapper">
+    <div class="profile-header">
+      <div class="avatar-placeholder">
+        <ion-icon name="person" color="medium"></ion-icon>
+      </div>
+      <h1 class="page-title">ข้อมูลส่วนบุคคล</h1>
+      <div class="username-badge">
+        <p class="user-handle">{{ user()?.USERNAME || 'กำลังโหลด...' }}</p>
+      </div>
     </div>
-    <h1 class="page-title">Profile</h1>
-    <p class="user-handle">{{ user()?.USERNAME || 'Loading...' }}</p>
-  </div>
+ 
+    <div class="info-section">
+      <ion-list lines="none" class="minimal-list">
+        <ion-item class="highlight-item">
+          <ion-icon name="person-outline" slot="start" color="medium"></ion-icon>
+          <ion-label position="stacked">ชื่อผู้ใช้</ion-label>
+          <ion-input type="text" [value]="user()?.USERNAME" readonly></ion-input>
+        </ion-item>
 
-  <div class="info-section">
-    <ion-list lines="full" class="minimal-list">
-      <ion-item>
-        <ion-icon name="person-outline" slot="start" color="medium"></ion-icon>
-        <ion-label position="stacked" color="medium">Username</ion-label>
-        <ion-input type="text" [value]="user()?.USERNAME" readonly></ion-input>
-      </ion-item>
+        <ion-item>
+          <ion-icon name="mail-outline" slot="start" color="medium"></ion-icon>
+          <ion-label position="stacked">อีเมล</ion-label>
+          <ion-input type="email" [value]="user()?.EMAIL" readonly></ion-input>
+        </ion-item>
 
-      <ion-item>
-        <ion-icon name="mail-outline" slot="start" color="medium"></ion-icon>
-        <ion-label position="stacked" color="medium">Email</ion-label>
-        <ion-input type="email" [value]="user()?.EMAIL" readonly></ion-input>
-      </ion-item>
+        <ion-item>
+          <ion-icon name="call-outline" slot="start" color="medium"></ion-icon>
+          <ion-label position="stacked">เบอร์โทรศัพท์</ion-label>
+          <ion-input
+            type="tel"
+            [value]="user()?.PHONE_NUMBER"
+            readonly
+          ></ion-input>
+        </ion-item>
+      </ion-list>
+    </div>
 
-      <ion-item>
-        <ion-icon name="call-outline" slot="start" color="medium"></ion-icon>
-        <ion-label position="stacked" color="medium">Phone</ion-label>
-        <ion-input type="tel" [value]="user()?.PHONE_NUMBER" readonly></ion-input>
-      </ion-item>
-    </ion-list>
-  </div>
+    <div class="action-section">
+      <ion-list lines="none" class="minimal-list action-list">
+        <ion-item button (click)="profileUpdate()" detail="true">
+          <ion-icon name="create-outline" slot="start" color="medium"></ion-icon>
+          <ion-label>แก้ไขข้อมูลส่วนตัว</ion-label>
+        </ion-item>
 
-  <div class="action-section">
-    <ion-list lines="none" class="minimal-list action-list">
-      <ion-item button (click)="profileUpdate()" detail="true">
-        <ion-icon name="create-outline" slot="start" color="primary"></ion-icon>
-        <ion-label>Edit Profile</ion-label>
-      </ion-item>
-      
-      <ion-item button (click)="resetPasswd()" detail="true">
-        <ion-icon name="lock-closed-outline" slot="start" color="primary"></ion-icon>
-        <ion-label>Change Password</ion-label>
-      </ion-item>
+        <ion-item button (click)="resetPasswd()" detail="true">
+          <ion-icon name="lock-closed-outline" slot="start" color="medium"></ion-icon>
+          <ion-label>เปลี่ยนรหัสผ่าน</ion-label>
+        </ion-item>
 
-      <ion-item button (click)="deleteAccount()" detail="true">
-        <ion-icon name="trash-outline" slot="start" color="danger"></ion-icon>
-        <ion-label color="danger">Delete Account</ion-label>
-      </ion-item>
-    </ion-list>
-  </div>
+        <ion-item
+          button
+          (click)="deleteAccount()"
+          detail="true"
+          class="delete-item"
+        >
+          <ion-icon name="trash-outline" slot="start" color="danger"></ion-icon>
+          <ion-label>ลบบัญชี</ion-label>
+        </ion-item>
+      </ion-list>
+    </div>
 
-  <div class="logout-section">
-    <ion-button expand="block" fill="outline" color="medium" class="logout-btn" (click)="logout()">
-      Sign Out
-    </ion-button>
+    <div class="logout-section">
+      <ion-button
+        expand="block"
+        fill="solid"
+        class="logout-btn"
+        (click)="logout()"
+      >
+        ออกจากระบบ
+      </ion-button>
+    </div>
+
+    <div class="bottom-spacer"></div>
   </div>
 
   <ion-toast

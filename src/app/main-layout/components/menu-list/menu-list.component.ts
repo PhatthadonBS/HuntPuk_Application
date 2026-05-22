@@ -59,79 +59,84 @@ export class MenuListComponent {
     authSv.user$.subscribe({
       next: (u) => {
         if (u) {
-          this.user_id = u.user.id;
-          this.inRole.set(u.user.role_id);
+          // Correctly extract from DecodedToken
+          this.user_id = u.id;
+          this.inRole.set(u.role);
           this.isLogIn.set(true);
+        } else {
+          this.user_id = null;
+          this.inRole.set(0); 
+          this.isLogIn.set(false);
         }
       },
-    });
+    }); 
   }
 
-  menus = [
-    {
-      key: 'home',
-      label: 'หน้าหลัก',
-      icon: 'home-outline',
-      always: true,
-      forRole: [0, 1, 2, 3],
-    },
-    {
-      key: 'dorms',
-      label: 'รายการ',
-      icon: 'list-outline',
-      always: true,
-      forRole: [0, 1, 2, 3],
-    },
-    {
-      key: 'profile',
-      label: 'บัญชีของฉัน',
-      icon: 'person-outline',
-      user_id: this.user_id,
-      neddLogin: true,
-      forRole: [1, 2, 3],
-    },
-    {
-      key: 'register',
-      label: 'สมัครสมาชิก',
-      icon: 'reader-outline',
-      neddLogin: false,
-      forRole: [0],
-    },
-    {
-      key: 'dorm-reg',
-      label: 'ลงทะเบียนหอพัก',
-      icon: 'clipboard-outline',
-      neddLogin: true,
-      forRole: [2, 3],
-    },
-    {
-      key: 'dorm-manage',
-      label: 'จัดการหอพัก',
-      icon: 'business-outline',
-      neddLogin: true,
-      forRole: [2, 3],
-    },
-    {
-      key: 'favorite',
-      label: 'รายการโปรด',
-      icon: 'heart-outline',
-      neddLogin: true,
-      forRole: [1, 2, 3],
-    },
-    {
-      key: 'request-owner',
-      label: 'ร้องขอสิทธิ์เจ้าของหอ',
-      icon: 'key-outline',
-      neddLogin: true,
-      forRole: [1],
-    },
-  ];
+  get menus() {
+    return [
+      {
+        key: 'home',
+        label: 'หน้าหลัก',
+        icon: 'home-outline',
+        always: true,
+        forRole: [0, 1, 2, 3],
+      },
+      {
+        key: 'dorms',
+        label: 'รายการ',
+        icon: 'list-outline',
+        always: true,
+        forRole: [0, 1, 2, 3],
+      },
+      {
+        key: 'profile',
+        label: 'บัญชีของฉัน',
+        icon: 'person-outline',
+        user_id: this.user_id,
+        neddLogin: true,
+        forRole: [1, 2, 3],
+      },
+      {
+        key: 'register',
+        label: 'สมัครสมาชิก',
+        icon: 'reader-outline',
+        neddLogin: false,
+        forRole: [0],
+      },
+      {
+        key: 'dorm-reg',
+        label: 'ลงทะเบียนหอพัก',
+        icon: 'clipboard-outline',
+        neddLogin: true,
+        forRole: [2, 3],
+      },
+      {
+        key: 'dorm-manage',
+        label: 'จัดการหอพัก',
+        icon: 'business-outline',
+        neddLogin: true,
+        forRole: [2, 3],
+      },
+      {
+        key: 'favorite',
+        label: 'รายการโปรด',
+        icon: 'heart-outline',
+        neddLogin: true,
+        forRole: [1, 2, 3],
+      },
+      {
+        key: 'request-owner',
+        label: 'ร้องขอสิทธิ์เจ้าของหอ',
+        icon: 'key-outline',
+        neddLogin: true,
+        forRole: [1],
+      },
+    ];
+  }
 
   onSelect(menuKey: string, uid: number | null) {
-    if (uid) {
-      return this.selectMenu.emit({ destination: menuKey, id: uid });
-    }
-    return this.selectMenu.emit({ destination: menuKey, id: null });
+    this.selectMenu.emit({ destination: menuKey, id: uid ?? this.user_id });
+    this.closeMenu();
   }
 
   closeMenu() {

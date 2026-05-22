@@ -45,6 +45,7 @@ import { UserDataGetRes, UserLoggedInPostRes } from 'src/app/model/user.model';
 import { AuthenService } from 'src/app/services/authenService';
 import { extractErrorMessage } from 'src/app/utils/error.util';
 import { NavController } from '@ionic/angular';
+import { LoadingUIComponent } from '../../components/loading-ui/loading-ui.component';
 
 @Component({
   selector: 'app-user-detail',
@@ -67,10 +68,10 @@ import { NavController } from '@ionic/angular';
     CommonModule,
     FormsModule,
     RouterLink,
-    IonButton,
-  ],
+    IonButton
+  ], 
 })
-export class UserDetailPage implements OnInit {
+export class UserDetailPage{
   user = signal<UserDataGetRes | null>(null);
   errMsg = signal<string | null>(null);
   succMsg = signal<string | null>(null);
@@ -80,7 +81,7 @@ export class UserDetailPage implements OnInit {
     private router: Router,
     private actRouter: ActivatedRoute,
     private navCtrl: NavController
-  ) {
+  ) { 
     addIcons({
       arrowBackCircleOutline,
       person,
@@ -99,7 +100,7 @@ export class UserDetailPage implements OnInit {
     });
   }
 
-  ngOnInit() {
+  ionViewWillEnter() {
     const user_id = this.actRouter.snapshot.paramMap.get('user_id');
     if (user_id) {
       this.userSv.getUserByID(Number(user_id)).subscribe({

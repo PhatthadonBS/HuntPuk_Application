@@ -1,5 +1,17 @@
 <ion-content fullscreen [scrollY]="false">
-  <div #map id="map"></div>
+  <capacitor-google-map #map id="map"></capacitor-google-map>
+  
+  <!-- Bottom Sheet UI -->
+  <div class="bottom-sheet" [class.open]="sheetOpen()" *ngIf="selectedDorm() as dorm">
+    <div class="handle" (click)="sheetOpen.set(false)"></div>
+    <div class="content">
+      <h2>{{ dorm.DORM_NAME }}</h2>
+      <p>{{ dorm.ADDRESS }}</p>
+      <div class="stats">
+        <span>⭐ {{ dorm.SCORE }}</span>
+      </div>
+    </div>
+  </div>
 </ion-content>
 
-<!-- <app-loading-ui *ngIf="isLoading()"></app-loading-ui> -->
+<app-loading-ui *ngIf="isLoading()"></app-loading-ui>

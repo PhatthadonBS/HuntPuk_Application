@@ -5,10 +5,10 @@ import {
   Router,
 } from '@angular/router';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { UserDataGetRes, UserLoggedInPostRes } from '../model/user.model';
 import { environment } from 'src/environments/environment';
 import { NavController } from '@ionic/angular';
 import { jwtDecode } from 'jwt-decode';
+import { DecodedToken } from '../model/user.model';
 
 @Injectable({
   providedIn: 'root',
@@ -16,12 +16,14 @@ import { jwtDecode } from 'jwt-decode';
 export class AuthenService implements CanActivate {
   constructor(private router: Router, private http: HttpClient, private navCtrl: NavController) {}
   endPoint = environment.ENDPOINT;
-  private userState = new BehaviorSubject<UserLoggedInPostRes | null>(
+  
+  // State holds only the decoded token information
+  private userState = new BehaviorSubject<DecodedToken | null>(
     this.getUserFromToken()
   );
   user$ = this.userState.asObservable();
 
-  private getUserFromToken(): any | null {
+  private getUserFromToken(): DecodedToken | null {
     let token = localStorage.getItem('token');
     
     if (token) {
@@ -34,29 +36,32 @@ export class AuthenService implements CanActivate {
         if (!token) return null;
 
         // Decode Token
-        const decodedToken: any = jwtDecode(token);
+        const decodedToken = jwtDecode<DecodedToken>(token);
         
         // Check expiration
         const currentTime = Math.floor(Date.now() / 1000);
         if (decodedToken.exp < currentTime) {
-          console.log('Token expired!');
+          console.warn('Token expired!');
           this.logoutUser();
           return null;
         }
 
         return decodedToken; 
       } catch (e) {
+        console.error('Error decoding token:', e);
+        this.logoutUser();
         return null; 
       }
     }
     return null;
   }
 
-  setLoggedInUser(user: UserLoggedInPostRes) {
-    this.userState.next(user);
+  // Call this after setting token in local storage
+  loadUserFromToken() {
+    this.userState.next(this.getUserFromToken());
   }
 
-  get currentUserValue(): UserLoggedInPostRes | null {
+  get currentUserValue(): DecodedToken | null {
     return this.userState.getValue();
   }
 
@@ -67,11 +72,13 @@ export class AuthenService implements CanActivate {
   }
 
   canActivate(): boolean {
-    const user = this.userState.getValue();
+    const user = this.getUserFromToken(); // Re-check token validity on activation
     if (user) {
+      this.userState.next(user);
       return true;
     }
-    this.router.navigateByUrl('/login');
+    
+    this.logoutUser();
     return false;
   }
 

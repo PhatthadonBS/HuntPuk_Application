@@ -44,5 +44,9 @@
   padding: 0;
   margin: 0;
   box-sizing: border-box;
-  font-family: "Sarabun", sans-serif;
+  font-family: "Prompt", sans-serif;
+}
+
+:root {
+  --ion-font-family: "Prompt", sans-serif;
 }

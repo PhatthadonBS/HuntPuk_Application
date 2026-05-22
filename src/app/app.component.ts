@@ -39,35 +39,29 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private async initializeApp() {
-    // Simulated API call (e.g., 1s delay)
-    // Replace `loadInitialData$` with your actual API call observable
-    const loadInitialData$ = of('API Data Loaded').pipe(delay(1000));
-    const minimumDelay$ = timer(5000);
+    // Reduced minimum delay to 2.5 seconds for a "lightweight" feel
+    const loadInitialData$ = of('API Data Loaded').pipe(delay(500));
+    const minimumDelay$ = timer(2500);
 
     try {
-      // forkJoin waits for both the API call to complete and the 5-second timer
       await firstValueFrom(forkJoin([loadInitialData$, minimumDelay$]));
       
-      // Hide the native splash screen after at least 5s have passed
       await SplashScreen.hide();
       this.isSplashActive.set(false);
-      console.log('App initialized and Splash Screen hidden.');
+      console.log('App initialized.');
     } catch (error) {
       console.error('Initialization error:', error);
-      await SplashScreen.hide(); // Ensure it hides on error
+      await SplashScreen.hide();
       this.isSplashActive.set(false);
     }
   }
 
   private async setupAppStateListener() {
     this.appStateListener = await App.addListener('appStateChange', ({ isActive }) => {
-      // Use NgZone to ensure Angular detects the changes if UI updates are needed
       this.ngZone.run(() => {
         if (!isActive) {
-          console.log('App is suspended. Pausing background operations...');
           this.stopBackgroundOperations();
         } else {
-          console.log('App is active. Resuming background operations...');
           this.startBackgroundOperations();
         }
       });

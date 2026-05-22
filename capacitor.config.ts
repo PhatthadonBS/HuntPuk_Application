@@ -3,7 +3,7 @@ import { KeyboardResize } from '@capacitor/keyboard';
 
 const config: CapacitorConfig = {
   appId: 'io.ionic.starter',
-  appName: 'HuntPuk_APK',
+  appName: 'ตะลุยหอพัก',
   webDir: 'www',
   plugins: {
     Keyboard: {

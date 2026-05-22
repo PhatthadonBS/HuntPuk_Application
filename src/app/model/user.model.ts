@@ -1,5 +1,13 @@
 import { FormControl } from "@angular/forms";
 
+export interface DecodedToken {
+  id: number;
+  role: number;
+  status: number;
+  iat: number;
+  exp: number;
+}
+
 export interface User {
   id: number;
   username: string;
@@ -7,7 +15,6 @@ export interface User {
   phone: string;
   role_id: number;
   accout_status: number;
-  token?: string;
 }
 
 export interface UserRegPostReq {
@@ -106,6 +113,7 @@ export interface UserFavGetRes {
 export interface UserLoggedInPostRes {
   logged_in: boolean;
   message: string;
+  token: string;
   user: User;
 }
 
