@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -30,7 +30,7 @@ import { NavController } from '@ionic/angular';
     MenuListComponent,
   ],
 })
-export class MainLayoutPage implements OnInit {
+export class MainLayoutPage implements OnInit, OnDestroy {
   menuSelected = signal<string | null>(null);
   constructor(
     private router: Router,
@@ -49,6 +49,11 @@ export class MainLayoutPage implements OnInit {
   }
 
   ngOnInit() {}
+
+  ngOnDestroy() {
+    // Explicitly close menu on destroy to prevent lingering overlays
+    this.closeMenu();
+  }
 
   goTo({ destination, id }: { destination: string; id?: number | null }) {
     if (destination === 'home' || destination === '/') {

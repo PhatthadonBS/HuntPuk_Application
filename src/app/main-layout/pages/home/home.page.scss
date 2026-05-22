@@ -21,18 +21,17 @@ ion-content {
   left: 0;
   right: 0;
   bottom: 0;
-  height: 90px;
-  background: #fff;
-  border-radius: 24px 24px 0 0;
-  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.1);
-  transition: transform 0.4s cubic-bezier(0.36, 0.66, 0.04, 1);
+  height: 0;
+  background: #ffffff;
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2);
   z-index: 20;
-  transform: translateY(100%);
+  display: none; /* Hidden by default */
 }
 
 .bottom-sheet.open {
-  transform: translateY(0);
-  height: 280px;
+  display: block; /* Show instantly */
+  height: 250px;
 }
 
 .handle {
@@ -47,22 +46,22 @@ ion-content {
   padding: 0 20px 20px;
   
   h2 {
-    margin: 0 0 8px;
-    font-size: 1.25rem;
+    margin: 0 0 4px;
+    font-size: 1.15rem;
     font-weight: 700;
     color: #1f2937;
   }
   
   p {
-    margin: 0 0 16px;
+    margin: 0 0 12px;
     color: #6b7280;
-    font-size: 0.95rem;
+    font-size: 0.85rem;
   }
 }
 
 .stats {
   display: flex;
   gap: 12px;
-  font-weight: 600;
+  font-weight: 700;
   color: #fbbf24;
 }

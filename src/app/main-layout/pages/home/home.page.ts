@@ -7,7 +7,8 @@ import {
   ViewChild,
   OnDestroy,
   ChangeDetectionStrategy,
-  CUSTOM_ELEMENTS_SCHEMA
+  CUSTOM_ELEMENTS_SCHEMA,
+  Renderer2
 } from '@angular/core';
 import {
   IonContent,
@@ -50,7 +51,8 @@ export class HomePage implements AfterViewInit, OnDestroy {
   constructor(
     private dormService: DormServices,
     private router: Router,
-    private zone: NgZone
+    private zone: NgZone,
+    private renderer: Renderer2
   ) {
     this.routerSub = this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
@@ -60,11 +62,13 @@ export class HomePage implements AfterViewInit, OnDestroy {
   }
 
   async ngAfterViewInit() {
-    // Add a small delay for Live Reload environments to ensure the DOM is stable
+    // Small delay to ensure Ionic transition is finished
     setTimeout(async () => {
       if (Capacitor.isNativePlatform()) {
         try {
           await this.initNativeMap();
+          // Apply transparency to allow native map to show through
+          this.renderer.addClass(document.body, 'map-view-active');
         } catch (e) {
           console.error('CRITICAL: Failed to initialize native map:', e);
         }
@@ -72,7 +76,7 @@ export class HomePage implements AfterViewInit, OnDestroy {
         console.warn('Native maps are only available on Android/iOS.');
       }
       this.loadDormMarkers();
-    }, 500);
+    }, 600);
   }
 
   async initNativeMap() {
@@ -161,6 +165,9 @@ export class HomePage implements AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    // Remove transparency when leaving the page
+    this.renderer.removeClass(document.body, 'map-view-active');
+    
     if(this.routerSub) {
       this.routerSub.unsubscribe();
     }
