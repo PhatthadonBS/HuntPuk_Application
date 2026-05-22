@@ -5,6 +5,9 @@ import {
   signal,
   computed,
   OnDestroy,
+  ElementRef,
+  ViewChild,
+  AfterViewInit
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonGrid, IonRow, IonCol, IonIcon } from '@ionic/angular/standalone';
@@ -26,6 +29,7 @@ import {
 } from 'ionicons/icons';
 import { AuthenService } from 'src/app/services/authenService';
 import { Subscription } from 'rxjs';
+import { Gesture, GestureController, GestureDetail } from '@ionic/angular';
 
 @Component({
   selector: 'app-menu-list',
@@ -34,24 +38,26 @@ import { Subscription } from 'rxjs';
   standalone: true,
   imports: [IonCol, IonRow, IonGrid, IonIcon, CommonModule],
 })
-export class MenuListComponent implements OnDestroy {
+export class MenuListComponent implements OnDestroy, AfterViewInit {
   @Output() selectMenu = new EventEmitter<{
     destination: string;
     id: number | null;
   }>();
   @Output() close = new EventEmitter<void>();
 
-  selected = signal<string | null>(null);
+  @ViewChild('menuWrapper', { static: false }) menuWrapper!: ElementRef;
+  @ViewChild('menuOverlay', { static: false }) menuOverlay!: ElementRef;
+  @ViewChild('dragHandle', { static: false }) dragHandle!: ElementRef;
 
-  // เปลี่ยนตัวแปร State ให้เป็น Signal ให้หมด
+  selected = signal<string | null>(null);
   user_id = signal<number | null>(null);
   isLogIn = signal<boolean>(false);
   inRole = signal<number>(0);
+  isClosing = signal<boolean>(false); 
 
-  // ตัวแปรสำหรับเก็บ Subscription เพื่อใช้ทำลายตอนปิดเมนู
   private authSub: Subscription;
+  private gesture?: Gesture;
 
-  // 🚀 ใช้ Computed Signal จำค่า Array ไว้ ป้องกัน Angular สร้างปุ่มใหม่รัวๆ
   filterMenu = computed(() => {
     const isLogin = this.isLogIn();
     const role = this.inRole();
@@ -126,7 +132,10 @@ export class MenuListComponent implements OnDestroy {
     });
   });
 
-  constructor(private authSv: AuthenService) {
+  constructor(
+    private authSv: AuthenService,
+    private gestureCtrl: GestureController
+  ) {
     addIcons({
       homeOutline,
       listOutline,
@@ -143,7 +152,6 @@ export class MenuListComponent implements OnDestroy {
       readerOutline,
     });
 
-    // สมัครรับข้อมูลจาก BehaviorSubject และเก็บใส่ this.authSub
     this.authSub = this.authSv.user$.subscribe({
       next: (u) => {
         if (u) {
@@ -159,20 +167,84 @@ export class MenuListComponent implements OnDestroy {
     });
   }
 
+  ngAfterViewInit() {
+    this.initGesture();
+  }
+
+  private initGesture() {
+    if (!this.dragHandle || !this.menuWrapper) return;
+
+    this.gesture = this.gestureCtrl.create({
+      el: this.dragHandle.nativeElement,
+      gestureName: 'swipe-down-to-close',
+      direction: 'y',
+      onMove: (detail) => this.onMove(detail),
+      onEnd: (detail) => this.onEnd(detail),
+    });
+
+    this.gesture.enable();
+  }
+
+  private onMove(detail: GestureDetail) {
+    // Only allow dragging downwards
+    if (detail.deltaY > 0) {
+      // Temporarily remove transition so it tracks the finger instantly
+      this.menuWrapper.nativeElement.style.transition = 'none';
+      this.menuWrapper.nativeElement.style.transform = `translateY(${detail.deltaY}px)`;
+    }
+  }
+
+  private onEnd(detail: GestureDetail) {
+    // Re-enable smooth transition for the snap-back or close
+    this.menuWrapper.nativeElement.style.transition = 'transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1)';
+
+    // If dragged down more than 100px OR swiped fast downwards, close it
+    if (detail.deltaY > 100 || detail.velocityY > 0.5) {
+      this.slideDownAndClose();
+    } else {
+      // Otherwise, snap back to the original position
+      this.menuWrapper.nativeElement.style.transform = 'translateY(0)';
+    }
+  }
+
   onSelect(menuKey: string, uid: number | null) {
-    // อ่านค่า Signal ด้วยการใส่วงเล็บ this.user_id()
-    this.selectMenu.emit({ destination: menuKey, id: uid ?? this.user_id() });
-    this.closeMenu();
+    this.slideDownAndClose();
+    // 1-second delay before navigating to ensure smooth exit animation
+    setTimeout(() => {
+      this.selectMenu.emit({ destination: menuKey, id: uid ?? this.user_id() });
+    }, 1000);
   }
 
   closeMenu() {
-    this.close.emit();
+    this.slideDownAndClose();
   }
 
-  // 🧹 คืนพื้นที่หน่วยความจำเมื่อ Component ถูกปิด
+  slideDownAndClose() {
+    if (this.isClosing()) return;
+    this.isClosing.set(true);
+
+    if (this.menuWrapper && this.menuOverlay) {
+      // Force transition to ensure smooth exit
+      this.menuWrapper.nativeElement.style.transition = 'transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1)';
+      this.menuWrapper.nativeElement.style.transform = 'translateY(100%)';
+      this.menuOverlay.nativeElement.style.animation = 'quickFadeOut 0.25s ease-out forwards';
+      
+      setTimeout(() => {
+        this.close.emit();
+        this.isClosing.set(false);
+      }, 250);
+    } else {
+      this.close.emit();
+      this.isClosing.set(false);
+    }
+  }
+
   ngOnDestroy() {
     if (this.authSub) {
       this.authSub.unsubscribe();
+    }
+    if (this.gesture) {
+      this.gesture.destroy();
     }
   }
 }

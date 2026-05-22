@@ -1,44 +1,81 @@
+@keyframes quickFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes quickFadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes fastSlideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes fastSlideDown {
+  from { transform: translateY(0); }
+  to { transform: translateY(100%); }
+}
+
 .menu-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5); /* Solid semi-transparent overlay */
+  background: rgba(0, 0, 0, 0.4); 
   z-index: 2000;
   display: flex;
   align-items: flex-end;
-  /* NO ANIMATIONS */
+  animation: quickFadeIn 0.2s ease-out forwards;
 }
 
 .menu-wrapper {
   position: relative;
   width: 100%;
   padding: 1.5rem;
-  padding-top: 3.5rem;
+  padding-top: 0rem; /* Reduced top padding for drag handle */
   padding-bottom: calc(2rem + env(safe-area-inset-bottom));
-  background: #ffffff; /* Solid White */
+  /* 50% Opacity Solid Background */
+  background: rgba(255, 255, 255, 0.6); 
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
   border-radius: 24px 24px 0 0;
-  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.2);
-  height: 75vh;
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.15);
+  height: 60vh;
   overflow-y: auto;
-  /* NO ANIMATIONS - Instant Open */
+  /* Fast Hardware-Accelerated Animation */
+  animation: fastSlideUp 0.25s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  will-change: transform;
 }
 
-.close-button {
-  position: absolute;
-  right: 1.5rem;
-  top: 1.5rem;
-  width: 32px;
-  height: 32px;
+.drag-handle-container {
+  width: 100%;
+  height: 56px; /* Slightly larger for the label */
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: center;
-  background: #fbbf24;
-  border-radius: 50%;
-  cursor: pointer;
+  align-items: center;
+  gap: 6px;
+  cursor: grab;
+  /* Prevent default touch actions like scrolling while dragging */
+  touch-action: none;
+}
 
-  ion-icon {
-    font-size: 20px;
-    color: #374151;
-  }
+.drag-handle-container:active {
+  cursor: grabbing;
+}
+
+.drag-handle {
+  width: 50px;
+  height: 6px;
+  background-color: rgba(0, 0, 0, 0.25);
+  border-radius: 3px;
+}
+
+.drag-label {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 500;
+  color: #6b7280;
 }
 
 .menu-grid {
@@ -48,16 +85,23 @@
 .menu-card {
   height: 90px;
   border-radius: 16px;
-  background: #f9fafb; /* Solid light gray */
-  border: 1px solid #e5e7eb;
+  background: rgba(255, 255, 255, 0.6); /* Slightly transparent card */
+  border: 1px solid rgba(255, 255, 255, 0.8);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   margin: 0.4rem;
+  transition: transform 0.1s ease;
 
-  &:active {
+  &:active, &.selected {
     background: #fbbf24;
+    transform: scale(0.95); /* Slight bounce on press */
+    border-color: #fbbf24;
+    
+    ion-icon, p {
+      color: #374151;
+    }
   }
 
   ion-icon {
