@@ -1,5 +1,4 @@
 import {
-  AfterViewInit,
   Component,
   ElementRef,
   NgZone,
@@ -8,10 +7,12 @@ import {
   OnDestroy,
   ChangeDetectionStrategy,
   CUSTOM_ELEMENTS_SCHEMA,
-  Renderer2
+  Renderer2,
 } from '@angular/core';
 import {
   IonContent,
+  ViewDidEnter,
+  ViewDidLeave,
 } from '@ionic/angular/standalone';
 import { CommonModule } from '@angular/common';
 import { NavigationEnd, Router } from '@angular/router';
@@ -28,16 +29,11 @@ import { Capacitor } from '@capacitor/core';
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
   standalone: true,
-  imports: [
-    IonContent,
-    LoadingUIComponent,
-    CommonModule,
-    FormsModule,
-  ],
+  imports: [IonContent, LoadingUIComponent, CommonModule, FormsModule],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HomePage implements AfterViewInit, OnDestroy {
+export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
   @ViewChild('map', { static: false }) mapEl!: ElementRef<HTMLElement>;
 
   newMap!: GoogleMap;
@@ -54,29 +50,28 @@ export class HomePage implements AfterViewInit, OnDestroy {
     private zone: NgZone,
     private renderer: Renderer2
   ) {
-    this.routerSub = this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
-    ).subscribe(() => {
-      this.loadDormMarkers();
-    });
+    this.routerSub = this.router.events
+      .pipe(filter((event) => event instanceof NavigationEnd))
+      .subscribe(() => {
+        this.loadDormMarkers();
+      });
   }
 
-  async ngAfterViewInit() {
-    // Small delay to ensure Ionic transition is finished
-    setTimeout(async () => {
-      if (Capacitor.isNativePlatform()) {
-        try {
-          await this.initNativeMap();
-          // Apply transparency to allow native map to show through
-          this.renderer.addClass(document.body, 'map-view-active');
-        } catch (e) {
-          console.error('CRITICAL: Failed to initialize native map:', e);
-        }
-      } else {
-        console.warn('Native maps are only available on Android/iOS.');
+  async ionViewDidEnter() {
+    // โหลดข้อมูลหอพักรอไว้เลย
+    this.loadDormMarkers();
+
+    if (Capacitor.isNativePlatform()) {
+      try {
+        await this.initNativeMap();
+        // ทำให้พื้นหลังใสเมื่อแมพพร้อมแล้วจริงๆ
+        this.renderer.addClass(document.body, 'map-view-active');
+      } catch (e) {
+        console.error('CRITICAL: Failed to initialize native map:', e);
       }
-      this.loadDormMarkers();
-    }, 600);
+    } else {
+      console.warn('Native maps are only available on Android/iOS.');
+    }
   }
 
   async initNativeMap() {
@@ -97,9 +92,10 @@ export class HomePage implements AfterViewInit, OnDestroy {
       });
 
       await this.newMap.setOnMarkerClickListener(async (event) => {
-        const dorm = this.dorms().find(d => 
-          Math.abs(d.lat - event.latitude) < 0.0001 && 
-          Math.abs(d.lng - event.longitude) < 0.0001
+        const dorm = this.dorms().find(
+          (d) =>
+            Math.abs(d.lat - event.latitude) < 0.0001 &&
+            Math.abs(d.lng - event.longitude) < 0.0001
         );
         if (dorm) {
           this.zone.run(() => {
@@ -107,7 +103,7 @@ export class HomePage implements AfterViewInit, OnDestroy {
           });
         }
       });
-      
+
       console.log('Native map initialized successfully');
     } catch (err) {
       console.error('Map creation failed native side:', err);
@@ -115,7 +111,7 @@ export class HomePage implements AfterViewInit, OnDestroy {
   }
 
   loadDormMarkers() {
-    this.isLoading.set(true); 
+    this.isLoading.set(true);
 
     this.dormService
       .getDorms()
@@ -127,7 +123,7 @@ export class HomePage implements AfterViewInit, OnDestroy {
             this.renderMarkers(res.data);
           }
         },
-        error: (err) => console.error('Failed to load dorms:', err)
+        error: (err) => console.error('Failed to load dorms:', err),
       });
   }
 
@@ -135,7 +131,7 @@ export class HomePage implements AfterViewInit, OnDestroy {
     if (!this.newMap) return;
 
     try {
-      const markers = dorms.map(dorm => ({
+      const markers = dorms.map((dorm) => ({
         coordinate: { lat: dorm.lat, lng: dorm.lng },
         title: dorm.DORM_NAME,
         snippet: dorm.ADDRESS,
@@ -156,7 +152,7 @@ export class HomePage implements AfterViewInit, OnDestroy {
         await this.newMap.setCamera({
           coordinate: { lat: dorm.lat, lng: dorm.lng },
           zoom: 17,
-          animate: true
+          animate: true,
         });
       } catch (e) {
         console.error('Failed to move camera:', e);
@@ -164,15 +160,20 @@ export class HomePage implements AfterViewInit, OnDestroy {
     }
   }
 
-  ngOnDestroy() {
-    // Remove transparency when leaving the page
+  ionViewDidLeave() {
+    // ลบพื้นหลังใสออกทันทีที่ออกจากหน้า Home
     this.renderer.removeClass(document.body, 'map-view-active');
-    
-    if(this.routerSub) {
-      this.routerSub.unsubscribe();
-    }
+
     if (this.newMap) {
-      this.newMap.destroy().catch(e => console.error('Failed to destroy map:', e));
+      this.newMap
+        .destroy()
+        .catch((e) => console.error('Failed to destroy map:', e));
+    }
+  }
+
+  ngOnDestroy() {
+    if (this.routerSub) {
+      this.routerSub.unsubscribe();
     }
   }
 }

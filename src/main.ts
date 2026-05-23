@@ -10,21 +10,21 @@ import {
   IonicRouteStrategy,
   provideIonicAngular,
 } from '@ionic/angular/standalone';
-import { 
-  provideHttpClient, 
+import {
+  provideHttpClient,
   withInterceptors
 } from '@angular/common/http';
 
 import { routes } from './app/app.routes';
 import { AppComponent } from './app/app.component';
-import { loadingInterceptor } from './app/services/loading-interceptor'; 
+import { loadingInterceptor } from './app/services/loading-interceptor';
 import { authInterceptor } from './app/services/auth-interceptor';
 
 bootstrapApplication(AppComponent, {
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
 
-    provideIonicAngular(),
+    provideIonicAngular({ animated: false }),
 
     provideRouter(
       routes,
@@ -34,7 +34,7 @@ bootstrapApplication(AppComponent, {
       })
     ),
     provideHttpClient(
-      withInterceptors([loadingInterceptor, authInterceptor]) 
+      withInterceptors([loadingInterceptor, authInterceptor])
     ),
   ],
 });

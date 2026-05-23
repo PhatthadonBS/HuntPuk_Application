@@ -39,14 +39,21 @@ capacitor-google-map {
   height: 100%;
 }
 
-.map-view-active {
+.map-view-active,
+.map-view-active body,
+.map-view-active app-root,
+.map-view-active ion-app,
+.map-view-active app-main-layout,
+.map-view-active .ion-page,
+.map-view-active ion-router-outlet,
+.map-view-active app-home {
   background: transparent !important;
   --background: transparent !important;
+}
 
-  ion-content {
-    --background: transparent !important;
-    background: transparent !important;
-  }
+.map-view-active ion-content {
+  --background: transparent !important;
+  background: transparent !important;
 }
 
 /**
