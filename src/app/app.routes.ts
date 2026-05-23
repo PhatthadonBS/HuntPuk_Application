@@ -29,13 +29,7 @@ export const routes: Routes = [
             (m) => m.UserDetailPage
           ),
       },
-      {
-        path: 'forgotPasswd',
-        loadComponent: () =>
-          import(
-            './main-layout/pages/forget-password/forget-password.page'
-          ).then((m) => m.ForgetPasswordPage),
-      },
+
       {
         path: 'profile-update/:user_id',
         canActivate: [authGuard],
@@ -45,6 +39,13 @@ export const routes: Routes = [
           ),
       },
     ],
+  },
+  {
+    path: 'forgotPasswd',
+    loadComponent: () =>
+      import('./main-layout/pages/forget-password/forget-password.page').then(
+        (m) => m.ForgetPasswordPage
+      ),
   },
 
   {
@@ -60,5 +61,9 @@ export const routes: Routes = [
     path: '**',
     loadComponent: () =>
       import('./not-found/not-found.page').then((m) => m.NotFoundPage),
+  },
+  {
+    path: 'dorm-list',
+    loadComponent: () => import('./main-layout/pages/dorm-list/dorm-list.page').then( m => m.DormListPage)
   },
 ];

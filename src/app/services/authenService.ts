@@ -8,7 +8,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { NavController } from '@ionic/angular';
 import { jwtDecode } from 'jwt-decode';
-import { DecodedToken } from '../model/user.model';
+import { DecodedToken, UserOtpVerifyPostRes } from '../model/user.model';
 
 @Injectable({
   providedIn: 'root',
@@ -87,8 +87,8 @@ export class AuthenService implements CanActivate {
     return this.http.post(url, {email});
   }
 
-  verifyOTP(email: string, otp: string):Observable<any>{
+  verifyOTP(email: string, otp: string):Observable<UserOtpVerifyPostRes>{
     const url = `${this.endPoint}/auth/OTPVerify`;
-    return this.http.delete(url, {body: {email: email.trim(), otp: otp.trim()}});
+    return this.http.delete<UserOtpVerifyPostRes>(url, {body: {email: email.trim(), otp: otp.trim()}});
   }
 }

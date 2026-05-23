@@ -49,4 +49,9 @@ export class UserServices {
     const url = `${this.endPoint}/spec/delAccount/${user_id}`
     return this.http.delete(url)
   }
+
+  resetPassword(data: { email: string; password: string; verify: boolean }): Observable<any> {
+    const url = `${this.endPoint}/user/resetPassword`;
+    return this.http.put(url, data);
+  }
 }

@@ -1,6 +1,6 @@
 <ion-content [fullscreen]="true" class="profile-content minimal-style">
   <div class="background-container"></div>
- 
+
   <div class="content-wrapper">
     <div class="profile-header">
       <div class="avatar-placeholder">
@@ -11,7 +11,7 @@
         <p class="user-handle">{{ user()?.USERNAME || 'กำลังโหลด...' }}</p>
       </div>
     </div>
- 
+
     <div class="info-section">
       <ion-list lines="none" class="minimal-list">
         <ion-item class="highlight-item">
@@ -59,18 +59,18 @@
           <ion-icon name="trash-outline" slot="start" color="danger"></ion-icon>
           <ion-label>ลบบัญชี</ion-label>
         </ion-item>
-      </ion-list>
-    </div>
 
-    <div class="logout-section">
-      <ion-button
-        expand="block"
-        fill="solid"
-        class="logout-btn"
-        (click)="logout()"
-      >
-        ออกจากระบบ
-      </ion-button>
+        <div class="logout-container">
+          <ion-button
+            expand="block"
+            fill="solid"
+            class="logout-btn"
+            (click)="logout()"
+          >
+            ออกจากระบบ
+          </ion-button>
+        </div>
+      </ion-list>
     </div>
 
     <div class="bottom-spacer"></div>

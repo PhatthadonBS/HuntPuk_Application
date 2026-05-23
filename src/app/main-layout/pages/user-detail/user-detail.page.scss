@@ -6,14 +6,14 @@ ion-content.minimal-style {
   --background: #f9fafb;
 
   .background-container {
-    position: fixed;
+    position: fixed; /* Lock it to the screen */
     top: 0;
     left: 0;
     width: 100%;
-    height: 100%;
+    height: 100vh;
     z-index: 0;
     background: linear-gradient(135deg, #fbbf24 0%, #fef3c7 100%);
-    overflow: hidden;
+    pointer-events: none;
 
     &::before {
       content: "";
@@ -33,9 +33,9 @@ ion-content.minimal-style {
     position: relative;
     z-index: 10;
     padding: 1.5rem;
-    min-height: 100%;
     display: flex;
     flex-direction: column;
+    min-height: 100%;
   }
 
   .profile-header {
@@ -70,7 +70,7 @@ ion-content.minimal-style {
       color: $base-dark;
       margin: 0;
       letter-spacing: -0.03em;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     }
 
     .username-badge {
@@ -90,7 +90,8 @@ ion-content.minimal-style {
     }
   }
 
-  .info-section, .action-section {
+  .info-section,
+  .action-section {
     width: 100%;
     background: rgba(255, 255, 255, 0.6);
     backdrop-filter: blur(20px);
@@ -205,36 +206,42 @@ ion-content.minimal-style {
       }
 
       &.delete-item {
-        ion-label, ion-icon {
+        margin-bottom: 1rem;
+        &::after {
+          display: none;
+        }
+        ion-label,
+        ion-icon {
           color: #ef4444;
+        }
+      }
+    }
+
+    .logout-container {
+      padding: 0 0.5rem 0.5rem;
+
+      .logout-btn {
+        --background: #{$base-dark};
+        --background-activated: #000000;
+        --color: #ffffff;
+        --border-radius: 16px;
+        height: 56px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin: 0;
+        text-transform: none;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+
+        &:active {
+          opacity: 0.9;
+          transform: scale(0.98);
         }
       }
     }
   }
 
-  .logout-section {
-    padding: 1rem 1.5rem;
-
-    .logout-btn {
-      --background: #{$base-dark};
-      --background-activated: #000000;
-      --color: #ffffff;
-      --border-radius: 16px;
-      height: 56px;
-      font-size: 1.1rem;
-      font-weight: 700;
-      margin: 0;
-      text-transform: none;
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-      
-      &:active {
-        opacity: 0.9;
-        transform: scale(0.98);
-      }
-    }
-  }
-
   .bottom-spacer {
-    height: 7rem;
+    width: 100%;
+    height: 3rem;
   }
 }
