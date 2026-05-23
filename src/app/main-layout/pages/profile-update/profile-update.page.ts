@@ -23,11 +23,11 @@ import {
 import { UserServices } from 'src/app/services/userServices';
 import { UserDataGetRes, UserUpdatePostReqForm } from 'src/app/model/user.model';
 import { timer } from 'rxjs';
-import { NavController } from '@ionic/angular';
+import { NavController, AlertController } from '@ionic/angular';
 import { extractErrorMessage } from 'src/app/utils/error.util';
 import { ActivatedRoute } from '@angular/router';
 import { addIcons } from 'ionicons';
-import { person, personOutline, callOutline } from 'ionicons/icons';
+import { person, personOutline, callOutline, arrowBackCircleOutline } from 'ionicons/icons';
 
 @Component({
   selector: 'app-profile-update',
@@ -62,9 +62,10 @@ export class ProfileUpdatePage {
     private userSv: UserServices,
     private fb: FormBuilder,
     private navCtrl: NavController,
-    private actRouter: ActivatedRoute
+    private actRouter: ActivatedRoute,
+    private alertController: AlertController
   ) {
-    addIcons({ person, personOutline, callOutline });
+    addIcons({ person, personOutline, callOutline, arrowBackCircleOutline });
     this.updateForm = this.fb.group<UserUpdatePostReqForm>({
       username: this.fb.control(null),
       phone_number: this.fb.control(null),
@@ -90,6 +91,34 @@ export class ProfileUpdatePage {
         });
       }
     });
+  }
+
+  goBack() {
+    this.navCtrl.back();
+  }
+
+  async confirmUpdate() {
+    if (this.updateForm.invalid) return;
+
+    const alert = await this.alertController.create({
+      header: 'ยืนยันการบันทึก',
+      message: 'คุณต้องการบันทึกการเปลี่ยนแปลงข้อมูลใช่หรือไม่?',
+      buttons: [
+        {
+          text: 'ยกเลิก',
+          role: 'cancel',
+          cssClass: 'secondary'
+        },
+        {
+          text: 'ยืนยัน',
+          handler: () => {
+            this.update();
+          }
+        }
+      ]
+    });
+
+    await alert.present();
   }
 
   update() {

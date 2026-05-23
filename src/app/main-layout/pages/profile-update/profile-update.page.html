@@ -2,6 +2,10 @@
   <div class="background-container"></div>
 
   <div class="content-wrapper">
+    <ion-button fill="clear" class="absolute-back-btn" (click)="goBack()">
+      <ion-icon name="arrow-back-circle-outline" slot="icon-only" color="dark"></ion-icon>
+    </ion-button>
+
     <div class="profile-header">
       <div class="avatar-placeholder">
         <ion-icon name="person"></ion-icon>
@@ -12,7 +16,7 @@
       </div>
     </div>
 
-    <form [formGroup]="updateForm" (ngSubmit)="update()" class="info-section">
+    <form [formGroup]="updateForm" (ngSubmit)="confirmUpdate()" class="info-section">
       <ion-list lines="none" class="minimal-list">
         <ion-item class="highlight-item">
           <ion-icon name="person-outline" slot="start"></ion-icon>
@@ -66,3 +70,4 @@
     position="bottom"
   ></ion-toast>
 </ion-content>
+

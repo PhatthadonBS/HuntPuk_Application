@@ -44,7 +44,7 @@ import { Observable, timer } from 'rxjs';
 import { UserDataGetRes, UserLoggedInPostRes } from 'src/app/model/user.model';
 import { AuthenService } from 'src/app/services/authenService';
 import { extractErrorMessage } from 'src/app/utils/error.util';
-import { NavController } from '@ionic/angular';
+import { NavController, AlertController } from '@ionic/angular';
 import { LoadingUIComponent } from '../../components/loading-ui/loading-ui.component';
 
 @Component({
@@ -75,12 +75,14 @@ export class UserDetailPage{
   user = signal<UserDataGetRes | null>(null);
   errMsg = signal<string | null>(null);
   succMsg = signal<string | null>(null);
+
   constructor(
     private userSv: UserServices,
     private authSv: AuthenService,
     private router: Router,
     private actRouter: ActivatedRoute,
-    private navCtrl: NavController
+    private navCtrl: NavController,
+    private alertController: AlertController
   ) { 
     addIcons({
       arrowBackCircleOutline,
@@ -123,8 +125,26 @@ export class UserDetailPage{
     }
   }
 
-  logout() {
-    return this.authSv.logoutUser();
+  async logout() {
+    const alert = await this.alertController.create({
+      header: 'ยืนยันการออกจากระบบ',
+      message: 'คุณต้องการออกจากระบบใช่หรือไม่?',
+      buttons: [
+        {
+          text: 'ยกเลิก',
+          role: 'cancel',
+          cssClass: 'secondary'
+        },
+        {
+          text: 'ออกจากระบบ',
+          handler: () => {
+            this.authSv.logoutUser();
+          }
+        }
+      ]
+    });
+
+    await alert.present();
   }
 
   profileUpdate() {
@@ -135,16 +155,49 @@ export class UserDetailPage{
     return this.router.navigate(['/forgotPasswd']);
   }
 
-  deleteAccount() {
-    const reCon = confirm('ต้องการลบบัญชีหรือไม่?');
-
-    if (reCon) {
-      this.userSv.deleteAccount(this.user()!.USER_ID).subscribe({
-        next: () => {
-          return this.logout();
+  async deleteAccount() {
+    const alert = await this.alertController.create({
+      header: 'ยืนยันการลบบัญชี',
+      message: 'พิมพ์คำว่า "DELETE" เพื่อยืนยันการลบบัญชีของคุณ',
+      inputs: [
+        {
+          name: 'confirmText',
+          type: 'text',
+          placeholder: 'พิมพ์ DELETE'
+        }
+      ],
+      buttons: [
+        {
+          text: 'ยกเลิก',
+          role: 'cancel',
+          cssClass: 'secondary'
         },
-      });
-    }
-    return;
+        {
+          text: 'ลบบัญชี',
+          cssClass: 'danger',
+          handler: (data) => {
+            if (data.confirmText === 'DELETE') {
+              const uid = this.user()?.USER_ID;
+              if (uid) {
+                this.userSv.deleteAccount(uid).subscribe({
+                  next: () => {
+                    this.authSv.logoutUser();
+                  },
+                  error: (err) => {
+                    this.errMsg.set(extractErrorMessage(err));
+                  }
+                });
+              }
+              return true;
+            } else {
+              this.errMsg.set('คำยืนยันไม่ถูกต้อง กรุณาพิมพ์ DELETE เพื่อยืนยัน');
+              return false; // Prevents the alert from closing if typing is wrong
+            }
+          }
+        }
+      ]
+    });
+
+    await alert.present();
   }
 }
