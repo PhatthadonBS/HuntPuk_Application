@@ -51,6 +51,36 @@ export interface DormSummary {
   start_price: number;
 }
 
+export interface DormDetail {
+  DORM_ID: number;
+  DORM_NAME: string;
+  ADDRESS: string;
+  SCORE: string;
+  image: string;
+  ZONE_NAME: string;
+  lat: number;
+  lng: number;
+  start_price: number;
+  phone: string;
+  line: string;
+  facebook: string;
+  instagram: string;
+  telegram: string;
+  x: string;
+  facilities: string[];
+  gallery: string[];
+  rooms: { ROOM_TYPE_NAME: string; PRICE: number }[];
+  WATER_UNIT_PRICE: number;
+  WATER_LUMP_SUM_PRICE: number;
+  ELECTRICITY_UNIT_PRICE: number;
+  DETAIL: string;
+}
+
+export interface DormDetailGetRes {
+  success: boolean;
+  data: DormDetail;
+}
+
 export interface DormRoomImgTypeGetRes {
   IMG_ROOM_TYPE_ID: number;
   IMG_ROOM_TYPE_NAME: string;
@@ -62,4 +92,16 @@ export interface FacOfDormGetRes {
   FAC_TYPE_NAME: string;
   FAC_TYPE_ICON: string;
   DORM_ID: number;
+}
+
+export interface DormZone {
+  ZONE_ID: number;
+  ZONE_NAME: string;
+  lat: number;
+  lng: number;
+}
+
+export interface DormZoneGetRes {
+  success: boolean;
+  data: DormZone[];
 }

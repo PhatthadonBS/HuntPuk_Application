@@ -1,6 +1,6 @@
 $bg-white: #ffffff;
 $text-dark-gray: #374151;
-$primary-yellow: #fbbf24;
+$primary-yellow: #ffcc00;
 
 .footer-container {
   position: fixed;
@@ -36,13 +36,13 @@ $primary-yellow: #fbbf24;
 
   ion-icon {
     font-size: 32px;
-    color: #4b5563;
+    color: #555555;
   }
 
   &.active {
-    background-color: #fef3c7;
+    background-color: #fff5cc;
     ion-icon {
-      color: #fbbf24;
+      color: #ffcc00;
     }
   }
 }

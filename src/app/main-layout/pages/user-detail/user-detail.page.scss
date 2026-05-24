@@ -1,5 +1,5 @@
-$accent-yellow: #fbbf24;
-$base-dark: #1f2937;
+$accent-yellow: #ffcc00;
+$base-dark: #333333;
 $border-light: rgba(255, 255, 255, 0.4);
 
 ion-content.minimal-style {
@@ -12,7 +12,7 @@ ion-content.minimal-style {
     width: 100%;
     height: 100vh;
     z-index: 0;
-    background: linear-gradient(135deg, #fbbf24 0%, #fef3c7 100%);
+    background: linear-gradient(135deg, #ffcc00 0%, #fff5cc 100%);
     pointer-events: none;
 
     &::before {
@@ -20,7 +20,7 @@ ion-content.minimal-style {
       position: absolute;
       width: 150%;
       height: 100%;
-      background: #fbbf24;
+      background: #ffcc00;
       top: -50%;
       left: -25%;
       transform: rotate(-10deg);

@@ -14,7 +14,7 @@ ion-content {
   width: 100%;
   height: 100%;
   z-index: 0;
-  background: linear-gradient(135deg, #fbbf24 0%, #fef3c7 100%);
+  background: linear-gradient(135deg, #ffcc00 0%, #fff5cc 100%);
   overflow: hidden;
 
   &::before {
@@ -22,7 +22,7 @@ ion-content {
     position: absolute;
     width: 150%;
     height: 100%;
-    background: #1f2937;
+    background: #333333;
     top: -50%;
     left: -25%;
     transform: rotate(-10deg);
@@ -83,9 +83,9 @@ ion-content {
   --border-radius: 16px !important;
   --padding-start: 16px;
   --padding-end: 16px;
-  --color: #1f2937;
+  --color: #333333;
   --placeholder-color: #6b7280;
-  --highlight-color-focused: #fbbf24;
+  --highlight-color-focused: #ffcc00;
   font-weight: 500;
   transition: all 0.3s ease;
   margin-bottom: 0 !important;
@@ -103,7 +103,7 @@ ion-content {
   box-shadow: none !important;
 
   &:focus-within {
-    border: 1px solid #fbbf24 !important;
+    border: 1px solid #ffcc00 !important;
     border-radius: 16px !important;
     background: white;
     --background: white;
@@ -143,7 +143,7 @@ ion-content {
 }
 
 .nav-btn {
-  --color: #4b5563;
+  --color: #555555;
   --border-radius: 16px;
   height: 48px;
   font-weight: 600;
@@ -156,12 +156,12 @@ ion-content {
   }
 
   &:hover {
-    --color: #1f2937;
+    --color: #333333;
   }
 
   ion-icon {
     font-size: 24px;
-    color: #fbbf24;
+    color: #ffcc00;
   }
 }
 

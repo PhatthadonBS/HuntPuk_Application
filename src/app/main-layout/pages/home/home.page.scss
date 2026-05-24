@@ -5,63 +5,309 @@
 }
 
 ion-content {
-  --background: transparent;
+  /* Remove static transparency here. 
+     Global CSS will apply transparency via .map-view-active when map is ready. */
 }
 
-.top-ui {
+.filter-group-wrapper {
   position: absolute;
   top: 12px;
-  left: 12px;
-  right: 12px;
+  left: 0;
+  width: 100%;
   z-index: 10;
+  pointer-events: none; /* Let clicks pass through empty space */
+  animation: slideDown 0.3s ease-out;
 }
 
-.bottom-sheet {
+@keyframes slideDown {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(0); }
+}
+
+/* --------------------------------- */
+/* Clear Circle / Filter Button      */
+/* --------------------------------- */
+.clear-circle-btn {
   position: absolute;
+  bottom: 100px; /* Higher above the footer menu */
+  right: 16px;
+  z-index: 10;
+  width: 48px;
+  height: 48px;
+  --border-radius: 50%;
+  --background: #333333;
+  --color: #ffcc00;
+  --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  margin: 0;
+  animation: scaleIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* --------------------------------- */
+/* Map Blur Overlay                  */
+/* --------------------------------- */
+.map-overlay-blur {
+  position: absolute;
+  top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  height: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 15;
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* --------------------------------- */
+/* Detailed Dorm Popup Card          */
+/* --------------------------------- */
+.dorm-popup-card {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 400px;
   background: #ffffff;
-  border-radius: 20px 20px 0 0;
-  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2);
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   z-index: 20;
-  display: none; /* Hidden by default */
-}
-
-.bottom-sheet.open {
-  display: block; /* Show instantly */
-  height: 250px;
-}
-
-.handle {
-  width: 40px;
-  height: 4px;
-  background: #e5e7eb;
-  border-radius: 2px;
-  margin: 12px auto;
-}
-
-.content {
-  padding: 0 20px 20px;
+  overflow: hidden;
   
-  h2 {
-    margin: 0 0 4px;
-    font-size: 1.15rem;
+  /* Use animation instead of transition for *ngIf mounting */
+  animation: popIn 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+
+  /* Close Button */
+  .close-popup-btn {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 2;
+    --color: #ffffff;
+    --background: rgba(0, 0, 0, 0.4);
+    --border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    margin: 0;
+  }
+
+  /* Favorite Button */
+  .fav-popup-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 2;
+    --color: #ffffff;
+    --background: rgba(0, 0, 0, 0.4);
+    --border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    margin: 0;
+  }
+
+  .image-container {
+    position: relative;
+    width: 100%;
+    height: 180px;
+    background: #e5e7eb;
+
+    .dorm-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Full Status Badge */
+    .full-status-badge {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(239, 68, 68, 0.9); /* Red-500 */
+      color: white;
+      text-align: center;
+      padding: 6px 0;
+      font-weight: bold;
+      font-size: 0.9rem;
+      backdrop-filter: blur(4px);
+    }
+  }
+
+  .content-details {
+    padding: 16px;
+
+    .header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
+
+      .dorm-name {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #333333;
+        flex: 1;
+        padding-right: 8px;
+      }
+
+      .score-badge {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        background: #fff5cc; /* light yellow bg */
+        color: #997a00; /* dark yellow text */
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        
+        ion-icon {
+          font-size: 1rem;
+        }
+      }
+    }
+
+    .address-text {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      margin: 0 0 8px;
+      color: #333333;
+      font-size: 0.85rem;
+      line-height: 1.4;
+
+      ion-icon {
+        flex-shrink: 0;
+        margin-top: 2px;
+        color: #888888;
+      }
+    }
+
+    .update-text {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin: 0 0 16px;
+      color: #888888;
+      font-size: 0.75rem;
+
+      ion-icon {
+        font-size: 0.9rem;
+      }
+    }
+
+    .action-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid #eeeeee;
+      padding-top: 12px;
+
+      .price-display {
+        display: flex;
+        align-items: baseline;
+        gap: 4px;
+
+        .price-label {
+          font-size: 0.75rem;
+          color: #555555;
+        }
+
+        .price-value {
+          font-size: 1.2rem;
+          font-weight: 700;
+          color: #ffcc00; /* primary color */
+        }
+
+        .price-unit {
+          font-size: 0.75rem;
+          color: #555555;
+        }
+      }
+
+      .view-detail-btn {
+        margin: 0;
+        --border-radius: 12px;
+        --padding-start: 16px;
+        --padding-end: 16px;
+        font-weight: 600;
+        --color: #333333;
+      }
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* --------------------------------- */
+/* Filter Modal Styles               */
+/* --------------------------------- */
+.filter-content {
+  --background: #f9f9f9;
+}
+
+.filter-list {
+  background: transparent;
+}
+
+.filter-group {
+  margin-bottom: 24px;
+  background: white;
+  padding: 16px;
+  border-radius: 16px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+
+  .group-title {
+    font-size: 1.05rem;
     font-weight: 700;
-    color: #1f2937;
+    color: #333333;
+    margin-bottom: 12px;
+    display: block;
   }
-  
-  p {
-    margin: 0 0 12px;
-    color: #6b7280;
-    font-size: 0.85rem;
+
+  .filter-input-item, .filter-select-item {
+    --background: #f9f9f9;
+    --border-radius: 12px;
+    --padding-start: 12px;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    border: 1px solid #eeeeee;
   }
 }
 
-.stats {
-  display: flex;
-  gap: 12px;
-  font-weight: 700;
-  color: #fbbf24;
+.filter-actions {
+  padding: 16px;
+  margin-top: 16px;
+
+  ion-button {
+    --border-radius: 12px;
+    height: 48px;
+    font-weight: 700;
+  }
 }

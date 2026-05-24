@@ -14,13 +14,7 @@ export const routes: Routes = [
           import('./main-layout/pages/home/home.page').then((m) => m.HomePage),
         runGuardsAndResolvers: 'always',
       },
-      {
-        path: 'dorms',
-        loadComponent: () =>
-          import('./main-layout/pages/dorm-list/dorm-list.page').then(
-            (m) => m.DormListPage
-          ),
-      },
+
       {
         path: 'profile/:user_id',
         canActivate: [authGuard],
@@ -41,12 +35,19 @@ export const routes: Routes = [
     ],
   },
   {
+    path: 'dorms',
+    loadComponent: () =>
+      import('./main-layout/pages/dorm-list/dorm-list.page').then(
+        (m) => m.DormListPage
+      ),
+  },
+  {
     path: 'forgotPasswd',
     loadComponent: () =>
       import('./main-layout/pages/forget-password/forget-password.page').then(
         (m) => m.ForgetPasswordPage
       ),
-  },
+},
 
   {
     path: 'login',
@@ -58,12 +59,15 @@ export const routes: Routes = [
       import('./register/register.page').then((m) => m.RegisterPage),
   },
   {
+    path: 'dorm-compare',
+    loadComponent: () =>
+      import('./main-layout/pages/dorm-compare/dorm-compare.page').then(
+        (m) => m.DormComparePage
+      ),
+  },
+  {
     path: '**',
     loadComponent: () =>
       import('./not-found/not-found.page').then((m) => m.NotFoundPage),
-  },
-  {
-    path: 'dorm-list',
-    loadComponent: () => import('./main-layout/pages/dorm-list/dorm-list.page').then( m => m.DormListPage)
   },
 ];

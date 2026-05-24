@@ -1,0 +1,162 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="main-toolbar">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home" icon="arrow-back-circle-outline"></ion-back-button>
+    </ion-buttons>
+    <ion-title>เปรียบเทียบหอพัก</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="compare-content" [fullscreen]="true">
+  
+  <div class="auth-notice" *ngIf="maxDorms() === 2">
+    <p>ผู้ใช้ทั่วไปเปรียบเทียบได้สูงสุด 2 แห่ง เข้าสู่ระบบเพื่อเปรียบเทียบสูงสุด 5 แห่ง</p>
+  </div>
+
+  <div class="compare-scroll-container">
+    <div class="compare-grid" [style.minWidth]="(selectedDorms().length * 200 + 160) + 'px'">
+      
+      <!-- Sticky Labels Column -->
+      <div class="grid-column labels-column">
+        <div class="cell header-cell empty-cell"></div>
+        <div class="cell title-cell">คะแนน</div>
+        <div class="cell title-cell">ราคาเริ่มต้น</div>
+        <div class="cell title-cell">ค่าน้ำ</div>
+        <div class="cell title-cell">ค่าไฟ</div>
+        <div class="cell title-cell">โซน</div>
+        <div class="cell title-cell flex-grow">ประเภทห้องพัก</div>
+        <div class="cell title-cell flex-grow">สิ่งอำนวยความสะดวก</div>
+      </div>
+
+      <!-- Dorm Columns -->
+      <div class="grid-column dorm-column" *ngFor="let dorm of selectedDorms(); let i = index">
+        <div class="cell header-cell">
+          <ion-button class="remove-btn" fill="clear" color="medium" (click)="removeDorm(i)">
+            <ion-icon name="close-circle-outline" slot="icon-only"></ion-icon>
+          </ion-button>
+          <div class="img-wrapper">
+            <img [src]="dorm.image" alt="Dorm Image" />
+          </div>
+          <h3>{{ dorm.DORM_NAME }}</h3>
+        </div>
+        
+        <div class="cell data-cell score-cell">
+          ⭐ {{ dorm.SCORE | number:'1.1-1' }}
+        </div>
+        
+        <div class="cell data-cell price-cell">
+          {{ dorm.start_price | number }} ฿
+        </div>
+        
+        <div class="cell data-cell">
+          <ng-container *ngIf="dorm.WATER_UNIT_PRICE; else waterLump">
+            {{ dorm.WATER_UNIT_PRICE }} ฿/หน่วย
+          </ng-container>
+          <ng-template #waterLump>
+            <ng-container *ngIf="dorm.WATER_LUMP_SUM_PRICE; else noWater">
+              {{ dorm.WATER_LUMP_SUM_PRICE }} ฿/เหมา
+            </ng-container>
+          </ng-template>
+          <ng-template #noWater>-</ng-template>
+        </div>
+        
+        <div class="cell data-cell">
+          {{ dorm.ELECTRICITY_UNIT_PRICE ? dorm.ELECTRICITY_UNIT_PRICE + ' ฿/หน่วย' : '-' }}
+        </div>
+        
+        <div class="cell data-cell">
+          {{ dorm.ZONE_NAME }}
+        </div>
+        
+        <div class="cell data-cell flex-grow list-cell">
+          <ul *ngIf="dorm.rooms?.length; else noRooms">
+            <li *ngFor="let r of dorm.rooms">{{ r.ROOM_TYPE_NAME }} ({{ r.PRICE }}฿)</li>
+          </ul>
+          <ng-template #noRooms>-</ng-template>
+        </div>
+        
+        <div class="cell data-cell flex-grow list-cell">
+          <ul *ngIf="dorm.facilities?.length; else noFacs">
+            <li *ngFor="let f of dorm.facilities">{{ f }}</li>
+          </ul>
+          <ng-template #noFacs>-</ng-template>
+        </div>
+      </div>
+
+      <!-- Add Dorm Placeholder Column -->
+      <div class="grid-column add-column" *ngIf="selectedDorms().length < maxDorms()">
+        <div class="cell header-cell add-btn-cell" (click)="openSelectModal()">
+          <div class="add-circle">
+            <ion-icon name="add-circle-outline"></ion-icon>
+          </div>
+          <p>เพิ่มหอพัก</p>
+        </div>
+        <!-- Empty cells to maintain grid structure -->
+        <div class="cell empty-cell"></div>
+        <div class="cell empty-cell"></div>
+        <div class="cell empty-cell"></div>
+        <div class="cell empty-cell"></div>
+        <div class="cell empty-cell"></div>
+        <div class="cell empty-cell flex-grow"></div>
+        <div class="cell empty-cell flex-grow"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" *ngIf="isLoadingDetail()">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>กำลังโหลดข้อมูล...</p>
+  </div>
+
+  <!-- Modal for selecting a dorm -->
+  <ion-modal [isOpen]="isModalOpen()">
+    <ng-template>
+      <ion-header class="ion-no-border">
+        <ion-toolbar class="main-toolbar">
+          <ion-title>เลือกหอพัก</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="closeModal()">
+              <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+        <ion-toolbar class="search-toolbar">
+          <ion-searchbar 
+            [(ngModel)]="searchQuery" 
+            placeholder="ค้นหาชื่อหอพัก..." 
+            mode="ios"
+            animated="true">
+          </ion-searchbar>
+        </ion-toolbar>
+      </ion-header>
+
+      <ion-content>
+        <div class="ion-padding text-center" *ngIf="isLoadingModal()">
+          <ion-spinner></ion-spinner>
+        </div>
+        
+        <ion-list *ngIf="!isLoadingModal()">
+          <ion-item button *ngFor="let dorm of filteredDorms()" (click)="selectDorm(dorm.DORM_ID)">
+            <ion-avatar slot="start">
+              <img [src]="dorm.image" />
+            </ion-avatar>
+            <ion-label>
+              <h2>{{ dorm.DORM_NAME }}</h2>
+              <p>{{ dorm.zone }}</p>
+            </ion-label>
+            <ion-label slot="end" class="text-right">
+              <p class="text-success font-bold">{{ dorm.start_price | number }}฿</p>
+            </ion-label>
+          </ion-item>
+        </ion-list>
+        
+        <div class="ion-padding text-center text-gray-500" *ngIf="!isLoadingModal() && filteredDorms().length === 0">
+          ไม่พบหอพักที่ค้นหา หรือคุณเลือกหอพักนี้ไปแล้ว
+        </div>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+</ion-content>

@@ -1,17 +1,77 @@
 <ion-content fullscreen [scrollY]="false">
   <capacitor-google-map #map id="map"></capacitor-google-map>
+
+  <!-- Filter Group Sheet (Hides when Dorm Details or Menu is Open) -->
+  <div class="filter-group-wrapper" *ngIf="!isOpenMenu()">
+    <!-- Bind the new filterApplied Output and pass zones -->
+    <app-filter-group [zones]="zones()" (filterApplied)="handleFilterApplied($event)"></app-filter-group>
+  </div>
   
-  <!-- Bottom Sheet UI -->
-  <div class="bottom-sheet" [class.open]="sheetOpen()" *ngIf="selectedDorm() as dorm">
-    <div class="handle" (click)="sheetOpen.set(false)"></div>
-    <div class="content">
-      <h2>{{ dorm.DORM_NAME }}</h2>
-      <p>{{ dorm.ADDRESS }}</p>
-      <div class="stats">
-        <span>⭐ {{ dorm.SCORE }}</span>
+  <!-- Overlay to blur map when popup is open -->
+  <div class="map-overlay-blur" *ngIf="sheetOpen()" (click)="sheetOpen.set(false)"></div>
+
+  <!-- Detailed Dorm Popup UI -->
+  <div class="dorm-popup-card" *ngIf="sheetOpen() && selectedDorm() as dorm">
+    <!-- Close Button Top Left -->
+    <ion-button fill="clear" class="close-popup-btn" (click)="sheetOpen.set(false)">
+      <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+    </ion-button>
+
+    <!-- Favorite Flag Top Right (Placeholder action) -->
+    <ion-button fill="clear" class="fav-popup-btn" (click)="toggleFavorite($event, dorm)">
+      <ion-icon name="bookmark-outline" slot="icon-only"></ion-icon>
+    </ion-button>
+
+    <div class="image-container">
+      <img #dormImg [src]="dorm.image || 'assets/placeholder-dorm.jpg'" 
+           class="dorm-image" 
+           (error)="dormImg.src = 'assets/placeholder-dorm.jpg'" />
+      
+      <!-- Full Highlight Text under picture -->
+      <div class="full-status-badge" *ngIf="$any(dorm).IS_FULL"> <!-- Assuming IS_FULL might come from API later -->
+        <ion-label>ที่พักเต็ม</ion-label>
+      </div>
+    </div>
+
+    <div class="content-details">
+      <div class="header-row">
+        <h2 class="dorm-name">{{ dorm.DORM_NAME }}</h2>
+        <div class="score-badge">
+          <ion-icon name="star"></ion-icon>
+          <span>{{ dorm.SCORE ? dorm.SCORE : '0.0' }}</span>
+        </div>
+      </div>
+      
+      <p class="address-text">
+        <ion-icon name="location-outline"></ion-icon>
+        {{ dorm.ADDRESS }}
+      </p>
+
+      <p class="update-text" *ngIf="$any(dorm).UPDATED_AT">
+        <ion-icon name="time-outline"></ion-icon>
+        อัปเดตเมื่อ: {{ $any(dorm).UPDATED_AT | date:'mediumDate' }}
+      </p>
+
+      <div class="action-footer">
+        <div class="price-display">
+          <span class="price-label">เริ่มต้น</span>
+          <span class="price-value">฿{{ dorm.start_price | number }}</span>
+          <span class="price-unit">/ด.</span>
+        </div>
+        <ion-button color="primary" class="view-detail-btn" (click)="goToDormDetail(dorm.DORM_ID)">ดูรายละเอียด</ion-button>
       </div>
     </div>
   </div>
+
+  <!-- Clear Circle / Filter Button -->
+  <ion-button 
+    class="clear-circle-btn" 
+    *ngIf="selectedZone() && !sheetOpen()" 
+    (click)="clearZoneFilter()"
+  >
+    <ion-icon name="close" slot="icon-only"></ion-icon>
+  </ion-button>
+
 </ion-content>
 
 <app-loading-ui *ngIf="isLoading()"></app-loading-ui>

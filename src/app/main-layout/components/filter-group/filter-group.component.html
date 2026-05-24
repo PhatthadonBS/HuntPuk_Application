@@ -1,0 +1,72 @@
+<div class="filter-group-container">
+  
+  <div class="row-1">
+    <ion-searchbar
+      [(ngModel)]="searchQuery"
+      placeholder="ค้นหาชื่อหอพัก..."
+      mode="ios"
+      class="custom-search"
+      (keyup.enter)="onSearch()"
+    ></ion-searchbar>
+    
+    <ion-button class="action-btn search-btn" (click)="onSearch()">
+      <ion-icon name="search-outline" slot="icon-only"></ion-icon>
+    </ion-button>
+  </div>
+  
+  <div class="row-2">
+    <ion-button class="action-btn filter-btn" (click)="goToFilter()">
+      <ion-icon name="filter-outline" slot="start"></ion-icon>
+      ตัวกรอง
+    </ion-button>
+
+    <ion-button class="action-btn compare-btn" (click)="goToCompare()">
+      <ion-icon name="git-compare-outline" slot="start"></ion-icon>
+      เปรียบเทียบ
+    </ion-button>
+  </div>
+
+</div>
+
+<!-- พื้นหลังมืดๆ ดักการคลิก -->
+<div class="filter-overlay" *ngIf="isFilterModalOpen" (click)="isFilterModalOpen = false"></div>
+
+<!-- ตัวหน้าต่าง -->
+<div class="custom-filter-sheet" [class.open]="isFilterModalOpen">
+  
+  <ion-button fill="clear" class="close-sheet-btn" (click)="isFilterModalOpen = false">
+    <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+  </ion-button>
+
+  <div class="sheet-content">
+    
+    <div class="custom-field">
+      <label class="field-label">เลือกโซน</label>
+      <select [(ngModel)]="selectedZone" class="native-input-elem">
+        <option value="">ทุกโซน</option>
+        <option *ngFor="let zone of zones" [value]="zone.ZONE_ID">{{ zone.ZONE_NAME }}</option>
+      </select>
+    </div>
+
+    <div class="price-range-container">
+      <p class="section-title">ช่วงราคา (บาท/เดือน)</p>
+      <div class="price-inputs">
+        <div class="custom-field flex-1">
+          <label class="field-label">ต่ำสุด</label>
+          <input type="number" [(ngModel)]="minPrice" placeholder="เช่น 2000" class="native-input-elem" />
+        </div>
+        <span class="price-divider">-</span>
+        <div class="custom-field flex-1">
+          <label class="field-label">สูงสุด</label>
+          <input type="number" [(ngModel)]="maxPrice" placeholder="เช่น 5000" class="native-input-elem" />
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <ion-button fill="clear" class="clear-btn" (click)="clearFilters()">ล้างค่า</ion-button>
+      <ion-button class="apply-btn" (click)="applyFilters()">ดูผลลัพธ์</ion-button>
+    </div>
+  </div>
+  
+</div>

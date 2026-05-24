@@ -1,0 +1,269 @@
+/* ------------------------------- */
+/* Minimal Theme Variables         */
+/* ------------------------------- */
+$primary-color: #ffcc00;
+$dark-text: #333333;
+$glass-bg: rgba(255, 255, 255, 0.85);
+$light-bg: #f9f9f9;
+$border-color: rgba(255, 255, 255, 0.4);
+
+/* ------------------------------- */
+/* Layout หน้าหลัก (Main Module)   */
+/* ------------------------------- */
+.filter-group-container {
+  background: $glass-bg;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  padding: 16px;
+  margin: 2rem 16px 12px 16px;
+  border: 1px solid $border-color;
+  pointer-events: auto;
+  animation: slideInUp 0.5s ease-out;
+}
+
+@keyframes slideInUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* แถวที่ 1: ช่องค้นหา + ปุ่มค้นหา */
+.row-1 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+
+  ion-searchbar {
+    flex: 1;
+    padding: 0;
+    --background: rgba(0, 0, 0, 0.05);
+    --border-radius: 16px;
+    --box-shadow: none;
+    --color: $dark-text;
+    --placeholder-color: #666666;
+    --icon-color: #666666;
+    height: 48px;
+  }
+
+  .search-btn {
+    margin: 0;
+    height: 48px;
+    width: 48px;
+    --border-radius: 16px;
+    --background: #{$primary-color};
+    --color: #{$dark-text};
+    --box-shadow: none;
+    font-size: 1.2rem;
+  }
+}
+
+/* แถวที่ 2: ปุ่มกรอง + ปุ่มเปรียบเทียบ */
+.row-2 {
+  display: flex;
+  gap: 12px;
+
+  .action-btn {
+    flex: 1;
+    margin: 0;
+    height: 44px;
+    --border-radius: 14px;
+    --background: rgba(0, 0, 0, 0.03);
+    --color: #{$dark-text};
+    --box-shadow: none;
+    font-weight: 700;
+    font-size: 0.9rem;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    
+    ion-icon {
+      font-size: 1.1rem;
+      margin-right: 6px;
+    }
+  }
+}
+
+/* ------------------------------- */
+/* Popup Module (Filter Modal)     */
+/* ------------------------------- */
+
+/* พื้นหลังมืดๆ ดักการคลิก */
+.filter-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 999;
+  pointer-events: auto;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ตัวหน้าต่าง Modular Popup */
+.custom-filter-sheet {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) scale(0.9);
+  opacity: 0;
+  visibility: hidden;
+  width: 90%;
+  max-width: 380px;
+  height: auto;
+  max-height: 80vh;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border-radius: 32px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  pointer-events: auto;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  &.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  .close-sheet-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 2;
+    --color: #{$dark-text};
+    --background: rgba(0, 0, 0, 0.05);
+    margin: 0;
+    width: 36px;
+    height: 36px;
+    --border-radius: 50%;
+  }
+}
+
+/* ส่วนเนื้อหาของตัวกรอง */
+.sheet-content {
+  padding: 40px 24px 24px;
+  overflow-y: auto;
+
+  h2 {
+    margin: 0 0 24px;
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: $dark-text;
+    text-align: left;
+  }
+}
+
+/* ------------------------------- */
+/* Native HTML Input Styles        */
+/* ------------------------------- */
+
+.custom-field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 24px;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+.field-label {
+  font-size: 0.9rem;
+  color: #666666;
+  margin-bottom: 8px;
+  padding-left: 2px;
+  font-weight: 700;
+}
+
+.native-input-elem {
+  width: 100%;
+  padding: 14px 18px;
+  font-size: 1rem;
+  color: $dark-text;
+  background-color: rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 16px;
+  outline: none;
+  font-family: inherit;
+  transition: all 0.2s;
+  box-sizing: border-box;
+  
+  &:focus {
+    background-color: white;
+    border-color: $primary-color;
+    box-shadow: 0 0 0 4px rgba(255, 204, 0, 0.1);
+  }
+
+  &::placeholder {
+    color: #bbbbbb;
+  }
+}
+
+select.native-input-elem {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333333' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 1.2rem center;
+  background-size: 1.1em;
+}
+
+.price-range-container {
+  margin-bottom: 32px;
+  
+  .section-title {
+    font-weight: 700;
+    color: $dark-text;
+    margin-bottom: 12px;
+    font-size: 1rem;
+  }
+}
+
+.price-inputs {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  .price-divider {
+    font-weight: 800;
+    color: #cccccc;
+    margin-top: 24px;
+  }
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  gap: 12px;
+
+  ion-button {
+    margin: 0;
+    height: 52px;
+    font-weight: 800;
+    --box-shadow: none;
+  }
+
+  .clear-btn {
+    --color: #999999;
+    flex: 1;
+    font-size: 0.95rem;
+  }
+
+  .apply-btn {
+    --background: #{$primary-color};
+    --color: #{$dark-text};
+    --border-radius: 18px;
+    flex: 2;
+  }
+}

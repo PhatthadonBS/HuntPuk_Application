@@ -51,7 +51,7 @@
 }
 
 .title {
-  color: #1f2937;
+  color: #333333;
   text-align: center;
   margin: 0 0 24px;
   font-size: 1.5rem;
@@ -69,7 +69,7 @@
   --border-radius: 16px !important;
   --padding-start: 16px;
   --padding-end: 16px;
-  --color: #1f2937;
+  --color: #333333;
   --placeholder-color: #6b7280;
   font-weight: 500;
   transition: all 0.3s ease;
@@ -88,7 +88,7 @@
   box-shadow: none !important;
 
   &:focus-within {
-    border: 1px solid #fbbf24 !important;
+    border: 1px solid #ffcc00 !important;
     background: white;
     --background: white;
   }
@@ -117,7 +117,7 @@
   --border-radius: 16px;
   --border-color: #e5e7eb;
   --border-width: 1px;
-  --color: #4b5563;
+  --color: #555555;
   --background: white;
   font-weight: 600;
   font-size: 0.9rem;
@@ -139,9 +139,9 @@
 
 .confirm-btn {
   margin-top: 24px;
-  --background: #fbbf24;
-  --background-activated: #d97706;
-  --color: #1f2937;
+  --background: #ffcc00;
+  --background-activated: #997a00;
+  --color: #333333;
   --border-radius: 16px;
   height: 56px;
   font-size: 1.1rem;
