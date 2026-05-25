@@ -42,7 +42,7 @@ import { Capacitor } from '@capacitor/core';
 import { FilterGroupComponent, FilterParams } from '../../components/filter-group/filter-group.component';
 import { MainLayoutPage } from '../../main-layout.page';
 import { addIcons } from 'ionicons';
-import { star, locationOutline, timeOutline, closeOutline, bookmarkOutline, navigateOutline, pinOutline, chevronForwardOutline } from 'ionicons/icons';
+import { star, locationOutline, timeOutline, closeOutline, bookmarkOutline, navigateOutline, pinOutline, chevronForwardOutline, location } from 'ionicons/icons';
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -85,6 +85,7 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
   
   // Use a Map for reliable marker -> dorm lookup
   private markerMap = new Map<string, DormSummary>();
+  private isUpdatingMarkers = false; // Guard for concurrent updates
   
   dorms = signal<DormSummary[]>([]);
   selectedDorm = signal<DormSummary | null>(null);
@@ -116,7 +117,7 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
     private renderer: Renderer2,
     public mainLayout: MainLayoutPage
   ) {
-    addIcons({ star, locationOutline, timeOutline, closeOutline, bookmarkOutline, navigateOutline, pinOutline, chevronForwardOutline });
+    addIcons({ star, location, timeOutline, closeOutline, bookmarkOutline, navigateOutline, pinOutline, chevronForwardOutline });
 
     // Automatically update map markers when dorms data OR map readiness changes
     effect(() => {
@@ -463,9 +464,11 @@ this.pinMarkerId = ids[0];
   }
 
   async updateMapMarkers(dormsToDisplay: DormSummary[]) {
-    if (!this.newMap) return;
+    if (!this.newMap || this.isUpdatingMarkers) return;
 
     try {
+      this.isUpdatingMarkers = true;
+
       // 1. Remove markers by IDs if they exist
       if (this.currentMarkerIds.length > 0) {
         await this.newMap.removeMarkers(this.currentMarkerIds).catch(e => console.error('Error removing markers:', e));
@@ -480,7 +483,7 @@ this.pinMarkerId = ids[0];
           lng: dorm.lng,
         },
         iconUrl: 'assets/icon/home.png',
-        iconSize: { width: 45, height: 45 },
+        iconSize: { width: 40, height: 40 },
         zIndex: 100 // Ensure they are on top of the search pin
       }));
 
@@ -495,6 +498,8 @@ this.pinMarkerId = ids[0];
       }
     } catch (error) {
        console.error('Error updating map markers:', error);
+    } finally {
+      this.isUpdatingMarkers = false;
     }
   }
 

@@ -59,7 +59,7 @@ ion-content {
 
     ion-icon {
       color: #ffcc00;
-      font-size: 1.2rem;
+      font-size: 2.2rem;
     }
 
     ion-label {
@@ -211,8 +211,8 @@ ion-content {
 
       .dorm-name {
         margin: 0;
-        font-size: 1.25rem;
-        font-weight: 700;
+        font-size: 1.4rem; /* Increased (~22px) */
+        font-weight: 800;
         color: #333333;
         flex: 1;
         padding-right: 8px;
@@ -224,13 +224,13 @@ ion-content {
         gap: 4px;
         background: #fff5cc; 
         color: #997a00; 
-        padding: 4px 8px;
+        padding: 4px 10px;
         border-radius: 12px;
-        font-weight: 700;
-        font-size: 0.85rem;
+        font-weight: 800;
+        font-size: 1rem; /* ~16px */
         
         ion-icon {
-          font-size: 1rem;
+          font-size: 1.1rem;
         }
       }
     }
@@ -239,15 +239,16 @@ ion-content {
       display: flex;
       align-items: flex-start;
       gap: 6px;
-      margin: 0 0 12px;
+      margin: 0 0 14px;
       color: #666666;
-      font-size: 0.85rem;
-      line-height: 1.4;
+      font-size: 18px; /* Target: 18px */
+      line-height: 1.5;
 
       ion-icon {
         flex-shrink: 0;
-        margin-top: 2px;
+        margin-top: 4px;
         color: #888888;
+        font-size: 1.2rem;
       }
     }
 
@@ -263,18 +264,19 @@ ion-content {
         gap: 4px;
 
         .price-label {
-          font-size: 0.75rem;
+          font-size: 1rem; /* ~16px */
           color: #888888;
+          font-weight: 600;
         }
 
         .price-value {
-          font-size: 1.2rem;
-          font-weight: 700;
+          font-size: 1.4rem; /* Increased (~22px) */
+          font-weight: 800;
           color: #ffcc00; 
         }
 
         .price-unit {
-          font-size: 0.75rem;
+          font-size: 1rem; /* ~16px */
           color: #888888;
         }
       }
@@ -285,10 +287,10 @@ ion-content {
         gap: 4px;
         margin: 0;
         color: #999999;
-        font-size: 0.75rem;
+        font-size: 0.9rem; /* ~14px */
 
         ion-icon {
-          font-size: 0.9rem;
+          font-size: 1rem;
         }
       }
     }
@@ -298,14 +300,14 @@ ion-content {
       justify-content: center;
       align-items: center;
       gap: 6px;
-      padding-top: 12px;
+      padding-top: 14px;
       border-top: 1px solid #f0f0f0;
       color: #ffcc00;
-      font-weight: 700;
-      font-size: 0.9rem;
+      font-weight: 800;
+      font-size: 18px; /* Target: 18px */
 
       ion-icon {
-        font-size: 1.1rem;
+        font-size: 1.2rem;
       }
     }
   }

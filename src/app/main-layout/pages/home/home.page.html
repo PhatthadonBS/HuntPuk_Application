@@ -4,9 +4,12 @@
   <!-- Filter Group Sheet (Hides when Dorm Details, Menu or Pin Mode is Open) -->
   <div class="filter-group-wrapper" *ngIf="!isOpenMenu() && !isPinMode()">
     <!-- Bind the new filterApplied Output and pass zones -->
-    <app-filter-group [zones]="zones()" (filterApplied)="handleFilterApplied($event)"></app-filter-group>
+    <app-filter-group
+      [zones]="zones()"
+      (filterApplied)="handleFilterApplied($event)"
+    ></app-filter-group>
   </div>
-  
+
   <!-- Pin Mode Instructions -->
   <div class="pin-mode-overlay" *ngIf="isPinMode()">
     <div class="instruction-badge">
@@ -17,28 +20,47 @@
       ยกเลิก
     </ion-button>
   </div>
-  
+
   <!-- Overlay to blur map when popup is open -->
-  <div class="map-overlay-blur" *ngIf="sheetOpen()" (click)="sheetOpen.set(false)"></div>
+  <div
+    class="map-overlay-blur"
+    *ngIf="sheetOpen()"
+    (click)="sheetOpen.set(false)"
+  ></div>
 
   <!-- Detailed Dorm Popup UI -->
-  <div class="dorm-popup-card" *ngIf="sheetOpen() && selectedDorm() as dorm" (click)="goToDormDetail(dorm.DORM_ID)">
+  <div
+    class="dorm-popup-card"
+    *ngIf="sheetOpen() && selectedDorm() as dorm"
+    (click)="goToDormDetail(dorm.DORM_ID)"
+  >
     <!-- Close Button Top Left -->
-    <ion-button fill="clear" class="close-popup-btn" (click)="$event.stopPropagation(); sheetOpen.set(false)">
+    <ion-button
+      fill="clear"
+      class="close-popup-btn"
+      (click)="$event.stopPropagation(); sheetOpen.set(false)"
+    >
       <ion-icon name="close-outline" slot="icon-only"></ion-icon>
     </ion-button>
 
     <!-- Favorite Flag Top Right -->
-    <ion-button fill="clear" class="fav-popup-btn" (click)="toggleFavorite($event, dorm)">
+    <ion-button
+      fill="clear"
+      class="fav-popup-btn"
+      (click)="toggleFavorite($event, dorm)"
+    >
       <ion-icon name="bookmark-outline" slot="icon-only"></ion-icon>
     </ion-button>
 
     <div class="image-container">
-      <img #dormImg [src]="dorm.image || 'https://placehold.co/600x400?text=No+Image'" 
-           class="dorm-image" 
-           (error)="dormImg.src = 'https://placehold.co/600x400?text=No+Image'" />
-      
-      <div class="full-status-badge" *ngIf="$any(dorm).IS_FULL"> 
+      <img
+        #dormImg
+        [src]="dorm.image || 'https://placehold.co/600x400?text=No+Image'"
+        class="dorm-image"
+        (error)="dormImg.src = 'https://placehold.co/600x400?text=No+Image'"
+      />
+
+      <div class="full-status-badge" *ngIf="$any(dorm).IS_FULL">
         <ion-label>ที่พักเต็ม</ion-label>
       </div>
     </div>
@@ -51,9 +73,9 @@
           <span>{{ dorm.SCORE ? (dorm.SCORE | number:'1.1-1') : '0.0' }}</span>
         </div>
       </div>
-      
+
       <p class="address-text">
-        <ion-icon name="location-outline"></ion-icon>
+        <ion-icon name="location" class="text-[20px]"></ion-icon>
         {{ dorm.ADDRESS }}
       </p>
 
@@ -64,9 +86,9 @@
           <span class="price-unit">/ด.</span>
         </div>
 
-        <p class="update-text" *ngIf="$any(dorm).UPDATE_AT">
+        <p class="update-text" *ngIf="$any(dorm).update_at">
           <ion-icon name="time-outline"></ion-icon>
-          {{ $any(dorm).UPDATE_AT | date:'mediumDate' }}
+          {{ $any(dorm).update_at | date:'mediumDate' }}
         </p>
       </div>
 
@@ -78,14 +100,16 @@
   </div>
 
   <!-- Pin Button -->
-  <ion-button 
-    class="pin-circle-btn" 
+  <ion-button
+    class="pin-circle-btn"
     [class.active]="isPinMode() || pinnedLocation()"
     (click)="isPinMode() || pinnedLocation() ? clearPin() : togglePinMode()"
   >
-    <ion-icon [name]="pinnedLocation() || isPinMode() ? 'close' : 'pin-outline'" slot="icon-only"></ion-icon>
+    <ion-icon
+      [name]="pinnedLocation() || isPinMode() ? 'close' : 'pin-outline'"
+      slot="icon-only"
+    ></ion-icon>
   </ion-button>
-
 </ion-content>
 
 <app-loading-ui *ngIf="isLoading()"></app-loading-ui>
