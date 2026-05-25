@@ -42,7 +42,8 @@ import { Capacitor } from '@capacitor/core';
 import { FilterGroupComponent, FilterParams } from '../../components/filter-group/filter-group.component';
 import { MainLayoutPage } from '../../main-layout.page';
 import { addIcons } from 'ionicons';
-import { star, locationOutline, timeOutline, closeOutline, bookmarkOutline } from 'ionicons/icons';
+import { star, locationOutline, timeOutline, closeOutline, bookmarkOutline, navigateOutline, pinOutline, chevronForwardOutline } from 'ionicons/icons';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-home',
@@ -80,23 +81,31 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
   newMap!: GoogleMap;
   currentMarkerIds: string[] = [];
   currentCircleIds: string[] = []; // Track map circles
+  pinMarkerId: string | null = null; // Track the search pin marker
+  
+  // Use a Map for reliable marker -> dorm lookup
+  private markerMap = new Map<string, DormSummary>();
   
   dorms = signal<DormSummary[]>([]);
   selectedDorm = signal<DormSummary | null>(null);
   sheetOpen = signal(false);
   isLoading = signal(false);
+  mapReady = signal(false); // New signal to track map initialization
 
-  // Filter State
+  // Filter & Pin State
   zones = signal<DormZone[]>([]);
   searchQuery = signal<string>('');
   minPrice = signal<number | null>(null);
   maxPrice = signal<number | null>(null);
   selectedZone = signal<string | null>(null);
+  
+  isPinMode = signal(false);
+  pinnedLocation = signal<{lat: number, lng: number} | null>(null);
 
   // Default Center (MSU Khamrieng)
   readonly DEFAULT_LAT = 16.2458428;
   readonly DEFAULT_LNG = 103.2500078;
-  readonly FILTER_RADIUS_KM = 1;
+  readonly FILTER_RADIUS_KM = 0.5;
 
   private routerSub: Subscription;
 
@@ -107,12 +116,15 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
     private renderer: Renderer2,
     public mainLayout: MainLayoutPage
   ) {
-    addIcons({ star, locationOutline, timeOutline, closeOutline, bookmarkOutline });
+    addIcons({ star, locationOutline, timeOutline, closeOutline, bookmarkOutline, navigateOutline, pinOutline, chevronForwardOutline });
 
-    // Automatically update map markers when dorms data changes from API
+    // Automatically update map markers when dorms data OR map readiness changes
     effect(() => {
       const dormsToDisplay = this.dorms();
-      this.updateMapMarkers(dormsToDisplay);
+      const ready = this.mapReady();
+      if (ready) {
+        this.updateMapMarkers(dormsToDisplay);
+      }
     });
 
     this.routerSub = this.router.events
@@ -139,18 +151,23 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
      this.cleanupMapAndView();
   }
 
-  forceReload() {
+  async forceReload() {
     // Reset state
     this.sheetOpen.set(false);
     this.selectedDorm.set(null);
+    this.mapReady.set(false); // Reset readiness
+    this.isPinMode.set(false);
+    this.pinnedLocation.set(null);
+    this.mainLayout.hideFooter.set(false);
     
     // Clean up existing map if any
     if (this.newMap) {
-      this.newMap.destroy().catch(e => console.error('Failed to destroy map:', e));
+      await this.newMap.destroy().catch(e => console.error('Failed to destroy map:', e));
       // @ts-ignore
       this.newMap = null;
       this.currentMarkerIds = [];
       this.currentCircleIds = [];
+      this.pinMarkerId = null;
     }
 
     this.loadDorms();
@@ -159,6 +176,8 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
 
   cleanupMapAndView() {
     this.renderer.removeClass(document.body, 'map-view-active');
+    this.mapReady.set(false); // Reset readiness
+    this.mainLayout.hideFooter.set(false);
     
     if (this.newMap) {
       this.newMap.destroy().catch(e => console.error('Failed to destroy map on leave:', e));
@@ -166,6 +185,7 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
       this.newMap = null;
       this.currentMarkerIds = [];
       this.currentCircleIds = [];
+      this.pinMarkerId = null;
     }
   }
 
@@ -178,15 +198,24 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
     if (this.minPrice() !== null) params.minPrice = this.minPrice();
     if (this.maxPrice() !== null) params.maxPrice = this.maxPrice();
     
-    // Convert zone ID to zone name if needed, and update lat/lng to zone center
     const selectedZoneId = this.selectedZone();
-    if (selectedZoneId) {
+    const pin = this.pinnedLocation();
+
+    let centerLat = this.DEFAULT_LAT;
+    let centerLng = this.DEFAULT_LNG;
+
+    if (pin) {
+       params.lat = pin.lat;
+       params.lng = pin.lng;
+       params.radius = this.FILTER_RADIUS_KM;
+       centerLat = pin.lat;
+       centerLng = pin.lng;
+    } else if (selectedZoneId) {
        const zoneObj = this.zones().find(z => z.ZONE_ID.toString() === selectedZoneId);
        if (zoneObj) {
          params.zone = zoneObj.ZONE_NAME;
-         params.lat = zoneObj.lat || this.DEFAULT_LAT;
-         params.lng = zoneObj.lng || this.DEFAULT_LNG;
-         params.radius = this.FILTER_RADIUS_KM;
+         centerLat = zoneObj.lat || this.DEFAULT_LAT;
+         centerLng = zoneObj.lng || this.DEFAULT_LNG;
        }
     }
 
@@ -200,18 +229,17 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
       .subscribe({
         next: async (res) => {
           if (res.success && Array.isArray(res.data)) {
-            // Update the signal inside NgZone to trigger change detection
+            // Update signal (will trigger effect if mapReady is true)
             this.zone.run(() => {
               this.dorms.set(res.data);
             });
-            // Give the DOM a moment to render the map element before init
+
+            // Ensure map is initialized
             setTimeout(async () => {
               await this.initMap();
-              // Explicitly draw markers and circles after map is ready
-              await this.updateMapMarkers(this.dorms());
               
-              if (selectedZoneId && params.lat && params.lng) {
-                 await this.updateMapCircle(params.lat, params.lng, this.FILTER_RADIUS_KM);
+              if (pin || selectedZoneId) {
+                 await this.updateMapCircle(centerLat, centerLng, this.FILTER_RADIUS_KM);
               } else {
                  await this.clearMapCircle();
               }
@@ -238,17 +266,45 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
   }
 
   handleFilterApplied(params: FilterParams) {
-    // Update signals based on emitted params from FilterGroupComponent
     this.searchQuery.set(params.search || '');
     this.minPrice.set(params.minPrice !== undefined ? params.minPrice : null);
     this.maxPrice.set(params.maxPrice !== undefined ? params.maxPrice : null);
     this.selectedZone.set(params.zone || null);
     
-    // Close the detail sheet if open
+    this.clearPin(false); // Correctly remove pin marker and reset pin state
+    
     this.sheetOpen.set(false);
-
-    // Fetch new filtered data from API
     this.loadDorms();
+  }
+
+  togglePinMode() {
+    const newVal = !this.isPinMode();
+    this.isPinMode.set(newVal);
+    this.mainLayout.hideFooter.set(newVal);
+    this.sheetOpen.set(false);
+    
+    if (newVal) {
+      this.clearPin(false); // Clear existing search results/pin marker but stay in pin mode
+    }
+  }
+
+  clearPin(reload = true) {
+    this.pinnedLocation.set(null);
+    this.isPinMode.set(reload ? false : this.isPinMode());
+    this.mainLayout.hideFooter.set(this.isPinMode());
+    
+    if (this.newMap && this.pinMarkerId) {
+       this.newMap.removeMarker(this.pinMarkerId).catch(e => console.error(e));
+       this.pinMarkerId = null;
+    }
+
+    if (reload) {
+      this.selectedZone.set(null);
+      this.searchQuery.set('');
+      this.minPrice.set(null);
+      this.maxPrice.set(null);
+      this.loadDorms();
+    }
   }
 
   clearZoneFilter() {
@@ -267,7 +323,6 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
   }
 
   async initMap() {
-    // Only run mapping on native platforms for performance
     if (!Capacitor.isNativePlatform()) {
       console.warn('Native Google Maps is designed for iOS/Android.');
       return;
@@ -283,7 +338,7 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
         this.newMap = await GoogleMap.create({
           id: 'my-map',
           element: this.mapEl.nativeElement,
-          apiKey: this.dormService.endPoint, // Fallback placeholder if missing env var
+          apiKey: environment.GGMAPI, 
           config: {
             center: {
               lat: this.DEFAULT_LAT,
@@ -291,19 +346,71 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
             },
             zoom: 14,
             disableDefaultUI: true,
+            clickableIcons: false, 
+            styles: [
+              {
+                featureType: "all",
+                elementType: "labels.icon",
+                stylers: [{ visibility: "off" }],
+              },
+            ],
           },
         });
         
-        // Apply transparency to allow native map to show through
         this.renderer.addClass(document.body, 'map-view-active');
-        await this.newMap.enableCurrentLocation(true).catch(e => console.error(e));
+        await this.newMap.enableCurrentLocation(false).catch(e => console.error(e));
 
-        // Close bottom sheet if map is clicked (outside a marker)
-        await this.newMap.setOnMapClickListener(() => {
-          this.zone.run(() => {
-              this.sheetOpen.set(false);
+        // Listen for map clicks
+        await this.newMap.setOnMapClickListener(async (data) => {
+          this.zone.run(async () => {
+            if (this.isPinMode()) {
+               const lat = data.latitude;
+               const lng = data.longitude;
+               
+               this.pinnedLocation.set({ lat, lng });
+               this.isPinMode.set(false);
+               this.mainLayout.hideFooter.set(false);
+if (this.pinMarkerId) {
+   await this.newMap.removeMarker(this.pinMarkerId);
+}
+
+const ids = await this.newMap.addMarkers([{
+   coordinate: { lat, lng },
+   title: 'จุดที่ค้นหา',
+   iconUrl: 'assets/icon/map-pin.png',
+   iconSize: { width: 40, height: 40 },
+   zIndex: 10 // Pinned location lower than dorms
+}]);
+this.pinMarkerId = ids[0];
+
+               this.loadDorms();
+            } else {
+               this.sheetOpen.set(false);
+            }
           });
         });
+
+        // Listen for marker clicks (Set ONCE in initMap)
+        await this.newMap.setOnMarkerClickListener(async (marker) => {
+          this.zone.run(() => {
+            if (marker.markerId === this.pinMarkerId) return;
+
+            const selected = this.markerMap.get(marker.markerId);
+            if (selected) {
+               this.selectedDorm.set(selected);
+               this.sheetOpen.set(true);
+               
+               this.newMap.setCamera({
+                 coordinate: { lat: selected.lat, lng: selected.lng },
+                 animate: true
+               });
+            }
+          });
+        });
+
+        this.mapReady.set(true); 
+      } else {
+        this.mapReady.set(true);
       }
 
     } catch (error) {
@@ -314,20 +421,20 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
   async updateMapCircle(lat: number, lng: number, radiusKm: number) {
     if (!this.newMap) return;
     try {
-      await this.clearMapCircle();
+      await this.clearMapCircle(false);
       
       this.currentCircleIds = await this.newMap.addCircles([{
         center: { lat, lng },
         radius: radiusKm * 1000,
-        fillColor: '#FFCC00', // Yellow
-        fillOpacity: 0.25,     // 25% opacity for glass effect
+        fillColor: '#FFCC00', 
+        fillOpacity: 0.25,     
         strokeColor: '#FFCC00',
         strokeWeight: 2,
       }]);
 
       await this.newMap.setCamera({
         coordinate: { lat, lng },
-        zoom: 14.5, // zoomed in slightly more to fit the 1km radius nicely
+        zoom: 15, 
         animate: true
       });
     } catch (error) {
@@ -335,12 +442,20 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
     }
   }
 
-  async clearMapCircle() {
+  async clearMapCircle(resetCamera = true) {
     if (!this.newMap) return;
     try {
       if (this.currentCircleIds.length > 0) {
         await this.newMap.removeCircles(this.currentCircleIds);
         this.currentCircleIds = [];
+      }
+      
+      if (resetCamera) {
+        await this.newMap.setCamera({
+          coordinate: { lat: this.DEFAULT_LAT, lng: this.DEFAULT_LNG },
+          zoom: 14,
+          animate: true
+        });
       }
     } catch (error) {
       console.error('Error removing circle:', error);
@@ -351,41 +466,31 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
     if (!this.newMap) return;
 
     try {
-      // Remove old markers before adding new ones
+      // 1. Remove markers by IDs if they exist
       if (this.currentMarkerIds.length > 0) {
-        await this.newMap.removeMarkers(this.currentMarkerIds);
-        this.currentMarkerIds = []; // Clear array
+        await this.newMap.removeMarkers(this.currentMarkerIds).catch(e => console.error('Error removing markers:', e));
+        this.currentMarkerIds = []; 
+        this.markerMap.clear();
       }
 
+      // 2. Prepare new marker data
       const markersData = dormsToDisplay.map((dorm) => ({
         coordinate: {
           lat: dorm.lat,
           lng: dorm.lng,
-        }
-        // Removed title: " " to try and suppress the native bubble/msg box.
-        // If the marker becomes unclickable, we will try another approach.
+        },
+        iconUrl: 'assets/icon/home.png',
+        iconSize: { width: 45, height: 45 },
+        zIndex: 100 // Ensure they are on top of the search pin
       }));
 
+      // 3. Add markers and store their new IDs in the Map for lookup
       if (markersData.length > 0) {
         this.currentMarkerIds = await this.newMap.addMarkers(markersData);
-
-        // Listen for marker clicks
-        await this.newMap.setOnMarkerClickListener(async (marker) => {
-          this.zone.run(() => {
-            // Find the dorm corresponding to the clicked marker index
-            const index = this.currentMarkerIds.indexOf(marker.markerId);
-            if (index !== -1 && index < dormsToDisplay.length) {
-               const selected = dormsToDisplay[index];
-               this.selectedDorm.set(selected);
-               this.sheetOpen.set(true);
-               
-               // Optionally pan to the marker
-               this.newMap.setCamera({
-                 coordinate: { lat: selected.lat, lng: selected.lng },
-                 animate: true
-               });
-            }
-          });
+        
+        // Link returned marker IDs to our dorm objects
+        this.currentMarkerIds.forEach((id, idx) => {
+          this.markerMap.set(id, dormsToDisplay[idx]);
         });
       }
     } catch (error) {

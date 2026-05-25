@@ -35,7 +35,9 @@
             <ion-icon name="close-circle-outline" slot="icon-only"></ion-icon>
           </ion-button>
           <div class="img-wrapper">
-            <img [src]="dorm.image" alt="Dorm Image" />
+            <img #dormImg [src]="dorm.image || 'https://placehold.co/400x300?text=No+Image'" 
+                 alt="Dorm Image" 
+                 (error)="dormImg.src = 'https://placehold.co/400x300?text=No+Image'" />
           </div>
           <h3>{{ dorm.DORM_NAME }}</h3>
         </div>
@@ -140,7 +142,8 @@
         <ion-list *ngIf="!isLoadingModal()">
           <ion-item button *ngFor="let dorm of filteredDorms()" (click)="selectDorm(dorm.DORM_ID)">
             <ion-avatar slot="start">
-              <img [src]="dorm.image" />
+              <img #modalDormImg [src]="dorm.image || 'https://placehold.co/100x100?text=No+Img'" 
+                   (error)="modalDormImg.src = 'https://placehold.co/100x100?text=No+Img'" />
             </ion-avatar>
             <ion-label>
               <h2>{{ dorm.DORM_NAME }}</h2>

@@ -1,13 +1,14 @@
-import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { addIcons } from 'ionicons';
-import { searchOutline, filterOutline, gitCompareOutline, closeOutline } from 'ionicons/icons';
+import { searchOutline, filterOutline, gitCompareOutline, closeOutline, arrowBackOutline } from 'ionicons/icons';
 import { 
-  IonSearchbar, IonButton, IonIcon 
+  IonSearchbar, IonButton, IonIcon, IonModal 
 } from '@ionic/angular/standalone';
 import { DormZone } from 'src/app/model/dorm.model';
+import { NavController } from '@ionic/angular';
 
 export interface FilterParams {
   search?: string;
@@ -22,11 +23,17 @@ export interface FilterParams {
   styleUrls: ['./filter-group.component.scss'],
   standalone: true,
   imports: [
-    CommonModule, FormsModule, IonSearchbar, IonButton, IonIcon
+    CommonModule, FormsModule, IonSearchbar, IonButton, IonIcon, IonModal
   ]
 })
-export class FilterGroupComponent implements OnInit {
+export class FilterGroupComponent implements OnInit, OnChanges {
   @Input() zones: DormZone[] = [];
+  @Input() showCompare: boolean = true; 
+  @Input() showBack: boolean = false; 
+  @Input() showSearch: boolean = true; // New: Option to hide search bar
+  @Input() isInline: boolean = false; // New: Option for no bg/shadow
+  @Input() initialParams: FilterParams | null = null;
+  @Input() openFilterOnLoad: boolean = false; 
   @Output() filterApplied = new EventEmitter<FilterParams>();
 
   searchQuery: string = '';
@@ -39,26 +46,51 @@ export class FilterGroupComponent implements OnInit {
   maxPrice: number | null = null;
   selectedZone: string = '';
 
-  constructor(private router: Router) {
-    addIcons({ searchOutline, filterOutline, gitCompareOutline, closeOutline });
+  constructor(private router: Router, private navCtrl: NavController) {
+    addIcons({ searchOutline, filterOutline, gitCompareOutline, closeOutline, arrowBackOutline });
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    if (this.initialParams) {
+      this.syncParams(this.initialParams);
+    }
+
+    if (this.openFilterOnLoad) {
+      this.isFilterModalOpen = true;
+    }
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['initialParams'] && this.initialParams) {
+      this.syncParams(this.initialParams);
+    }
+  }
+
+  private syncParams(params: FilterParams) {
+    this.searchQuery = params.search || '';
+    this.minPrice = params.minPrice ?? null;
+    this.maxPrice = params.maxPrice ?? null;
+    this.selectedZone = params.zone || '';
+  }
 
   onSearch() {
     this.emitFilters();
   }
 
   goToFilter() {
-    this.isFilterModalOpen = true; // เปิด Div เด้งขึ้นมา
+    this.isFilterModalOpen = true; 
   }
 
   goToCompare() {
     this.router.navigate(['/dorm-compare']);
   }
 
+  goBack() {
+    this.navCtrl.back();
+  }
+
   applyFilters() {
-    this.isFilterModalOpen = false; // ปิด Div
+    this.isFilterModalOpen = false; 
     this.emitFilters();
   }
 
@@ -77,6 +109,7 @@ export class FilterGroupComponent implements OnInit {
     this.maxPrice = null;
     this.selectedZone = '';
     this.searchQuery = '';
+    this.isFilterModalOpen = false; 
     this.emitFilters();
   }
 }

@@ -15,8 +15,13 @@ ion-content {
   left: 0;
   width: 100%;
   z-index: 10;
-  pointer-events: none; /* Let clicks pass through empty space */
+  padding: 0 16px; /* Added padding to replace removed component margins */
+  pointer-events: none; 
   animation: slideDown 0.3s ease-out;
+
+  app-filter-group {
+    pointer-events: auto;
+  }
 }
 
 @keyframes slideDown {
@@ -25,31 +30,82 @@ ion-content {
 }
 
 /* --------------------------------- */
-/* Clear Circle / Filter Button      */
+/* Pin Mode UI                       */
 /* --------------------------------- */
-.clear-circle-btn {
+.pin-mode-overlay {
   position: absolute;
-  bottom: 100px; /* Higher above the footer menu */
-  right: 16px;
-  z-index: 10;
-  width: 48px;
-  height: 48px;
-  --border-radius: 50%;
-  --background: #333333;
-  --color: #ffcc00;
-  --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  margin: 0;
-  animation: scaleIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  top: 40px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  z-index: 100;
+  pointer-events: none;
+  animation: slideDown 0.3s ease-out;
+
+  .instruction-badge {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 12px 20px;
+    border-radius: 30px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid rgba(255, 204, 0, 0.3);
+
+    ion-icon {
+      color: #ffcc00;
+      font-size: 1.2rem;
+    }
+
+    ion-label {
+      font-weight: 700;
+      color: #333333;
+      font-size: 0.95rem;
+    }
+  }
+
+  .cancel-pin-btn {
+    pointer-events: auto;
+    --color: #ffffff;
+    --background: rgba(0, 0, 0, 0.5);
+    --border-radius: 20px;
+    height: 36px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    margin: 0;
+  }
 }
 
-@keyframes scaleIn {
-  from {
-    transform: scale(0);
-    opacity: 0;
+/* --------------------------------- */
+/* Pin Circle Button                 */
+/* --------------------------------- */
+.pin-circle-btn {
+  position: absolute;
+  bottom: 100px;
+  right: 16px;
+  z-index: 10;
+  width: 56px;
+  height: 56px;
+  --border-radius: 50%;
+  --background: #ffffff;
+  --color: #333333;
+  --box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  margin: 0;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  
+  &.active {
+    --background: #333333;
+    --color: #ffcc00;
+    transform: scale(1.1);
   }
-  to {
-    transform: scale(1);
-    opacity: 1;
+
+  ion-icon {
+    font-size: 1.6rem;
   }
 }
 
@@ -166,8 +222,8 @@ ion-content {
         display: flex;
         align-items: center;
         gap: 4px;
-        background: #fff5cc; /* light yellow bg */
-        color: #997a00; /* dark yellow text */
+        background: #fff5cc; 
+        color: #997a00; 
         padding: 4px 8px;
         border-radius: 12px;
         font-weight: 700;
@@ -183,8 +239,8 @@ ion-content {
       display: flex;
       align-items: flex-start;
       gap: 6px;
-      margin: 0 0 8px;
-      color: #333333;
+      margin: 0 0 12px;
+      color: #666666;
       font-size: 0.85rem;
       line-height: 1.4;
 
@@ -195,25 +251,11 @@ ion-content {
       }
     }
 
-    .update-text {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin: 0 0 16px;
-      color: #888888;
-      font-size: 0.75rem;
-
-      ion-icon {
-        font-size: 0.9rem;
-      }
-    }
-
-    .action-footer {
+    .price-update-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-top: 1px solid #eeeeee;
-      padding-top: 12px;
+      margin-bottom: 16px;
 
       .price-display {
         display: flex;
@@ -222,30 +264,56 @@ ion-content {
 
         .price-label {
           font-size: 0.75rem;
-          color: #555555;
+          color: #888888;
         }
 
         .price-value {
           font-size: 1.2rem;
           font-weight: 700;
-          color: #ffcc00; /* primary color */
+          color: #ffcc00; 
         }
 
         .price-unit {
           font-size: 0.75rem;
-          color: #555555;
+          color: #888888;
         }
       }
 
-      .view-detail-btn {
+      .update-text {
+        display: flex;
+        align-items: center;
+        gap: 4px;
         margin: 0;
-        --border-radius: 12px;
-        --padding-start: 16px;
-        --padding-end: 16px;
-        font-weight: 600;
-        --color: #333333;
+        color: #999999;
+        font-size: 0.75rem;
+
+        ion-icon {
+          font-size: 0.9rem;
+        }
       }
     }
+
+    .click-detail-msg {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+      padding-top: 12px;
+      border-top: 1px solid #f0f0f0;
+      color: #ffcc00;
+      font-weight: 700;
+      font-size: 0.9rem;
+
+      ion-icon {
+        font-size: 1.1rem;
+      }
+    }
+  }
+
+  &:active {
+    background: #f9f9f9;
+    transform: translate(-50%, -50%) scale(0.98);
+    transition: transform 0.1s;
   }
 }
 

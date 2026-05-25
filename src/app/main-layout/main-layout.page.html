@@ -2,7 +2,7 @@
   <ion-router-outlet></ion-router-outlet>
 </ion-content>
 <app-nav-footer
-  *ngIf="!isOpenMenu()"
+  *ngIf="!isOpenMenu() && !hideFooter()"
   (menuClick)="openMenu()"
   (accountClick)="goTo($event)"
   (homeClick)="goHome()"

@@ -14,13 +14,23 @@ $border-color: rgba(255, 255, 255, 0.4);
   background: $glass-bg;
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border-radius: 24px;
+  border-radius: 28px; /* Slightly more rounded */
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-  padding: 16px;
-  margin: 2rem 16px 12px 16px;
+  padding: 12px 16px; /* Reduced padding */
+  margin: 0;
   border: 1px solid $border-color;
   pointer-events: auto;
   animation: slideInUp 0.5s ease-out;
+
+  &.is-inline {
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    box-shadow: none;
+    border: none;
+    padding: 0;
+    animation: none;
+  }
 }
 
 @keyframes slideInUp {
@@ -28,111 +38,109 @@ $border-color: rgba(255, 255, 255, 0.4);
   to { transform: translateY(0); opacity: 1; }
 }
 
-/* แถวที่ 1: ช่องค้นหา + ปุ่มค้นหา */
+/* แถวที่ 1: ปุ่มย้อนกลับ + ช่องค้นหา + ปุ่มค้นหา */
 .row-1 {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
+  gap: 8px; /* Tighter gap */
+  margin-bottom: 8px;
+
+  .back-btn {
+    margin: 0;
+    --padding-start: 0;
+    --padding-end: 0;
+    --color: #{$dark-text};
+    width: 36px; /* Slightly larger clickable area */
+    height: 44px;
+    font-size: 1.4rem;
+  }
 
   ion-searchbar {
     flex: 1;
     padding: 0;
     --background: rgba(0, 0, 0, 0.05);
-    --border-radius: 16px;
+    --border-radius: 14px; /* Tighter radius */
     --box-shadow: none;
     --color: $dark-text;
-    --placeholder-color: #666666;
-    --icon-color: #666666;
-    height: 48px;
+    --placeholder-color: #777777;
+    --icon-color: #777777;
+    height: 44px; /* Slightly shorter */
   }
 
   .search-btn {
     margin: 0;
-    height: 48px;
-    width: 48px;
-    --border-radius: 16px;
+    height: 44px;
+    width: 44px;
+    --border-radius: 14px;
     --background: #{$primary-color};
     --color: #{$dark-text};
     --box-shadow: none;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
   }
 }
-
 /* แถวที่ 2: ปุ่มกรอง + ปุ่มเปรียบเทียบ */
 .row-2 {
   display: flex;
+  justify-content: start; /* Center the buttons */
   gap: 12px;
 
   .action-btn {
-    flex: 1;
+    width: fit-content;
+    min-width: 100px; /* More compact */
     margin: 0;
-    height: 44px;
-    --border-radius: 14px;
+    height: 38px; /* Shorter buttons */
+    --border-radius: 12px;
     --background: rgba(0, 0, 0, 0.03);
     --color: #{$dark-text};
     --box-shadow: none;
     font-weight: 700;
-    font-size: 0.9rem;
-    border: 1px solid rgba(0, 0, 0, 0.05);
+    font-size: 0.85rem;
     
     ion-icon {
-      font-size: 1.1rem;
-      margin-right: 6px;
+      font-size: 1rem;
+      margin-right: 4px;
     }
   }
 }
 
 /* ------------------------------- */
-/* Popup Module (Filter Modal)     */
+/* Filter Modal (using ion-modal)  */
 /* ------------------------------- */
 
-/* พื้นหลังมืดๆ ดักการคลิก */
-.filter-overlay {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0, 0, 0, 0.3);
-  z-index: 999;
-  pointer-events: auto;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  animation: fadeIn 0.3s ease-out forwards;
-}
+.custom-filter-modal {
+  --width: 100%;
+  --height: 100%;
+  --background: transparent;
+  --backdrop-opacity: 0.3;
+  --box-shadow: none;
+  &::part(content) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+  }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
+  .sheet-content-wrapper {
+    position: relative;
+    top: 30%;
+    width: 90vw;
+    max-width: 380px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border-radius: 32px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    pointer-events: auto;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    overflow: hidden;
+    animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
 
-/* ตัวหน้าต่าง Modular Popup */
-.custom-filter-sheet {
-  position: fixed;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%) scale(0.9);
-  opacity: 0;
-  visibility: hidden;
-  width: 90%;
-  max-width: 380px;
-  height: auto;
-  max-height: 80vh;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(30px);
-  -webkit-backdrop-filter: blur(30px);
-  border-radius: 32px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-  z-index: 1000;
-  display: flex;
-  flex-direction: column;
-  pointer-events: auto;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  overflow: hidden;
-  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-
-  &.open {
-    opacity: 1;
-    visibility: visible;
-    transform: translate(-50%, -50%) scale(1);
+  @keyframes popIn {
+    from { transform: scale(0.85); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
   }
 
   .close-sheet-btn {
@@ -153,6 +161,7 @@ $border-color: rgba(255, 255, 255, 0.4);
 .sheet-content {
   padding: 40px 24px 24px;
   overflow-y: auto;
+  width: 100%;
 
   h2 {
     margin: 0 0 24px;

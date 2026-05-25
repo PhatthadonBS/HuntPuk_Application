@@ -35,6 +35,7 @@ import { filterOutline, star, locationOutline, cashOutline, arrowBackCircleOutli
 import { environment } from 'src/environments/environment';
 import { ActivatedRoute } from '@angular/router';
 import { NavController } from '@ionic/angular';
+import { FilterGroupComponent, FilterParams } from '../../components/filter-group/filter-group.component';
 
 @Component({
   selector: 'app-dorm-list',
@@ -68,7 +69,8 @@ import { NavController } from '@ionic/angular';
     IonRow,
     IonCol,
     IonList,
-    IonBackButton
+    IonBackButton,
+    FilterGroupComponent
   ],
 })
 export class DormListPage implements OnInit {
@@ -78,9 +80,10 @@ export class DormListPage implements OnInit {
   searchQuery = signal<string>('');
   minPrice = signal<number | null>(null);
   maxPrice = signal<number | null>(null);
-  selectedZone = signal<string | null>(null); // Use string because zone name is returned in summary
+  selectedZoneId = signal<string | null>(null); // Store Zone ID as string
+  initialParams = signal<FilterParams | null>(null);
+  autoOpenFilter = signal<boolean>(false);
 
-  isFilterModalOpen = false;
   env = environment;
 
   filteredDorms = computed(() => {
@@ -88,7 +91,7 @@ export class DormListPage implements OnInit {
     const query = this.searchQuery().toLowerCase();
     const min = this.minPrice();
     const max = this.maxPrice();
-    const zone = this.selectedZone();
+    const zoneId = this.selectedZoneId();
 
     if (query) {
       dorms = dorms.filter((d) => d.DORM_NAME.toLowerCase().includes(query));
@@ -99,8 +102,11 @@ export class DormListPage implements OnInit {
     if (max !== null) {
       dorms = dorms.filter((d) => d.start_price <= max);
     }
-    if (zone) {
-      dorms = dorms.filter((d) => d.zone === zone);
+    if (zoneId) {
+      const zoneObj = this.zones().find(z => z.ZONE_ID.toString() === zoneId);
+      if (zoneObj) {
+        dorms = dorms.filter((d) => d.zone === zoneObj.ZONE_NAME);
+      }
     }
 
     return dorms;
@@ -116,11 +122,22 @@ export class DormListPage implements OnInit {
 
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
+      const p: FilterParams = {};
       if (params['q']) {
+        p.search = params['q'];
         this.searchQuery.set(params['q']);
       }
+      if (params['zone']) {
+        p.zone = params['zone'];
+        this.selectedZoneId.set(params['zone']);
+      }
+      
+      if (Object.keys(p).length > 0) {
+        this.initialParams.set(p);
+      }
+
       if (params['openFilter'] === 'true') {
-        this.isFilterModalOpen = true;
+        this.autoOpenFilter.set(true);
       }
     });
 
@@ -150,18 +167,18 @@ export class DormListPage implements OnInit {
     });
   }
 
-  openFilterModal() {
-    this.isFilterModalOpen = true;
-  }
-
-  closeFilterModal() {
-    this.isFilterModalOpen = false;
+  handleFilterApplied(params: FilterParams) {
+    this.searchQuery.set(params.search || '');
+    this.minPrice.set(params.minPrice ?? null);
+    this.maxPrice.set(params.maxPrice ?? null);
+    this.selectedZoneId.set(params.zone || null);
   }
 
   clearFilters() {
+    this.searchQuery.set('');
     this.minPrice.set(null);
     this.maxPrice.set(null);
-    this.selectedZone.set(null);
+    this.selectedZoneId.set(null);
   }
 
   goBack() {

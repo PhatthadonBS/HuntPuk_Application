@@ -49,6 +49,7 @@ export interface DormSummary {
   lat: number;
   lng: number;
   start_price: number;
+  update_at?: string;
 }
 
 export interface DormDetail {

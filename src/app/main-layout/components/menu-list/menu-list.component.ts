@@ -208,11 +208,28 @@ export class MenuListComponent implements OnDestroy, AfterViewInit {
   }
 
   onSelect(menuKey: string, uid: number | null) {
-    this.slideDownAndClose();
-    // 1-second delay before navigating to ensure smooth exit animation
-    setTimeout(() => {
-      this.selectMenu.emit({ destination: menuKey, id: uid ?? this.user_id() });
-    }, 1000);
+    const destination = { destination: menuKey, id: uid ?? this.user_id() };
+    
+    if (this.isClosing()) return;
+    this.isClosing.set(true);
+
+    if (this.menuWrapper && this.menuOverlay) {
+      // Close animation
+      this.menuWrapper.nativeElement.style.transition = 'transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1)';
+      this.menuWrapper.nativeElement.style.transform = 'translateY(100%)';
+      this.menuOverlay.nativeElement.style.animation = 'quickFadeOut 0.25s ease-out forwards';
+      
+      setTimeout(() => {
+        // Emit selection and THEN tell parent to close (destroying this component)
+        this.selectMenu.emit(destination);
+        this.close.emit();
+        this.isClosing.set(false);
+      }, 250);
+    } else {
+      this.selectMenu.emit(destination);
+      this.close.emit();
+      this.isClosing.set(false);
+    }
   }
 
   closeMenu() {

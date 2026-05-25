@@ -19,10 +19,16 @@ import { routes } from './app/app.routes';
 import { AppComponent } from './app/app.component';
 import { loadingInterceptor } from './app/services/loading-interceptor';
 import { authInterceptor } from './app/services/auth-interceptor';
+import { LOCALE_ID } from '@angular/core';
+import { registerLocaleData } from '@angular/common';
+import localeTh from '@angular/common/locales/th';
+
+registerLocaleData(localeTh);
 
 bootstrapApplication(AppComponent, {
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
+    { provide: LOCALE_ID, useValue: 'th' },
 
     provideIonicAngular({ animated: false }),
 

@@ -32,22 +32,24 @@ export const routes: Routes = [
             (m) => m.ProfileUpdatePage
           ),
       },
+
+      {
+        path: 'dorms',
+        loadComponent: () =>
+          import('./main-layout/pages/dorm-list/dorm-list.page').then(
+            (m) => m.DormListPage
+          ),
+      },
     ],
   },
-  {
-    path: 'dorms',
-    loadComponent: () =>
-      import('./main-layout/pages/dorm-list/dorm-list.page').then(
-        (m) => m.DormListPage
-      ),
-  },
+
   {
     path: 'forgotPasswd',
     loadComponent: () =>
       import('./main-layout/pages/forget-password/forget-password.page').then(
         (m) => m.ForgetPasswordPage
       ),
-},
+  },
 
   {
     path: 'login',

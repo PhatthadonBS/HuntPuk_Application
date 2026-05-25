@@ -1,27 +1,20 @@
+<ion-header class="ion-no-border dorm-list-header">
+  <app-filter-group 
+    [zones]="zones()" 
+    [showCompare]="false"
+    [showBack]="false"
+    [initialParams]="initialParams()"
+    [openFilterOnLoad]="autoOpenFilter()"
+    (filterApplied)="handleFilterApplied($event)"
+  ></app-filter-group>
+</ion-header>
+
 <ion-content [fullscreen]="true" class="dorm-list-content">
   <div class="background-container"></div>
 
   <div class="content-wrapper">
-    <ion-button fill="clear" class="absolute-back-btn" (click)="goBack()">
-      <ion-icon name="arrow-back-circle-outline" slot="icon-only" color="dark"></ion-icon>
-    </ion-button>
-
     <div class="header-section">
       <h1 class="page-title">ค้นหาหอพัก</h1>
-      
-      <div class="search-container">
-        <ion-searchbar
-          [(ngModel)]="searchQuery"
-          placeholder="ค้นหาชื่อหอพัก..."
-          mode="ios"
-          animated="true"
-          class="custom-searchbar"
-        ></ion-searchbar>
-        
-        <ion-button fill="clear" class="filter-trigger" (click)="openFilterModal()">
-          <ion-icon name="filter-outline"></ion-icon>
-        </ion-button>
-      </div>
     </div>
 
     <div class="results-section">
@@ -34,7 +27,11 @@
           <ion-col size="12" size-md="6" *ngFor="let dorm of filteredDorms()">
             <ion-card class="dorm-card" mode="ios">
               <div class="img-wrapper">
-                <ion-img [src]="dorm.image" alt="Dorm Image" class="dorm-img"></ion-img>
+                <img #dormImg 
+                     [src]="dorm.image || 'https://placehold.co/400x300?text=No+Image'" 
+                     alt="Dorm Image" 
+                     class="dorm-img"
+                     (error)="dormImg.src = 'https://placehold.co/400x300?text=No+Image'" />
                 <div class="score-badge">
                   <ion-icon name="star" color="warning"></ion-icon>
                   <span>{{ dorm.SCORE | number:'1.1-1' }}</span>
@@ -63,65 +60,10 @@
         <ion-icon name="search-outline" color="medium"></ion-icon>
         <h3>ไม่พบหอพักที่ตรงกับเงื่อนไข</h3>
         <p>ลองปรับเปลี่ยนการค้นหา หรือตัวกรองของคุณ</p>
-        <ion-button fill="clear" (click)="clearFilters(); searchQuery.set('')">ล้างการค้นหา</ion-button>
+        <ion-button fill="clear" (click)="clearFilters()">ล้างการค้นหา</ion-button>
       </div>
     </div>
     
     <div class="bottom-spacer"></div>
   </div>
-
-  <ion-modal [isOpen]="isFilterModalOpen" (didDismiss)="closeFilterModal()" breakpoints="[0, 0.7]" initialBreakpoint="0.7">
-    <ng-template>
-      <ion-header class="ion-no-border">
-        <ion-toolbar>
-          <ion-title>ตัวกรอง</ion-title>
-          <ion-buttons slot="end">
-            <ion-button (click)="closeFilterModal()">ปิด</ion-button>
-          </ion-buttons>
-        </ion-toolbar>
-      </ion-header>
-      <ion-content class="ion-padding filter-content">
-        <ion-list lines="none" class="filter-list">
-          <div class="filter-group">
-            <ion-label class="group-title">ช่วงราคา (บาท/เดือน)</ion-label>
-            <ion-row>
-              <ion-col size="6">
-                <ion-item class="filter-input-item">
-                  <ion-label position="stacked">ต่ำสุด</ion-label>
-                  <ion-input type="number" [(ngModel)]="minPrice" placeholder="0"></ion-input>
-                </ion-item>
-              </ion-col>
-              <ion-col size="6">
-                <ion-item class="filter-input-item">
-                  <ion-label position="stacked">สูงสุด</ion-label>
-                  <ion-input type="number" [(ngModel)]="maxPrice" placeholder="ไม่จำกัด"></ion-input>
-                </ion-item>
-              </ion-col>
-            </ion-row>
-          </div>
-
-          <div class="filter-group">
-            <ion-label class="group-title">พื้นที่ (โซน)</ion-label>
-            <ion-item class="filter-select-item">
-              <ion-select [(ngModel)]="selectedZone" placeholder="เลือกโซน" cancelText="ยกเลิก" okText="ตกลง">
-                <ion-select-option [value]="null">โซนทั้งหมด</ion-select-option>
-                <ion-select-option *ngFor="let zone of zones()" [value]="zone.ZONE_NAME">
-                  {{ zone.ZONE_NAME }}
-                </ion-select-option>
-              </ion-select>
-            </ion-item>
-          </div>
-        </ion-list>
-
-        <div class="filter-actions">
-          <ion-button expand="block" fill="outline" color="medium" (click)="clearFilters()">
-            ล้างตัวกรอง
-          </ion-button>
-          <ion-button expand="block" color="primary" class="mt-2" (click)="closeFilterModal()">
-            ดูผลลัพธ์ ({{ filteredDorms().length }})
-          </ion-button>
-        </div>
-      </ion-content>
-    </ng-template>
-  </ion-modal>
 </ion-content>

@@ -38,6 +38,7 @@ export class MainLayoutPage implements OnInit, OnDestroy {
     private navCtrl: NavController
   ) {}
   isOpenMenu = signal<boolean>(false);
+  hideFooter = signal<boolean>(false); // New signal to hide footer
   menuComp = signal<boolean>(false);
 
   openMenu() {
@@ -56,9 +57,11 @@ export class MainLayoutPage implements OnInit, OnDestroy {
   }
 
   goTo({ destination, id }: { destination: string; id?: number | null }) {
+    console.log(`goTo called with destination: ${destination}, id: ${id}`);
     if (destination === 'home' || destination === '/') {
       return this.goHome();
     }
+    console.log(`Navigating to ${destination} with id: ${id}`);
 
     if (id == null) {
       return this.router.navigate([`/${destination}`]);
