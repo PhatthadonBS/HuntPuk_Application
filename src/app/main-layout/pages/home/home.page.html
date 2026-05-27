@@ -26,7 +26,7 @@
     class="map-overlay-blur"
     *ngIf="sheetOpen()"
     (click)="sheetOpen.set(false)"
-  ></div>
+  ></div> 
 
   <!-- Detailed Dorm Popup UI -->
   <div
@@ -60,7 +60,7 @@
         (error)="dormImg.src = 'https://placehold.co/600x400?text=No+Image'"
       />
 
-      <div class="full-status-badge" *ngIf="$any(dorm).IS_FULL">
+      <div class="full-status-badge" *ngIf="$any(dorm).status == 3">
         <ion-label>ที่พักเต็ม</ion-label>
       </div>
     </div>

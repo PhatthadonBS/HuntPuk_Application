@@ -50,6 +50,7 @@ export interface DormSummary {
   lng: number;
   start_price: number;
   update_at?: string;
+  status?: number;
 }
 
 export interface DormDetail {
