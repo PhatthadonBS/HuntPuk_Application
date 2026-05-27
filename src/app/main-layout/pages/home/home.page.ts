@@ -379,7 +379,7 @@ const ids = await this.newMap.addMarkers([{
    coordinate: { lat, lng },
    title: 'จุดที่ค้นหา',
    iconUrl: 'assets/icon/map-pin.png',
-   iconSize: { width: 40, height: 40 },
+   iconSize: { width: 50, height: 50 },
    zIndex: 10 // Pinned location lower than dorms
 }]);
 this.pinMarkerId = ids[0];
@@ -483,7 +483,8 @@ this.pinMarkerId = ids[0];
           lng: dorm.lng,
         },
         iconUrl: 'assets/icon/home.png',
-        iconSize: { width: 40, height: 40 },
+        iconSize: { width: 50, height: 50 },
+      
         zIndex: 100 // Ensure they are on top of the search pin
       }));
 
