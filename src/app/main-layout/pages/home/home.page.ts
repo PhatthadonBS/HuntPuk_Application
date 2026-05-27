@@ -8,7 +8,7 @@ import {
   ChangeDetectionStrategy,
   CUSTOM_ELEMENTS_SCHEMA,
   Renderer2,
-  effect
+  effect,
 } from '@angular/core';
 import {
   IonContent,
@@ -28,7 +28,7 @@ import {
   IonInput,
   IonRow,
   IonCol,
-  IonIcon
+  IonIcon,
 } from '@ionic/angular/standalone';
 import { CommonModule } from '@angular/common';
 import { NavigationEnd, Router } from '@angular/router';
@@ -39,10 +39,23 @@ import { LoadingUIComponent } from '../../components/loading-ui/loading-ui.compo
 import { filter, finalize, Subscription } from 'rxjs';
 import { GoogleMap } from '@capacitor/google-maps';
 import { Capacitor } from '@capacitor/core';
-import { FilterGroupComponent, FilterParams } from '../../components/filter-group/filter-group.component';
+import {
+  FilterGroupComponent,
+  FilterParams,
+} from '../../components/filter-group/filter-group.component';
 import { MainLayoutPage } from '../../main-layout.page';
 import { addIcons } from 'ionicons';
-import { star, locationOutline, timeOutline, closeOutline, bookmarkOutline, navigateOutline, pinOutline, chevronForwardOutline, location } from 'ionicons/icons';
+import {
+  star,
+  locationOutline,
+  timeOutline,
+  closeOutline,
+  bookmarkOutline,
+  navigateOutline,
+  pinOutline,
+  chevronForwardOutline,
+  location,
+} from 'ionicons/icons';
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -51,10 +64,10 @@ import { environment } from 'src/environments/environment';
   styleUrls: ['home.page.scss'],
   standalone: true,
   imports: [
-    IonContent, 
-    LoadingUIComponent, 
-    CommonModule, 
-    FormsModule, 
+    IonContent,
+    LoadingUIComponent,
+    CommonModule,
+    FormsModule,
     FilterGroupComponent,
     IonModal,
     IonHeader,
@@ -70,7 +83,7 @@ import { environment } from 'src/environments/environment';
     IonInput,
     IonRow,
     IonCol,
-    IonIcon
+    IonIcon,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -82,12 +95,13 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
   currentMarkerIds: string[] = [];
   currentCircleIds: string[] = []; // Track map circles
   pinMarkerId: string | null = null; // Track the search pin marker
-  
+
   // Use a Map for reliable marker -> dorm lookup
   private markerMap = new Map<string, DormSummary>();
   private isUpdatingMarkers = false; // Guard for concurrent updates
   private pendingMarkersUpdate: DormSummary[] | null = null;
-  
+  private isInitializingMap = false; // Guard against parallel map creation
+
   dorms = signal<DormSummary[]>([]);
   selectedDorm = signal<DormSummary | null>(null);
   sheetOpen = signal(false);
@@ -100,9 +114,9 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
   minPrice = signal<number | null>(null);
   maxPrice = signal<number | null>(null);
   selectedZone = signal<string | null>(null);
-  
+
   isPinMode = signal(false);
-  pinnedLocation = signal<{lat: number, lng: number} | null>(null);
+  pinnedLocation = signal<{ lat: number; lng: number } | null>(null);
 
   // Default Center (MSU Khamrieng)
   readonly DEFAULT_LAT = 16.2458428;
@@ -118,10 +132,16 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
     private renderer: Renderer2,
     public mainLayout: MainLayoutPage
   ) {
-    addIcons({ star, location, timeOutline, closeOutline, bookmarkOutline, navigateOutline, pinOutline, chevronForwardOutline });
-
-    // Initialize signals from saved values
-    this.syncFiltersFromService();
+    addIcons({
+      star,
+      location,
+      timeOutline,
+      closeOutline,
+      bookmarkOutline,
+      navigateOutline,
+      pinOutline,
+      chevronForwardOutline,
+    });
 
     // Automatically update map markers when dorms data OR map readiness changes
     effect(() => {
@@ -132,34 +152,26 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
       }
     });
 
-    // Reactive save to service
-    effect(() => {
-      this.dormService.savedFilters = {
-        search: this.searchQuery(),
-        minPrice: this.minPrice(),
-        maxPrice: this.maxPrice(),
-        zone: this.selectedZone() || undefined
-      };
-    });
-
     this.routerSub = this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe((event: any) => {
-        if (event.urlAfterRedirects === '/home' || event.urlAfterRedirects === '/') {
+        if (
+          event.urlAfterRedirects === '/home' ||
+          event.urlAfterRedirects === '/'
+        ) {
           // If we navigate back to home, trigger a full reload
           this.forceReload();
         } else {
-           this.cleanupMapAndView();
+          this.cleanupMapAndView();
         }
       });
   }
 
-  private syncFiltersFromService() {
-    const saved = this.dormService.savedFilters;
-    this.searchQuery.set(saved.search || '');
-    this.minPrice.set(saved.minPrice ?? null);
-    this.maxPrice.set(saved.maxPrice ?? null);
-    this.selectedZone.set(saved.zone || null);
+  private resetFilters() {
+    this.searchQuery.set('');
+    this.minPrice.set(null);
+    this.maxPrice.set(null);
+    this.selectedZone.set(null);
   }
 
   isOpenMenu() {
@@ -171,12 +183,12 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
   }
 
   ionViewDidLeave() {
-     this.cleanupMapAndView();
+    this.cleanupMapAndView();
   }
 
   async forceReload() {
-    // Sync filters to handle cases where page is cached
-    this.syncFiltersFromService();
+    // Reset filters to handle cases where page is cached
+    this.resetFilters();
 
     // Reset transient state
     this.sheetOpen.set(false);
@@ -185,10 +197,12 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
     this.isPinMode.set(false);
     this.pinnedLocation.set(null);
     this.mainLayout.hideFooter.set(false);
-    
+
     // Clean up existing map if any
     if (this.newMap) {
-      await this.newMap.destroy().catch(e => console.error('Failed to destroy map:', e));
+      await this.newMap
+        .destroy()
+        .catch((e) => console.error('Failed to destroy map:', e));
       // @ts-ignore
       this.newMap = null;
       this.currentMarkerIds = [];
@@ -198,17 +212,30 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
       this.pendingMarkersUpdate = null;
     }
 
-    this.loadDorms();
-    this.loadZones();
+    // Load zones first, then dorms to ensure zoneObj can be found
+    this.dormService.getZones().subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.zones.set(res.data);
+          this.loadDorms();
+        }
+      },
+      error: (err) => {
+        console.error('Error fetching zones', err);
+        this.loadDorms(); // Try loading dorms even if zones fail
+      },
+    });
   }
 
   cleanupMapAndView() {
     this.renderer.removeClass(document.body, 'map-view-active');
     this.mapReady.set(false); // Reset readiness
     this.mainLayout.hideFooter.set(false);
-    
+
     if (this.newMap) {
-      this.newMap.destroy().catch(e => console.error('Failed to destroy map on leave:', e));
+      this.newMap
+        .destroy()
+        .catch((e) => console.error('Failed to destroy map on leave:', e));
       // @ts-ignore
       this.newMap = null;
       this.currentMarkerIds = [];
@@ -227,7 +254,7 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
     if (this.searchQuery()) params.search = this.searchQuery();
     if (this.minPrice() !== null) params.minPrice = this.minPrice();
     if (this.maxPrice() !== null) params.maxPrice = this.maxPrice();
-    
+
     const selectedZoneId = this.selectedZone();
     const pin = this.pinnedLocation();
 
@@ -241,9 +268,9 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
        centerLat = pin.lat;
        centerLng = pin.lng;
     } else if (selectedZoneId) {
-       const zoneObj = this.zones().find(z => z.ZONE_ID.toString() === selectedZoneId);
+       params.zone = selectedZoneId; // Always send ID to backend
+       const zoneObj = this.zones().find(z => z.ZONE_ID.toString() === selectedZoneId.toString());
        if (zoneObj) {
-         params.zone = zoneObj.ZONE_NAME;
          centerLat = zoneObj.lat || this.DEFAULT_LAT;
          centerLng = zoneObj.lng || this.DEFAULT_LNG;
        }
@@ -267,25 +294,33 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
             // Ensure map is initialized
             setTimeout(async () => {
               await this.initMap();
-              
+
               if (pin || selectedZoneId) {
-                 await this.updateMapCircle(centerLat, centerLng, this.FILTER_RADIUS_KM);
+                await this.updateMapCircle(
+                  centerLat,
+                  centerLng,
+                  this.FILTER_RADIUS_KM
+                );
               } else {
-                 const hasDorms = res.data && res.data.length > 0;
-                 const isSearching = !!this.searchQuery();
-                 
-                 // Reset camera to default center if not searching OR searching but no results
-                 const shouldResetCamera = !isSearching || !hasDorms;
-                 await this.clearMapCircle(shouldResetCamera);
-                 
-                 // If searching and found dorms, pan to the first one
-                 if (isSearching && hasDorms && this.newMap) {
-                    await this.newMap.setCamera({
-                       coordinate: { lat: res.data[0].lat, lng: res.data[0].lng },
-                       zoom: 15,
-                       animate: true
-                    });
-                 }
+                const hasDorms = res.data && res.data.length > 0;
+                const isFiltering =
+                  !!this.searchQuery() ||
+                  this.minPrice() !== null ||
+                  this.maxPrice() !== null ||
+                  !!this.selectedZone();
+
+                // Reset camera to default center if not filtering OR filtering but no results
+                const shouldResetCamera = !isFiltering || !hasDorms;
+                await this.clearMapCircle(shouldResetCamera);
+
+                // If filtering and found dorms, pan to the first one
+                if (isFiltering && hasDorms && this.newMap) {
+                  await this.newMap.setCamera({
+                    coordinate: { lat: res.data[0].lat, lng: res.data[0].lng },
+                    zoom: 15,
+                    animate: true,
+                  });
+                }
               }
             }, 50);
           } else {
@@ -310,16 +345,25 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
   }
 
   handleFilterApplied(params: FilterParams) {
+    // Exit pin mode when manual filtering
+    this.isPinMode.set(false);
+    this.mainLayout.hideFooter.set(false);
+
     // These signal updates will trigger the save effect
     this.searchQuery.set(params.search || '');
     this.minPrice.set(params.minPrice !== undefined ? params.minPrice : null);
     this.maxPrice.set(params.maxPrice !== undefined ? params.maxPrice : null);
     this.selectedZone.set(params.zone || null);
-    
+
     this.clearPin(false); // Correctly remove pin marker and reset pin state
-    
+
     // Close popup if search is cleared
-    if (!this.searchQuery()) {
+    if (
+      !this.searchQuery() &&
+      this.minPrice() === null &&
+      this.maxPrice() === null &&
+      !this.selectedZone()
+    ) {
       this.sheetOpen.set(false);
       this.selectedDorm.set(null);
     }
@@ -332,7 +376,7 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
     this.isPinMode.set(newVal);
     this.mainLayout.hideFooter.set(newVal);
     this.sheetOpen.set(false);
-    
+
     if (newVal) {
       this.clearPin(false); // Clear existing search results/pin marker but stay in pin mode
     }
@@ -342,10 +386,10 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
     this.pinnedLocation.set(null);
     this.isPinMode.set(reload ? false : this.isPinMode());
     this.mainLayout.hideFooter.set(this.isPinMode());
-    
+
     if (this.newMap && this.pinMarkerId) {
-       this.newMap.removeMarker(this.pinMarkerId).catch(e => console.error(e));
-       this.pinMarkerId = null;
+      this.newMap.removeMarker(this.pinMarkerId).catch((e) => console.error(e));
+      this.pinMarkerId = null;
     }
 
     if (reload) {
@@ -382,17 +426,22 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
       return;
     }
 
+    if (this.isInitializingMap) {
+      return; // Already initializing, wait for it to finish
+    }
+
     try {
+      this.isInitializingMap = true;
       if (!this.newMap) {
         if (!this.mapEl?.nativeElement) {
-            console.error('Map element not found!');
-            return;
+          console.error('Map element not found!');
+          return;
         }
 
         this.newMap = await GoogleMap.create({
           id: 'my-map',
           element: this.mapEl.nativeElement,
-          apiKey: environment.GGMAPI, 
+          apiKey: environment.GGMAPI,
           config: {
             center: {
               lat: this.DEFAULT_LAT,
@@ -400,46 +449,50 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
             },
             zoom: 14,
             disableDefaultUI: true,
-            clickableIcons: false, 
+            clickableIcons: false,
             styles: [
               {
-                featureType: "all",
-                elementType: "labels.icon",
-                stylers: [{ visibility: "off" }],
+                featureType: 'all',
+                elementType: 'labels.icon',
+                stylers: [{ visibility: 'off' }],
               },
             ],
           },
         });
-        
+
         this.renderer.addClass(document.body, 'map-view-active');
-        await this.newMap.enableCurrentLocation(false).catch(e => console.error(e));
+        await this.newMap
+          .enableCurrentLocation(false)
+          .catch((e) => console.error(e));
 
         // Listen for map clicks
         await this.newMap.setOnMapClickListener(async (data) => {
           this.zone.run(async () => {
             if (this.isPinMode()) {
-               const lat = data.latitude;
-               const lng = data.longitude;
-               
-               this.pinnedLocation.set({ lat, lng });
-               this.isPinMode.set(false);
-               this.mainLayout.hideFooter.set(false);
-if (this.pinMarkerId) {
-   await this.newMap.removeMarker(this.pinMarkerId);
-}
+              const lat = data.latitude;
+              const lng = data.longitude;
 
-const ids = await this.newMap.addMarkers([{
-   coordinate: { lat, lng },
-   title: 'จุดที่ค้นหา',
-   iconUrl: 'assets/icon/map-pin.png',
-   iconSize: { width: 50, height: 50 },
-   zIndex: 10 // Pinned location lower than dorms
-}]);
-this.pinMarkerId = ids[0];
+              this.pinnedLocation.set({ lat, lng });
+              this.isPinMode.set(false);
+              this.mainLayout.hideFooter.set(false);
+              if (this.pinMarkerId) {
+                await this.newMap.removeMarker(this.pinMarkerId);
+              }
 
-               this.loadDorms();
+              const ids = await this.newMap.addMarkers([
+                {
+                  coordinate: { lat, lng },
+                  title: 'จุดที่ค้นหา',
+                  iconUrl: 'assets/icon/map-pin.png',
+                  iconSize: { width: 50, height: 50 },
+                  zIndex: 10, // Pinned location lower than dorms
+                },
+              ]);
+              this.pinMarkerId = ids[0];
+
+              this.loadDorms();
             } else {
-               this.sheetOpen.set(false);
+              this.sheetOpen.set(false);
             }
           });
         });
@@ -451,24 +504,25 @@ this.pinMarkerId = ids[0];
 
             const selected = this.markerMap.get(marker.markerId);
             if (selected) {
-               this.selectedDorm.set(selected);
-               this.sheetOpen.set(true);
-               
-               this.newMap.setCamera({
-                 coordinate: { lat: selected.lat, lng: selected.lng },
-                 animate: true
-               });
+              this.selectedDorm.set(selected);
+              this.sheetOpen.set(true);
+
+              this.newMap.setCamera({
+                coordinate: { lat: selected.lat, lng: selected.lng },
+                animate: true,
+              });
             }
           });
         });
 
-        this.mapReady.set(true); 
+        this.mapReady.set(true);
       } else {
         this.mapReady.set(true);
       }
-
     } catch (error) {
       console.error('Error initializing map:', error);
+    } finally {
+      this.isInitializingMap = false;
     }
   }
 
@@ -476,20 +530,23 @@ this.pinMarkerId = ids[0];
     if (!this.newMap) return;
     try {
       await this.clearMapCircle(false);
-      
-      this.currentCircleIds = await this.newMap.addCircles([{
-        center: { lat, lng },
-        radius: radiusKm * 1000,
-        fillColor: '#FFCC00', 
-        fillOpacity: 0.25,     
-        strokeColor: '#FFCC00',
-        strokeWeight: 2,
-      }]);
+
+      const ids = await this.newMap.addCircles([
+        {
+          center: { lat, lng },
+          radius: radiusKm * 1000,
+          fillColor: '#FFCC00',
+          fillOpacity: 0.25,
+          strokeColor: '#FFCC00',
+          strokeWeight: 2,
+        },
+      ]);
+      this.currentCircleIds.push(...ids);
 
       await this.newMap.setCamera({
         coordinate: { lat, lng },
-        zoom: 15, 
-        animate: true
+        zoom: 15,
+        animate: true,
       });
     } catch (error) {
       console.error('Error drawing circle:', error);
@@ -500,15 +557,16 @@ this.pinMarkerId = ids[0];
     if (!this.newMap) return;
     try {
       if (this.currentCircleIds.length > 0) {
-        await this.newMap.removeCircles(this.currentCircleIds);
-        this.currentCircleIds = [];
+        const idsToRemove = [...this.currentCircleIds];
+        this.currentCircleIds = []; // Clear reference immediately
+        await this.newMap.removeCircles(idsToRemove).catch(e => console.error('Remove circles error:', e));
       }
-      
+
       if (resetCamera) {
         await this.newMap.setCamera({
           coordinate: { lat: this.DEFAULT_LAT, lng: this.DEFAULT_LNG },
           zoom: 14,
-          animate: true
+          animate: true,
         });
       }
     } catch (error) {
@@ -527,12 +585,15 @@ this.pinMarkerId = ids[0];
     try {
       this.isUpdatingMarkers = true;
 
-      // 1. Remove markers by IDs if they exist
+      // 1. Clear existing markers reliably
       if (this.currentMarkerIds.length > 0) {
-        await this.newMap.removeMarkers(this.currentMarkerIds).catch(e => console.error('Error removing markers:', e));
-        this.currentMarkerIds = []; 
-        this.markerMap.clear();
+        await this.newMap
+          .removeMarkers(this.currentMarkerIds)
+          .catch((e) => console.error('Error removing markers:', e));
       }
+
+      this.currentMarkerIds = [];
+      this.markerMap.clear();
 
       // 2. Prepare new marker data
       const markersData = dormsToDisplay.map((dorm) => ({
@@ -542,24 +603,24 @@ this.pinMarkerId = ids[0];
         },
         iconUrl: 'assets/icon/home.png',
         iconSize: { width: 50, height: 50 },
-      
-        zIndex: 100 // Ensure they are on top of the search pin
+
+        zIndex: 100, // Ensure they are on top of the search pin
       }));
 
       // 3. Add markers and store their new IDs in the Map for lookup
       if (markersData.length > 0) {
         this.currentMarkerIds = await this.newMap.addMarkers(markersData);
-        
+
         // Link returned marker IDs to our dorm objects
         this.currentMarkerIds.forEach((id, idx) => {
           this.markerMap.set(id, dormsToDisplay[idx]);
         });
       }
     } catch (error) {
-       console.error('Error updating map markers:', error);
+      console.error('Error updating map markers:', error);
     } finally {
       this.isUpdatingMarkers = false;
-      
+
       // If there's a pending update, process the latest one
       if (this.pendingMarkersUpdate) {
         const nextData = this.pendingMarkersUpdate;
@@ -574,13 +635,13 @@ this.pinMarkerId = ids[0];
       search: this.searchQuery(),
       minPrice: this.minPrice(),
       maxPrice: this.maxPrice(),
-      zone: this.selectedZone() || undefined
+      zone: this.selectedZone() || undefined,
     };
   }
 
   ngOnDestroy() {
     this.cleanupMapAndView();
-    if(this.routerSub) {
+    if (this.routerSub) {
       this.routerSub.unsubscribe();
     }
   }

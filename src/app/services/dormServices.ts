@@ -20,17 +20,6 @@ export interface DormQueryParams {
 export class DormServices {
   endPoint = environment.ENDPOINT;
   private readonly REQUEST_TIMEOUT = 10000; // 10 seconds
-  private readonly STORAGE_KEY = 'huntpuk_filters';
-
-  // Persistent Search/Filter State using sessionStorage
-  get savedFilters() {
-    const data = sessionStorage.getItem(this.STORAGE_KEY);
-    return data ? JSON.parse(data) : {};
-  }
-
-  set savedFilters(filters: any) {
-    sessionStorage.setItem(this.STORAGE_KEY, JSON.stringify(filters));
-  }
 
   constructor(private http: HttpClient) {}
 
@@ -41,8 +30,12 @@ export class DormServices {
     if (params) {
       if (params.search) httpParams = httpParams.set('search', params.search);
       if (params.zone) httpParams = httpParams.set('zone', params.zone);
-      if (params.minPrice) httpParams = httpParams.set('minPrice', params.minPrice.toString());
-      if (params.maxPrice) httpParams = httpParams.set('maxPrice', params.maxPrice.toString());
+      if (params.minPrice !== undefined && params.minPrice !== null) {
+        httpParams = httpParams.set('minPrice', params.minPrice.toString());
+      }
+      if (params.maxPrice !== undefined && params.maxPrice !== null) {
+        httpParams = httpParams.set('maxPrice', params.maxPrice.toString());
+      }
       if (params.lat) httpParams = httpParams.set('lat', params.lat.toString());
       if (params.lng) httpParams = httpParams.set('lng', params.lng.toString());
       if (params.radius) httpParams = httpParams.set('radius', params.radius.toString());
