@@ -20,6 +20,17 @@ export interface DormQueryParams {
 export class DormServices {
   endPoint = environment.ENDPOINT;
   private readonly REQUEST_TIMEOUT = 10000; // 10 seconds
+  private readonly STORAGE_KEY = 'huntpuk_filters';
+
+  // Persistent Search/Filter State using sessionStorage
+  get savedFilters() {
+    const data = sessionStorage.getItem(this.STORAGE_KEY);
+    return data ? JSON.parse(data) : {};
+  }
+
+  set savedFilters(filters: any) {
+    sessionStorage.setItem(this.STORAGE_KEY, JSON.stringify(filters));
+  }
 
   constructor(private http: HttpClient) {}
 

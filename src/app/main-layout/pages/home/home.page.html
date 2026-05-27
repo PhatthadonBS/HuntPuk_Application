@@ -6,6 +6,7 @@
     <!-- Bind the new filterApplied Output and pass zones -->
     <app-filter-group
       [zones]="zones()"
+      [initialParams]="getFilterParams()"
       (filterApplied)="handleFilterApplied($event)"
     ></app-filter-group>
   </div>

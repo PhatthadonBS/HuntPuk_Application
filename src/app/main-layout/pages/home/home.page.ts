@@ -86,6 +86,7 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
   // Use a Map for reliable marker -> dorm lookup
   private markerMap = new Map<string, DormSummary>();
   private isUpdatingMarkers = false; // Guard for concurrent updates
+  private pendingMarkersUpdate: DormSummary[] | null = null;
   
   dorms = signal<DormSummary[]>([]);
   selectedDorm = signal<DormSummary | null>(null);
@@ -119,6 +120,9 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
   ) {
     addIcons({ star, location, timeOutline, closeOutline, bookmarkOutline, navigateOutline, pinOutline, chevronForwardOutline });
 
+    // Initialize signals from saved values
+    this.syncFiltersFromService();
+
     // Automatically update map markers when dorms data OR map readiness changes
     effect(() => {
       const dormsToDisplay = this.dorms();
@@ -126,6 +130,16 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
       if (ready) {
         this.updateMapMarkers(dormsToDisplay);
       }
+    });
+
+    // Reactive save to service
+    effect(() => {
+      this.dormService.savedFilters = {
+        search: this.searchQuery(),
+        minPrice: this.minPrice(),
+        maxPrice: this.maxPrice(),
+        zone: this.selectedZone() || undefined
+      };
     });
 
     this.routerSub = this.router.events
@@ -138,6 +152,14 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
            this.cleanupMapAndView();
         }
       });
+  }
+
+  private syncFiltersFromService() {
+    const saved = this.dormService.savedFilters;
+    this.searchQuery.set(saved.search || '');
+    this.minPrice.set(saved.minPrice ?? null);
+    this.maxPrice.set(saved.maxPrice ?? null);
+    this.selectedZone.set(saved.zone || null);
   }
 
   isOpenMenu() {
@@ -153,7 +175,10 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
   }
 
   async forceReload() {
-    // Reset state
+    // Sync filters to handle cases where page is cached
+    this.syncFiltersFromService();
+
+    // Reset transient state
     this.sheetOpen.set(false);
     this.selectedDorm.set(null);
     this.mapReady.set(false); // Reset readiness
@@ -169,6 +194,8 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
       this.currentMarkerIds = [];
       this.currentCircleIds = [];
       this.pinMarkerId = null;
+      this.markerMap.clear();
+      this.pendingMarkersUpdate = null;
     }
 
     this.loadDorms();
@@ -187,6 +214,8 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
       this.currentMarkerIds = [];
       this.currentCircleIds = [];
       this.pinMarkerId = null;
+      this.markerMap.clear();
+      this.pendingMarkersUpdate = null;
     }
   }
 
@@ -242,7 +271,21 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
               if (pin || selectedZoneId) {
                  await this.updateMapCircle(centerLat, centerLng, this.FILTER_RADIUS_KM);
               } else {
-                 await this.clearMapCircle();
+                 const hasDorms = res.data && res.data.length > 0;
+                 const isSearching = !!this.searchQuery();
+                 
+                 // Reset camera to default center if not searching OR searching but no results
+                 const shouldResetCamera = !isSearching || !hasDorms;
+                 await this.clearMapCircle(shouldResetCamera);
+                 
+                 // If searching and found dorms, pan to the first one
+                 if (isSearching && hasDorms && this.newMap) {
+                    await this.newMap.setCamera({
+                       coordinate: { lat: res.data[0].lat, lng: res.data[0].lng },
+                       zoom: 15,
+                       animate: true
+                    });
+                 }
               }
             }, 50);
           } else {
@@ -267,6 +310,7 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
   }
 
   handleFilterApplied(params: FilterParams) {
+    // These signal updates will trigger the save effect
     this.searchQuery.set(params.search || '');
     this.minPrice.set(params.minPrice !== undefined ? params.minPrice : null);
     this.maxPrice.set(params.maxPrice !== undefined ? params.maxPrice : null);
@@ -274,7 +318,12 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
     
     this.clearPin(false); // Correctly remove pin marker and reset pin state
     
-    this.sheetOpen.set(false);
+    // Close popup if search is cleared
+    if (!this.searchQuery()) {
+      this.sheetOpen.set(false);
+      this.selectedDorm.set(null);
+    }
+
     this.loadDorms();
   }
 
@@ -304,6 +353,10 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
       this.searchQuery.set('');
       this.minPrice.set(null);
       this.maxPrice.set(null);
+      this.sheetOpen.set(false);
+      this.selectedDorm.set(null);
+
+      // Effect will automatically clear saved filters in service
       this.loadDorms();
     }
   }
@@ -464,7 +517,12 @@ this.pinMarkerId = ids[0];
   }
 
   async updateMapMarkers(dormsToDisplay: DormSummary[]) {
-    if (!this.newMap || this.isUpdatingMarkers) return;
+    if (!this.newMap) return;
+
+    if (this.isUpdatingMarkers) {
+      this.pendingMarkersUpdate = dormsToDisplay;
+      return;
+    }
 
     try {
       this.isUpdatingMarkers = true;
@@ -501,7 +559,23 @@ this.pinMarkerId = ids[0];
        console.error('Error updating map markers:', error);
     } finally {
       this.isUpdatingMarkers = false;
+      
+      // If there's a pending update, process the latest one
+      if (this.pendingMarkersUpdate) {
+        const nextData = this.pendingMarkersUpdate;
+        this.pendingMarkersUpdate = null;
+        this.updateMapMarkers(nextData);
+      }
     }
+  }
+
+  getFilterParams(): FilterParams {
+    return {
+      search: this.searchQuery(),
+      minPrice: this.minPrice(),
+      maxPrice: this.maxPrice(),
+      zone: this.selectedZone() || undefined
+    };
   }
 
   ngOnDestroy() {
