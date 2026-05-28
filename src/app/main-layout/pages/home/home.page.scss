@@ -16,7 +16,7 @@ ion-content {
   width: 100%;
   z-index: 10;
   padding: 0 16px; /* Added padding to replace removed component margins */
-  pointer-events: none; 
+  pointer-events: none;
   animation: slideDown 0.3s ease-out;
 
   app-filter-group {
@@ -25,8 +25,12 @@ ion-content {
 }
 
 @keyframes slideDown {
-  from { transform: translateY(-100%); }
-  to { transform: translateY(0); }
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
 }
 
 /* --------------------------------- */
@@ -97,7 +101,7 @@ ion-content {
   --box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
   margin: 0;
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  
+
   &.active {
     --background: #333333;
     --color: #ffcc00;
@@ -140,7 +144,7 @@ ion-content {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   z-index: 20;
   overflow: hidden;
-  
+
   /* Use animation instead of transition for *ngIf mounting */
   animation: popIn 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
 
@@ -222,13 +226,13 @@ ion-content {
         display: flex;
         align-items: center;
         gap: 4px;
-        background: #fff5cc; 
-        color: #997a00; 
+        background: #fff5cc;
+        color: #997a00;
         padding: 4px 10px;
         border-radius: 12px;
         font-weight: 800;
         font-size: 1rem; /* ~16px */
-        
+
         ion-icon {
           font-size: 1.1rem;
         }
@@ -270,9 +274,9 @@ ion-content {
         }
 
         .price-value {
-          font-size: 1.4rem; /* Increased (~22px) */
+          font-size: 1.1rem; /* Increased (~22px) */
           font-weight: 800;
-          color: #525252; 
+          color: #525252;
         }
 
         .price-unit {
@@ -320,8 +324,12 @@ ion-content {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes popIn {
@@ -351,7 +359,7 @@ ion-content {
   background: white;
   padding: 16px;
   border-radius: 16px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
 
   .group-title {
     font-size: 1.05rem;
@@ -361,7 +369,8 @@ ion-content {
     display: block;
   }
 
-  .filter-input-item, .filter-select-item {
+  .filter-input-item,
+  .filter-select-item {
     --background: #f9f9f9;
     --border-radius: 12px;
     --padding-start: 12px;
@@ -379,5 +388,79 @@ ion-content {
     --border-radius: 12px;
     height: 48px;
     font-weight: 700;
+  }
+}
+
+/* --------------------------------- */
+/* Pin Radius Overlay (Minimal)      */
+/* --------------------------------- */
+.pin-radius-overlay {
+  position: absolute;
+  bottom: 100px;
+  left: 16px;
+  z-index: 100;
+  pointer-events: none;
+  animation: slideUpRadius 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+  .minimal-radius-selector {
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    height: 44px;
+    padding: 0 12px;
+    border-radius: 22px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    position: relative;
+    transition: all 0.2s ease;
+
+    &:active {
+      transform: scale(0.96);
+      background: #ffffff;
+    }
+
+    .main-icon {
+      color: #ffcc00;
+      font-size: 1.2rem;
+      margin-right: 8px;
+    }
+
+    .radius-select-native {
+      appearance: none;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #333333;
+      font-weight: 800;
+      font-size: 0.9rem;
+      padding-right: 20px;
+      cursor: pointer;
+      z-index: 2;
+      width: 100%;
+      font-family: inherit;
+    }
+
+    .arrow-icon {
+      position: absolute;
+      right: 12px;
+      color: #999999;
+      font-size: 0.9rem;
+      pointer-events: none;
+      z-index: 1;
+    }
+  }
+}
+
+@keyframes slideUpRadius {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
   }
 }

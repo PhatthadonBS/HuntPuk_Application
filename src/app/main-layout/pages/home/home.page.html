@@ -27,7 +27,7 @@
     class="map-overlay-blur"
     *ngIf="sheetOpen()"
     (click)="sheetOpen.set(false)"
-  ></div> 
+  ></div>
 
   <!-- Detailed Dorm Popup UI -->
   <div
@@ -83,8 +83,8 @@
       <div class="price-update-row">
         <div class="price-display">
           <span class="price-label">เริ่มต้น</span>
-          <span class="price-value">฿{{ dorm.start_price | number }}</span>
-          <span class="price-unit">/เดือน</span>
+          <span class="price-value"> {{ dorm.start_price | number }}</span>
+          <span class="price-unit"> บาท/เดือน</span>
         </div>
 
         <p class="update-text" *ngIf="$any(dorm).update_at">
@@ -97,6 +97,23 @@
         <span>คลิกเพื่อดูรายละเอียดเพิ่มเติม</span>
         <ion-icon name="chevron-forward-outline"></ion-icon>
       </div>
+    </div>
+  </div>
+
+  <!-- Pin Radius Selector (Minimal Floating Style) -->
+  <div class="pin-radius-overlay" *ngIf="pinnedLocation() && !isPinMode()">
+    <div class="minimal-radius-selector">
+      <ion-icon name="navigate" class="main-icon"></ion-icon>
+      <select
+        class="radius-select-native"
+        [(ngModel)]="currentRadius"
+        (change)="onRadiusChange(currentRadius)"
+      >
+        <option *ngFor="let opt of radiusOptions" [value]="opt.value">
+          {{ opt.label }}
+        </option>
+      </select>
+      <ion-icon name="chevron-down" class="arrow-icon"></ion-icon>
     </div>
   </div>
 

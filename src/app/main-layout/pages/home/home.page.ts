@@ -117,6 +117,16 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
 
   isPinMode = signal(false);
   pinnedLocation = signal<{ lat: number; lng: number } | null>(null);
+  selectedRadius = signal<number>(0.5);
+  currentRadius: number = 0.5; // Track the radius used for the current search
+  readonly radiusOptions = [
+    { value: 0.5, label: '500 ม.' },
+    { value: 1, label: '1 กม.' },
+    { value: 2, label: '2 กม.' },
+    { value: 3, label: '3 กม.' },
+    { value: 4, label: '4 กม.' },
+    { value: 5, label: '5 กม.' },
+  ];
 
   // Default Center (MSU Khamrieng)
   readonly DEFAULT_LAT = 16.2458428;
@@ -261,19 +271,24 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
     let centerLat = this.DEFAULT_LAT;
     let centerLng = this.DEFAULT_LNG;
 
+    const currentRadius = this.selectedRadius();
+
     if (pin) {
-       params.lat = pin.lat;
-       params.lng = pin.lng;
-       params.radius = this.FILTER_RADIUS_KM;
-       centerLat = pin.lat;
-       centerLng = pin.lng;
+      params.lat = pin.lat;
+      params.lng = pin.lng;
+      params.radius = currentRadius;
+      centerLat = pin.lat;
+      centerLng = pin.lng;
     } else if (selectedZoneId) {
-       params.zone = selectedZoneId; // Always send ID to backend
-       const zoneObj = this.zones().find(z => z.ZONE_ID.toString() === selectedZoneId.toString());
-       if (zoneObj) {
-         centerLat = zoneObj.lat || this.DEFAULT_LAT;
-         centerLng = zoneObj.lng || this.DEFAULT_LNG;
-       }
+      params.zone = selectedZoneId; // Always send ID to backend
+      params.radius = currentRadius; // Also apply radius filter to zones
+      const zoneObj = this.zones().find(
+        (z) => z.ZONE_ID.toString() === selectedZoneId.toString()
+      );
+      if (zoneObj) {
+        centerLat = zoneObj.lat || this.DEFAULT_LAT;
+        centerLng = zoneObj.lng || this.DEFAULT_LNG;
+      }
     }
 
     this.dormService
@@ -296,11 +311,7 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
               await this.initMap();
 
               if (pin || selectedZoneId) {
-                await this.updateMapCircle(
-                  centerLat,
-                  centerLng,
-                  this.FILTER_RADIUS_KM
-                );
+                await this.updateMapCircle(centerLat, centerLng, currentRadius);
               } else {
                 const hasDorms = res.data && res.data.length > 0;
                 const isFiltering =
@@ -543,23 +554,39 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
       ]);
       this.currentCircleIds.push(...ids);
 
+      let zoom = 17;
+      if (this.selectedRadius() <= 0.5) {
+        zoom = 15.5; // Example fractional zoom
+      } else if (this.selectedRadius() <= 1) {
+        zoom = 14.5;
+      } else if (this.selectedRadius() <= 2) {
+        zoom = 13.5;
+      } else if (this.selectedRadius() <= 3) {
+        zoom = 13;
+      } else if (this.selectedRadius() <= 4) {
+        zoom = 12.75;
+      } else {
+        zoom = 12.5;
+      }
+
       await this.newMap.setCamera({
         coordinate: { lat, lng },
-        zoom: 15,
+        zoom: zoom,
         animate: true,
       });
     } catch (error) {
       console.error('Error drawing circle:', error);
     }
   }
-
   async clearMapCircle(resetCamera = true) {
     if (!this.newMap) return;
     try {
       if (this.currentCircleIds.length > 0) {
         const idsToRemove = [...this.currentCircleIds];
         this.currentCircleIds = []; // Clear reference immediately
-        await this.newMap.removeCircles(idsToRemove).catch(e => console.error('Remove circles error:', e));
+        await this.newMap
+          .removeCircles(idsToRemove)
+          .catch((e) => console.error('Remove circles error:', e));
       }
 
       if (resetCamera) {
@@ -637,6 +664,12 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
       maxPrice: this.maxPrice(),
       zone: this.selectedZone() || undefined,
     };
+  }
+
+  onRadiusChange(val: any) {
+    this.selectedRadius.set(val);
+    this.currentRadius = val; // Update currentRadius for template display
+    this.loadDorms();
   }
 
   ngOnDestroy() {
