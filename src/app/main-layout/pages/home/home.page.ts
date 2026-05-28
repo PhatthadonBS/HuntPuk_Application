@@ -55,6 +55,7 @@ import {
   pinOutline,
   chevronForwardOutline,
   location,
+  chevronDown,
 } from 'ionicons/icons';
 import { environment } from 'src/environments/environment';
 
@@ -151,6 +152,7 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
       navigateOutline,
       pinOutline,
       chevronForwardOutline,
+      chevronDown,
     });
 
     // Automatically update map markers when dorms data OR map readiness changes
@@ -431,6 +433,30 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
     // Implement actual favorite logic here later
   }
 
+  // Helper to handle pinning logic
+  async handlePinAction(lat: number, lng: number) {
+    this.pinnedLocation.set({ lat, lng });
+    this.isPinMode.set(false);
+    this.mainLayout.hideFooter.set(false);
+
+    if (this.pinMarkerId) {
+      await this.newMap.removeMarker(this.pinMarkerId);
+    }
+
+    const ids = await this.newMap.addMarkers([
+      {
+        coordinate: { lat, lng },
+        title: 'จุดที่ค้นหา',
+        iconUrl: 'assets/icon/map-pin.png',
+        iconSize: { width: 40, height: 40 },
+        iconAnchor: { x: 20, y: 40 }, // Bottom center for pin
+        zIndex: 10,
+      },
+    ]);
+    this.pinMarkerId = ids[0];
+    this.loadDorms();
+  }
+
   async initMap() {
     if (!Capacitor.isNativePlatform()) {
       console.warn('Native Google Maps is designed for iOS/Android.');
@@ -480,28 +506,7 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
         await this.newMap.setOnMapClickListener(async (data) => {
           this.zone.run(async () => {
             if (this.isPinMode()) {
-              const lat = data.latitude;
-              const lng = data.longitude;
-
-              this.pinnedLocation.set({ lat, lng });
-              this.isPinMode.set(false);
-              this.mainLayout.hideFooter.set(false);
-              if (this.pinMarkerId) {
-                await this.newMap.removeMarker(this.pinMarkerId);
-              }
-
-              const ids = await this.newMap.addMarkers([
-                {
-                  coordinate: { lat, lng },
-                  title: 'จุดที่ค้นหา',
-                  iconUrl: 'assets/icon/map-pin.png',
-                  iconSize: { width: 50, height: 50 },
-                  zIndex: 10, // Pinned location lower than dorms
-                },
-              ]);
-              this.pinMarkerId = ids[0];
-
-              this.loadDorms();
+              await this.handlePinAction(data.latitude, data.longitude);
             } else {
               this.sheetOpen.set(false);
             }
@@ -510,8 +515,17 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
 
         // Listen for marker clicks (Set ONCE in initMap)
         await this.newMap.setOnMarkerClickListener(async (marker) => {
-          this.zone.run(() => {
+          this.zone.run(async () => {
             if (marker.markerId === this.pinMarkerId) return;
+
+            // If in pin mode, treat clicking a marker as pinning that location
+            if (this.isPinMode()) {
+              const selected = this.markerMap.get(marker.markerId);
+              if (selected) {
+                await this.handlePinAction(selected.lat, selected.lng);
+              }
+              return;
+            }
 
             const selected = this.markerMap.get(marker.markerId);
             if (selected) {
@@ -629,8 +643,8 @@ export class HomePage implements ViewDidEnter, ViewDidLeave, OnDestroy {
           lng: dorm.lng,
         },
         iconUrl: 'assets/icon/home.png',
-        iconSize: { width: 50, height: 50 },
-
+        iconSize: { width: 35, height: 35 },
+        iconAnchor: { x: 17.5, y: 35 }, // Bottom center
         zIndex: 100, // Ensure they are on top of the search pin
       }));
 
