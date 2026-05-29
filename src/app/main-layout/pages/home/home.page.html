@@ -1,9 +1,7 @@
 <ion-content fullscreen [scrollY]="false">
   <capacitor-google-map #map id="map"></capacitor-google-map>
 
-  <!-- Filter Group Sheet (Hides when Dorm Details, Menu or Pin Mode is Open) -->
   <div class="filter-group-wrapper" *ngIf="!isOpenMenu() && !isPinMode()">
-    <!-- Bind the new filterApplied Output and pass zones -->
     <app-filter-group
       [zones]="zones()"
       [initialParams]="getFilterParams()"
@@ -11,31 +9,27 @@
     ></app-filter-group>
   </div>
 
-  <!-- Pin Mode Instructions -->
   <div class="pin-mode-overlay" *ngIf="isPinMode()">
     <div class="instruction-badge">
       <ion-icon name="pin-outline"></ion-icon>
       <ion-label>คลิกบนแผนที่เพื่อวางหมุดค้นหา</ion-label>
     </div>
-    <ion-button fill="clear" class="cancel-pin-btn" (click)="togglePinMode()">
-      ยกเลิก
-    </ion-button>
+    <ion-button fill="clear" class="cancel-pin-btn" (click)="togglePinMode()"
+      >ยกเลิก</ion-button
+    >
   </div>
 
-  <!-- Overlay to blur map when popup is open -->
   <div
     class="map-overlay-blur"
     *ngIf="sheetOpen()"
     (click)="sheetOpen.set(false)"
   ></div>
 
-  <!-- Detailed Dorm Popup UI -->
   <div
     class="dorm-popup-card"
     *ngIf="sheetOpen() && selectedDorm() as dorm"
     (click)="goToDormDetail(dorm.DORM_ID)"
   >
-    <!-- Close Button Top Left -->
     <ion-button
       fill="clear"
       class="close-popup-btn"
@@ -43,8 +37,6 @@
     >
       <ion-icon name="close-outline" slot="icon-only"></ion-icon>
     </ion-button>
-
-    <!-- Favorite Flag Top Right -->
     <ion-button
       fill="clear"
       class="fav-popup-btn"
@@ -60,7 +52,6 @@
         class="dorm-image"
         (error)="dormImg.src = 'https://placehold.co/600x400?text=No+Image'"
       />
-
       <div class="full-status-badge" *ngIf="$any(dorm).status == 3">
         <ion-label>ที่พักเต็ม</ion-label>
       </div>
@@ -74,33 +65,28 @@
           <span>{{ dorm.SCORE ? (dorm.SCORE | number:'1.1-1') : '0.0' }}</span>
         </div>
       </div>
-
       <p class="address-text">
-        <ion-icon name="location" class="text-[20px]"></ion-icon>
-        {{ dorm.ADDRESS }}
+        <ion-icon name="location" class="text-[20px]"></ion-icon>{{ dorm.ADDRESS
+        }}
       </p>
-
       <div class="price-update-row">
         <div class="price-display">
           <span class="price-label">เริ่มต้น</span>
           <span class="price-value"> {{ dorm.start_price | number }}</span>
           <span class="price-unit"> บาท/เดือน</span>
         </div>
-
         <p class="update-text" *ngIf="$any(dorm).update_at">
-          <ion-icon name="time-outline"></ion-icon>
-          {{ $any(dorm).update_at | date:'mediumDate' }}
+          <ion-icon name="time-outline"></ion-icon>{{ $any(dorm).update_at |
+          date:'mediumDate' }}
         </p>
       </div>
-
       <div class="click-detail-msg">
-        <span>คลิกเพื่อดูรายละเอียดเพิ่มเติม</span>
-        <ion-icon name="chevron-forward-outline"></ion-icon>
+        <span>คลิกเพื่อดูรายละเอียดเพิ่มเติม</span
+        ><ion-icon name="chevron-forward-outline"></ion-icon>
       </div>
     </div>
   </div>
 
-  <!-- Pin Radius Selector (Minimal Floating Style) -->
   <div class="pin-radius-overlay" *ngIf="pinnedLocation() && !isPinMode()">
     <div class="minimal-radius-selector">
       <ion-icon name="navigate" class="main-icon"></ion-icon>
@@ -117,7 +103,6 @@
     </div>
   </div>
 
-  <!-- Pin Button -->
   <ion-button
     class="pin-circle-btn"
     [class.active]="isPinMode() || pinnedLocation()"

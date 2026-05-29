@@ -1,40 +1,200 @@
+// ─── Minimal Design Tokens ──────────────────────────────────────────────────
+$bg: #fafafa;
+$card-bg: #ffffff;
+$border: #e5e7eb;
+$label-bg: #ffffff;
+
+$text-primary: #111827;
+$text-secondary: #6b7280;
+$icon-color: #9ca3af;
+
+$score-color: #f59e0b;
+$price-color: #10b981;
+$water-color: #3b82f6;
+$elec-color: #f97316;
+$dist-color: #8b5cf6;
+$zone-color: #0ea5e9;
+
+$radius-card: 12px;
+$radius-cell: 8px;
+
+// ─── Content Background ────────────────────────────────────────────────────────
 .compare-content {
-  --background: #f9fafb;
+  --background: #{$bg};
 }
 
+// ─── SEC 1: Header / Toolbar ──────────────────────────────────────────────────
 .main-toolbar {
-  --background: #ffcc00;
-  --color: #333333;
-  font-weight: 700;
+  --background: #{$card-bg};
+  --color: #{$text-primary};
+  --border-width: 0;
+  border-bottom: 1px solid $border;
 }
 
-.search-toolbar {
-  --background: #ffcc00;
-  padding-bottom: 8px;
-  
-  ion-searchbar {
-    --background: rgba(255, 255, 255, 0.9);
-    --border-radius: 12px;
+.toolbar-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.menu-btn {
+  --color: #{$text-primary};
+  ion-icon {
+    font-size: 1.3rem;
   }
 }
 
+// ─── Popover Menu ─────────────────────────────────────────────────────────────
+.minimal-popover {
+  --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  .menu-popover-list {
+    ion-item {
+      font-size: 0.95rem;
+      --padding-start: 16px;
+      font-weight: 500;
+      color: $text-primary;
+    }
+  }
+}
+
+// ─── Search Toolbar ───────────────────────────────────────────────────────────
+.search-toolbar {
+  --background: #{$card-bg};
+  padding-bottom: 8px;
+  border-bottom: 1px solid $border;
+
+  ion-searchbar {
+    --background: #f3f4f6;
+    --border-radius: 8px;
+    --box-shadow: none;
+    --color: #{$text-primary};
+    --placeholder-color: #{$text-secondary};
+    --icon-color: #{$icon-color};
+  }
+}
+
+// ─── Auth Notice Banner ───────────────────────────────────────────────────────
 .auth-notice {
-  background: #fff5cc;
-  color: #997a00;
-  padding: 8px 16px;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f3f4f6;
+  color: $text-secondary;
+  padding: 10px 16px;
   font-size: 0.85rem;
-  font-weight: 600;
-  border-bottom: 1px solid #fde68a;
-  p { margin: 0; }
+  font-weight: 500;
+  border-bottom: 1px solid $border;
+
+  ion-icon {
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    color: $text-primary;
+  }
+  strong {
+    color: $text-primary;
+  }
+  p {
+    margin: 0;
+  }
+}
+
+// ─── Ref Point Chip Bar ───────────────────────────────────────────────────────
+.ref-chip-bar {
+  padding: 12px 16px 4px;
+}
+
+.ref-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  border: 1px solid $border;
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: $text-primary;
+
+  ion-icon {
+    font-size: 1rem;
+    color: $text-primary;
+  }
+
+  .chip-clear-btn {
+    --padding-start: 0;
+    --padding-end: 0;
+    height: 20px;
+    margin: 0;
+    --color: #{$text-secondary};
+    ion-icon {
+      font-size: 1.1rem;
+    }
+  }
+}
+
+// ─── Scroll Container ─────────────────────────────────────────────────────────
+.empty-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 60vh;
+  padding: 24px;
+  
+  .empty-content {
+    background: $card-bg;
+    border-radius: $radius-card;
+    padding: 40px 24px;
+    text-align: center;
+    border: 1px dashed #d1d5db;
+    max-width: 320px;
+    
+    .empty-icon-wrapper {
+      width: 80px;
+      height: 80px;
+      background: #f3f4f6;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0 auto 20px;
+      
+      ion-icon {
+        font-size: 40px;
+        color: #9ca3af;
+      }
+    }
+    
+    h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: $text-primary;
+      margin-bottom: 8px;
+    }
+    
+    p {
+      font-size: 0.85rem;
+      color: $text-secondary;
+      line-height: 1.5;
+      margin-bottom: 24px;
+      
+      ion-icon {
+        vertical-align: middle;
+      }
+    }
+    
+    ion-button {
+      --box-shadow: none;
+      font-weight: 600;
+    }
+  }
 }
 
 .compare-scroll-container {
   width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
-  padding: 16px;
-  
+  padding: 16px 16px 32px;
+
   &::-webkit-scrollbar {
     height: 6px;
   }
@@ -42,81 +202,74 @@
     background: transparent;
   }
   &::-webkit-scrollbar-thumb {
-    background-color: #d1d5db;
+    background-color: #e5e7eb;
     border-radius: 10px;
   }
 }
 
+// ─── SEC 2: Compare Grid ──────────────────────────────────────────────────────
 .compare-grid {
-  display: flex;
-  background: white;
-  border-radius: 24px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-  border: 1px solid #f3f4f6;
-  overflow: hidden;
+  display: grid;
+  width: max-content;
+  min-width: 100%;
+  // grid-template-columns is applied dynamically in HTML
+  background: $card-bg;
+  border-radius: $radius-card;
+  border: 1px solid $border;
+  box-shadow: none;
 }
 
-.grid-column {
-  display: flex;
-  flex-direction: column;
-  width: 200px;
-  flex-shrink: 0;
-  border-right: 1px solid #f3f4f6;
-
-  &:last-child {
-    border-right: none;
-  }
-  
-  &.labels-column {
-    width: 160px;
-    background: #f9fafb;
-    position: sticky;
-    left: 0;
-    z-index: 10;
-    box-shadow: 2px 0 10px rgba(0,0,0,0.02);
-  }
+// Sticky First Column (Labels)
+.labels-column {
+  position: sticky;
+  left: 0;
+  z-index: 20;
+  background: $label-bg !important;
+  border-right: 1px solid $border;
+  box-shadow: 3px 0 12px rgba(0, 0, 0, 0.04);
 }
 
+// ─── Base Cell ────────────────────────────────────────────────────────────────
 .cell {
-  padding: 16px;
-  border-bottom: 1px solid #f3f4f6;
-  min-height: 60px;
+  padding: 16px 14px;
+  border-bottom: 1px solid $border;
+  border-right: 1px solid $border; // Added to act like column dividers
+  min-height: 64px;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  font-size: 0.95rem;
-  color: #555555;
+  font-size: 0.9rem;
+  color: $text-secondary;
+  background: $card-bg;
 
-  &:last-child {
-    border-bottom: none;
-  }
-
+  // ── Header cell (dorm card) ────────────────────────────
   &.header-cell {
-    height: 220px;
+    height: 200px;
     flex-direction: column;
     justify-content: flex-end;
-    padding: 24px 16px;
+    padding: 20px 14px 16px;
     position: relative;
-    
+
     h3 {
       margin: 12px 0 0;
-      font-size: 1.1rem;
-      font-weight: 800;
-      color: #333333;
-      line-height: 1.3;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: $text-primary;
+      line-height: 1.4;
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
+      text-align: center;
     }
 
     .img-wrapper {
-      width: 100px;
-      height: 100px;
-      border-radius: 20px;
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
       overflow: hidden;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      border: 1px solid $border;
       margin: 0 auto;
 
       img {
@@ -128,115 +281,445 @@
 
     .remove-btn {
       position: absolute;
-      top: 8px;
-      right: 8px;
+      top: 4px;
+      right: 4px;
       --padding-start: 0;
       --padding-end: 0;
       margin: 0;
       height: 32px;
       width: 32px;
-      
       ion-icon {
-        font-size: 24px;
+        font-size: 20px;
+        color: $text-secondary;
       }
+    }
+
+    .label-badge {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #f3f4f6;
+      color: $text-secondary;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 999px;
+      border: 1px solid $border;
     }
   }
 
+  // ── Title cells ─────────────────────────
   &.title-cell {
-    font-weight: 700;
-    color: #333333;
-    justify-content: flex-end;
-    text-align: right;
-    padding-right: 20px;
-    background: #f9fafb;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: $text-primary;
+    justify-content: flex-start;
+    text-align: left;
+    padding: 16px 12px;
+    gap: 8px;
+
+    .row-icon {
+      font-size: 1.1rem;
+      flex-shrink: 0;
+      color: $icon-color;
+    }
+
+    span {
+      flex: 1;
+      line-height: 1.3;
+    }
   }
 
+  &.distance-label-cell {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 8px;
+
+    .view-map-btn {
+      margin: 0;
+      font-weight: 600;
+      --border-radius: 6px;
+      font-size: 0.75rem;
+      width: 100%;
+    }
+
+    > div {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  }
+
+  // ── Data cells ────────────────────────────────
   &.data-cell {
     font-weight: 500;
+    flex-direction: column;
+    gap: 2px;
+    color: $text-primary;
   }
 
   &.score-cell {
-    color: #ffcc00;
-    font-weight: 700;
-  }
+    .score-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #ffffff;
+      color: $text-primary;
+      border: 1px solid $border;
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
 
-  &.price-cell {
-    color: #10b981;
-    font-weight: 700;
-  }
-
-  &.list-cell {
-    align-items: flex-start;
-    text-align: left;
-    
-    ul {
-      margin: 0;
-      padding-left: 16px;
-      li {
-        margin-bottom: 6px;
+      ion-icon {
+        color: $text-primary;
         font-size: 0.9rem;
       }
     }
   }
 
-  &.flex-grow {
-    flex-grow: 1;
-    min-height: 120px;
-  }
-}
-
-.add-column {
-  cursor: pointer;
-  transition: background 0.2s;
-  
-  &:hover {
-    background: #fdfbf7;
+  &.price-cell {
+    .price-tag {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: $text-primary;
+    }
+    .price-unit {
+      font-size: 0.75rem;
+      color: $text-secondary;
+    }
   }
 
-  .add-btn-cell {
-    justify-content: center;
-    color: #ffcc00;
-    
-    .add-circle {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      border: 2px dashed #ffcc00;
+  &.utility-cell {
+    flex-direction: row;
+    gap: 4px;
+    align-items: baseline;
+
+    .util-value {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: $text-primary;
+    }
+    .util-unit {
+      font-size: 0.75rem;
+      color: $text-secondary;
+    }
+    .no-data {
+      color: $border;
+      font-size: 1.1rem;
+    }
+  }
+
+  &.zone-cell {
+    .zone-badge {
+      background: #f9fafb;
+      color: $text-primary;
+      border: 1px solid $border;
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 0.8rem;
+    }
+  }
+
+  &.distance-cell {
+    flex-direction: row;
+    gap: 4px;
+    align-items: baseline;
+
+    .dist-value {
+      font-size: 1rem;
+      font-weight: 600;
+      color: $text-primary;
+    }
+    .dist-unit {
+      font-size: 0.75rem;
+      color: $text-secondary;
+    }
+
+    .pin-hint {
       display: flex;
       align-items: center;
-      justify-content: center;
-      margin-bottom: 16px;
-      
+      gap: 4px;
+      font-size: 0.75rem;
+      color: $text-secondary;
+      cursor: pointer;
       ion-icon {
-        font-size: 40px;
+        font-size: 0.9rem;
+      }
+    }
+  }
+
+  &.list-cell {
+    align-items: flex-start;
+    text-align: left;
+    padding: 16px 14px;
+    height: 100%; // Ensure it fills the grid cell
+
+    ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      width: 100%;
+
+      li {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding: 6px 0;
+        border-bottom: 1px solid #f3f4f6;
+        font-size: 0.85rem;
+        color: $text-primary;
+
+        &:last-child {
+          border-bottom: none;
+        }
+
+        .room-name {
+          font-weight: 500;
+        }
+        .room-price {
+          font-weight: 600;
+          font-size: 0.8rem;
+          white-space: nowrap;
+          margin-left: 8px;
+        }
       }
     }
 
-    p {
-      margin: 0;
-      font-weight: 700;
-      color: #997a00;
+    .no-data {
+      color: $border;
+      font-size: 1.1rem;
+      margin: auto;
+    }
+  }
+
+  &.flex-grow {
+    align-items: flex-start;
+  }
+
+  &.empty-cell {
+    background: transparent;
+  }
+}
+
+// ─── Add Column Placeholder Cell ───────────────────────────────────────────────────────────────
+.add-btn-cell {
+  cursor: pointer;
+  transition: background 0.2s ease;
+  background: #fafafa !important;
+  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
+
+  &:hover {
+    background: #f3f4f6 !important;
+  }
+
+  .add-circle {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    border: 1.5px dashed #d1d5db;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+
+    ion-icon {
+      font-size: 1.8rem;
+      color: #9ca3af;
+    }
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: $text-secondary;
+  }
+
+  &:hover .add-circle {
+    border-color: $text-primary;
+    ion-icon {
+      color: $text-primary;
     }
   }
 }
 
+// ─── Loading Overlay ──────────────────────────────────────────────────────────
 .loading-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(4px);
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   z-index: 100;
-  
+
+  .loading-card {
+    background: $card-bg;
+    border-radius: 12px;
+    padding: 24px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+    border: 1px solid $border;
+
+    p {
+      margin: 0;
+      font-weight: 500;
+      color: $text-primary;
+      font-size: 0.9rem;
+    }
+  }
+}
+
+// ─── Minimal Map & Selection Modal ────────────────────────────────────────────
+.minimal-modal {
+  .text-dark {
+    color: $text-primary !important;
+  }
+
+  .minimal-list {
+    padding: 12px;
+    background: transparent;
+
+    .dorm-list-item {
+      --background: #ffffff;
+      --border-radius: 12px;
+      --padding-start: 12px;
+      --inner-padding-end: 12px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+
+      ion-checkbox {
+        --size: 20px;
+        --checkbox-background-checked: #ffcc00;
+        --border-color-checked: #ffcc00;
+        --checkmark-color: #997a00;
+        margin-right: 16px;
+      }
+
+      ion-avatar {
+        width: 50px;
+        height: 50px;
+        margin-right: 16px;
+        border-radius: 8px; // slight rounded rectangle instead of full circle for dorms
+        img {
+          border-radius: 8px;
+        }
+      }
+
+      h2 {
+        font-weight: 700;
+        color: $text-primary;
+        font-size: 0.95rem;
+        margin-bottom: 4px;
+      }
+
+      p {
+        color: $text-secondary;
+        font-size: 0.8rem;
+      }
+
+      &.selected-item {
+        --background: #fffdf0;
+        border-color: #ffcc00;
+        box-shadow: 0 4px 12px rgba(255, 204, 0, 0.25);
+        
+        &::part(native) {
+          border: 2px solid #ffcc00;
+          background: #fffdf0;
+        }
+
+        h2 {
+          color: #997a00;
+        }
+      }
+
+      &::part(native) {
+        border-radius: 12px; // Ensure ripple effects respect borders
+      }
+    }
+  }
+}
+
+ion-modal.map-modal {
+  --background: transparent;
+  background: transparent;
+
+  &::part(content) {
+    background: transparent;
+    box-shadow: none;
+  }
+
+  &::part(backdrop) {
+    background: rgba(0, 0, 0, 0.4);
+  }
+
+  ion-content {
+    --background: transparent;
+    --background-color: transparent;
+    background: transparent;
+  }
+
+  .map-container {
+    width: 100%;
+    height: 100%;
+    display: block;
+    background: #e5e7eb;
+    pointer-events: auto;
+  }
+}
+
+.map-actions {
+  background: $card-bg;
+  border-top: 1px solid $border;
+  border-radius: 0;
+  position: relative;
+  z-index: 10;
+  padding-top: 20px;
+  padding-bottom: calc(20px + env(safe-area-inset-bottom));
+
+  .map-hint {
+    color: $text-secondary;
+    ion-icon {
+      color: $text-secondary;
+    }
+  }
+
   p {
-    margin-top: 16px;
+    margin: 0 0 16px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    ion-icon {
+      font-size: 1.2rem;
+    }
+  }
+
+  .map-success {
+    color: $text-primary;
+    ion-icon {
+      color: #10b981;
+    } 
+  }
+
+  ion-button {
+    --border-radius: 8px;
     font-weight: 600;
-    color: #555555;
+    height: 48px;
+    margin: 0;
   }
 }
