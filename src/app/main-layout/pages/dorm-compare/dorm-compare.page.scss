@@ -133,6 +133,10 @@ $radius-cell: 8px;
 }
 
 // ─── Scroll Container ─────────────────────────────────────────────────────────
+.hidden {
+  display: none !important;
+}
+
 .empty-state {
   display: flex;
   justify-content: center;
@@ -222,7 +226,7 @@ $radius-cell: 8px;
 // Sticky First Column (Labels)
 .labels-column {
   position: sticky;
-  left: 0;
+  left: -1rem;
   z-index: 20;
   background: $label-bg !important;
   border-right: 1px solid $border;
@@ -295,7 +299,7 @@ $radius-cell: 8px;
     }
 
     .label-badge {
-      position: absolute;
+      position: relative;
       bottom: 16px;
       left: 50%;
       transform: translateX(-50%);

@@ -72,9 +72,9 @@ export interface DormDetail {
   facilities: string[];
   gallery: string[];
   rooms: { ROOM_TYPE_NAME: string; PRICE: number }[];
-  WATER_UNIT_PRICE: number;
-  WATER_LUMP_SUM_PRICE: number;
-  ELECTRICITY_UNIT_PRICE: number;
+  WATER_UNIT: number;
+  WATER_LUMP: number;
+  ELECT_UNIT: number;
   DETAIL: string;
 }
 

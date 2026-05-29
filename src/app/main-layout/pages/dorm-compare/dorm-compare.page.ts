@@ -52,7 +52,8 @@ import {
   closeCircle,
   add,
   gitCompareOutline,
-  addCircle
+  addCircle,
+  reorderThreeOutline,
 } from 'ionicons/icons';
 import { GoogleMapService } from 'src/app/services/google-map-service';
 import { Subscription } from 'rxjs';
@@ -156,6 +157,7 @@ export class DormComparePage implements OnInit, OnDestroy {
       add,
       gitCompareOutline,
       addCircle,
+      reorderThreeOutline,
     });
   }
 

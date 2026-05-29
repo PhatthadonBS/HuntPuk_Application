@@ -1,7 +1,10 @@
 <ion-header class="ion-no-border">
   <ion-toolbar class="main-toolbar">
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/home" icon="arrow-back-outline"></ion-back-button>
+      <ion-back-button
+        defaultHref="/home"
+        icon="arrow-back-outline"
+      ></ion-back-button>
     </ion-buttons>
     <ion-title class="toolbar-title">เปรียบเทียบหอพัก</ion-title>
     <ion-buttons slot="end">
@@ -12,7 +15,12 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-popover trigger="compare-menu-trigger" triggerAction="click" [dismissOnSelect]="true" class="minimal-popover">
+<ion-popover
+  trigger="compare-menu-trigger"
+  triggerAction="click"
+  [dismissOnSelect]="true"
+  class="minimal-popover"
+>
   <ng-template>
     <ion-list lines="none" class="menu-popover-list">
       <ion-item button (click)="clearAll()">
@@ -30,126 +38,212 @@
 <ion-content class="compare-content" [fullscreen]="true">
   <div class="auth-notice" *ngIf="maxDorms() === 2">
     <ion-icon name="information-circle-outline"></ion-icon>
-    <p>ผู้ใช้ทั่วไปเปรียบเทียบได้สูงสุด 2 แห่ง &nbsp;—&nbsp; <strong>เข้าสู่ระบบ</strong> เพื่อเปรียบเทียบสูงสุด 5 แห่ง</p>
+    <p>
+      ผู้ใช้ทั่วไปเปรียบเทียบได้สูงสุด 2 แห่ง &nbsp;—&nbsp;
+      <strong>เข้าสู่ระบบ</strong> เพื่อเปรียบเทียบสูงสุด 5 แห่ง
+    </p>
   </div>
 
   <div class="ref-chip-bar" *ngIf="refPoint()">
     <div class="ref-chip">
       <ion-icon name="location-outline"></ion-icon>
-      <span>จุดอ้างอิง: {{ refPoint()!.lat | number:'1.4-4' }}, {{ refPoint()!.lng | number:'1.4-4' }}</span>
-      <ion-button fill="clear" size="small" (click)="clearRefPoint()" class="chip-clear-btn">
+      <span
+        >จุดอ้างอิง: {{ refPoint()!.lat | number:'1.4-4' }}, {{ refPoint()!.lng
+        | number:'1.4-4' }}</span
+      >
+      <ion-button
+        fill="clear"
+        size="small"
+        (click)="clearRefPoint()"
+        class="chip-clear-btn"
+      >
         <ion-icon name="close-outline" slot="icon-only"></ion-icon>
       </ion-button>
     </div>
   </div>
 
-  <div class="empty-state" *ngIf="selectedDorms().length === 0">
+  <div class="empty-state" [class.hidden]="selectedDorms().length > 0">
     <div class="empty-content">
       <div class="empty-icon-wrapper">
         <ion-icon name="git-compare-outline"></ion-icon>
       </div>
       <h3>ยังไม่มีหอพักเปรียบเทียบ</h3>
-      <p>กดปุ่ม <ion-icon name="add-circle"></ion-icon> เพื่อเลือกหอพักที่คุณสนใจ นำมาเปรียบเทียบราคาและสิ่งอำนวยความสะดวก</p>
+      <p>
+        กดปุ่ม <ion-icon name="add-circle"></ion-icon> เพื่อเลือกหอพักที่คุณสนใจ
+        นำมาเปรียบเทียบราคาและสิ่งอำนวยความสะดวก
+      </p>
       <ion-button shape="round" color="primary" (click)="openSelectModal()">
         เพิ่มหอพักเลย
       </ion-button>
     </div>
   </div>
 
-  <div class="compare-scroll-container" *ngIf="selectedDorms().length > 0">
-    <div class="compare-grid" [style.gridTemplateColumns]="'max-content repeat(' + selectedDorms().length + ', 220px)'">
-      
+  <div
+    class="compare-scroll-container"
+    [class.hidden]="selectedDorms().length === 0"
+  >
+    <div
+      class="compare-grid"
+      [style.gridTemplateColumns]="'max-content repeat(' + selectedDorms().length + ', 220px)'"
+    >
       <!-- ─── ROW 1: Headers / Images ─── -->
-      <div class="cell header-cell labels-column empty-cell">
-        <div class="label-badge">หัวข้อ</div>
+      <div class="cell title-cell labels-column empty-cell">
+        <ion-icon name="reorder-three-outline" class="row-icon"></ion-icon
+        ><span class="label-badge">หัวข้อ</span>
       </div>
-      <div class="cell header-cell" *ngFor="let dorm of selectedDorms(); let i = index">
-        <ion-button class="remove-btn" fill="clear" color="dark" (click)="removeDorm(i)">
+      <div
+        class="cell header-cell"
+        *ngFor="let dorm of selectedDorms(); let i = index"
+      >
+        <ion-button
+          class="remove-btn"
+          fill="clear"
+          color="dark"
+          (click)="removeDorm(i)"
+        >
           <ion-icon name="close-outline" slot="icon-only"></ion-icon>
         </ion-button>
         <div class="img-wrapper">
-          <img #dormImg [src]="dorm.image || 'https://placehold.co/400x300?text=No+Image'" alt="Dorm Image" (error)="dormImg.src = 'https://placehold.co/400x300?text=No+Image'" />
+          <img
+            #dormImg
+            [src]="dorm.image || 'https://placehold.co/400x300?text=No+Image'"
+            alt="Dorm Image"
+            (error)="dormImg.src = 'https://placehold.co/400x300?text=No+Image'"
+          />
         </div>
         <h3>{{ dorm.DORM_NAME }}</h3>
       </div>
 
       <!-- ─── ROW 2: Score ─── -->
       <div class="cell title-cell labels-column">
-        <ion-icon name="star-outline" class="row-icon"></ion-icon><span>คะแนน</span>
+        <ion-icon name="star-outline" class="row-icon"></ion-icon
+        ><span>คะแนน</span>
       </div>
-      <div class="cell data-cell score-cell" *ngFor="let dorm of selectedDorms()">
-        <span class="score-badge"><ion-icon name="star"></ion-icon>{{ dorm.SCORE | number:'1.1-1' }}</span>
+      <div
+        class="cell data-cell score-cell"
+        *ngFor="let dorm of selectedDorms()"
+      >
+        <span class="score-badge"
+          ><ion-icon name="star"></ion-icon>{{ dorm.SCORE | number:'1.1-1'
+          }}</span
+        >
       </div>
 
       <!-- ─── ROW 3: Start Price ─── -->
       <div class="cell title-cell labels-column">
-        <ion-icon name="cash-outline" class="row-icon"></ion-icon><span>ราคาเริ่มต้น</span>
+        <ion-icon name="cash-outline" class="row-icon"></ion-icon
+        ><span>ราคาเริ่มต้น</span>
       </div>
-      <div class="cell data-cell price-cell" *ngFor="let dorm of selectedDorms()">
-        <span class="price-tag">{{ dorm.start_price | number }}</span><span class="price-unit">฿/เดือน</span>
+      <div
+        class="cell data-cell price-cell"
+        *ngFor="let dorm of selectedDorms()"
+      >
+        <span class="price-tag">{{ dorm.start_price | number }}</span
+        ><span class="price-unit">บาท/เดือน</span>
       </div>
 
       <!-- ─── ROW 4: Water ─── -->
       <div class="cell title-cell labels-column">
-        <ion-icon name="water-outline" class="row-icon"></ion-icon><span>ค่าน้ำ</span>
+        <ion-icon name="water-outline" class="row-icon"></ion-icon
+        ><span>ค่าน้ำ</span>
       </div>
-      <div class="cell data-cell utility-cell" *ngFor="let dorm of selectedDorms()">
-        <ng-container *ngIf="dorm.WATER_UNIT_PRICE; else waterLump">
-          <span class="util-value">{{ dorm.WATER_UNIT_PRICE }}</span><span class="util-unit">฿/หน่วย</span>
+      <div
+        class="cell data-cell utility-cell"
+        *ngFor="let dorm of selectedDorms()"
+      >
+        <ng-container *ngIf="dorm.WATER_UNIT; else noWater">
+          <span class="util-value">{{ dorm.WATER_UNIT}}</span
+          ><span class="util-unit">บาท/หน่วย</span>
+          <br />
+          <div class="lump-divider" *ngIf="dorm.WATER_LUMP > 0">
+            <span class="util-unit">(เหมา </span>
+            <span class="util-value">{{ dorm.WATER_LUMP }}</span>
+            <span class="util-unit">บาท)</span>
+          </div>
         </ng-container>
-        <ng-template #waterLump>
-          <ng-container *ngIf="dorm.WATER_LUMP_SUM_PRICE; else noWater">
-            <span class="util-value">{{ dorm.WATER_LUMP_SUM_PRICE }}</span><span class="util-unit">฿/เหมา</span>
-          </ng-container>
-        </ng-template>
+
         <ng-template #noWater><span class="no-data">—</span></ng-template>
       </div>
 
       <!-- ─── ROW 5: Electricity ─── -->
       <div class="cell title-cell labels-column">
-        <ion-icon name="flash-outline" class="row-icon"></ion-icon><span>ค่าไฟ</span>
+        <ion-icon name="flash-outline" class="row-icon"></ion-icon
+        ><span>ค่าไฟ</span>
       </div>
-      <div class="cell data-cell utility-cell" *ngFor="let dorm of selectedDorms()">
-        <ng-container *ngIf="dorm.ELECTRICITY_UNIT_PRICE; else noElec">
-          <span class="util-value">{{ dorm.ELECTRICITY_UNIT_PRICE }}</span><span class="util-unit">฿/หน่วย</span>
+      <div
+        class="cell data-cell utility-cell"
+        *ngFor="let dorm of selectedDorms()"
+      >
+        <ng-container *ngIf="dorm.ELECT_UNIT; else noElec">
+          <span class="util-value">{{ dorm.ELECT_UNIT }}</span
+          ><span class="util-unit">บาท/หน่วย</span>
         </ng-container>
         <ng-template #noElec><span class="no-data">—</span></ng-template>
       </div>
 
       <!-- ─── ROW 6: Zone ─── -->
       <div class="cell title-cell labels-column">
-        <ion-icon name="map-outline" class="row-icon"></ion-icon><span>โซน</span>
+        <ion-icon name="map-outline" class="row-icon"></ion-icon
+        ><span>โซน</span>
       </div>
-      <div class="cell data-cell zone-cell" *ngFor="let dorm of selectedDorms()">
+      <div
+        class="cell data-cell zone-cell"
+        *ngFor="let dorm of selectedDorms()"
+      >
         <span class="zone-badge">{{ dorm.ZONE_NAME }}</span>
       </div>
 
       <!-- ─── ROW 7: Distance ─── -->
       <div class="cell title-cell distance-label-cell labels-column">
         <div>
-          <ion-icon name="navigate-outline" class="row-icon"></ion-icon><span>ระยะทาง</span>
+          <ion-icon name="navigate-outline" class="row-icon"></ion-icon
+          ><span>ระยะทาง</span>
         </div>
-        <ion-button fill="outline" size="small" color="primary" (click)="openMapModal()" class="view-map-btn">
+        <ion-button
+          fill="outline"
+          size="small"
+          color="primary"
+          (click)="openMapModal()"
+          class="view-map-btn"
+        >
           <ion-icon name="map-outline" slot="start"></ion-icon> ดูบนแผนที่
         </ion-button>
       </div>
-      <div class="cell data-cell distance-cell" *ngFor="let dorm of selectedDorms()">
+      <div
+        class="cell data-cell distance-cell"
+        *ngFor="let dorm of selectedDorms()"
+      >
         <ng-container *ngIf="dorm.distance !== undefined; else noPin">
-          <span class="dist-value">{{ dorm.distance | number }}</span><span class="dist-unit">เมตร</span>
+          <span class="dist-value">{{ dorm.distance | number }}</span
+          ><span class="dist-unit">เมตร</span>
+          <span *ngIf="dorm.distance >= 1000" class="dist-label"
+            >หรือ
+            <hr class="dist-divider" />
+          </span>
+          <span *ngIf="dorm.distance >= 1000" class="dist-value"
+            >{{ dorm.distance/1000 | number:'1.1-1' }}</span
+          ><span *ngIf="dorm.distance >= 1000" class="dist-unit">กิโลเมตร</span>
         </ng-container>
         <ng-template #noPin>
-          <span class="no-data pin-hint" (click)="openMapModal()"><ion-icon name="location-outline"></ion-icon>ไม่ได้ตั้งหมุด</span>
+          <span class="no-data pin-hint" (click)="openMapModal()"
+            ><ion-icon name="location-outline"></ion-icon>ไม่ได้ตั้งหมุด</span
+          >
         </ng-template>
       </div>
 
       <!-- ─── ROW 8: Room Types ─── -->
       <div class="cell title-cell labels-column flex-grow">
-        <ion-icon name="bed-outline" class="row-icon"></ion-icon><span>ประเภทห้องพัก</span>
+        <ion-icon name="bed-outline" class="row-icon"></ion-icon
+        ><span>ประเภทห้องพัก</span>
       </div>
-      <div class="cell data-cell list-cell flex-grow" *ngFor="let dorm of selectedDorms()">
+      <div
+        class="cell data-cell list-cell flex-grow"
+        *ngFor="let dorm of selectedDorms()"
+      >
         <ul *ngIf="dorm.rooms?.length; else noRooms">
           <li *ngFor="let r of dorm.rooms">
-            <span class="room-name">{{ r.ROOM_TYPE_NAME }}</span><span class="room-price">{{ r.PRICE | number }}฿</span>
+            <span class="room-name">{{ r.ROOM_TYPE_NAME }}</span
+            ><span class="room-price">{{ r.PRICE | number }}บาท</span>
           </li>
         </ul>
         <ng-template #noRooms><span class="no-data">—</span></ng-template>
@@ -157,19 +251,27 @@
 
       <!-- ─── ROW 9: Facilities ─── -->
       <div class="cell title-cell labels-column flex-grow">
-        <ion-icon name="checkmark-done-outline" class="row-icon"></ion-icon><span>สิ่งอำนวยฯ</span>
+        <ion-icon name="checkmark-done-outline" class="row-icon"></ion-icon
+        ><span>สิ่งอำนวยฯ</span>
       </div>
-      <div class="cell data-cell list-cell flex-grow" *ngFor="let dorm of selectedDorms()">
+      <div
+        class="cell data-cell list-cell flex-grow"
+        *ngFor="let dorm of selectedDorms()"
+      >
         <ul *ngIf="dorm.facilities?.length; else noFacs">
           <li *ngFor="let f of dorm.facilities">{{ f }}</li>
         </ul>
         <ng-template #noFacs><span class="no-data">—</span></ng-template>
       </div>
-
     </div>
   </div>
 
-  <ion-fab slot="fixed" vertical="bottom" horizontal="end" *ngIf="selectedDorms().length < maxDorms()">
+  <ion-fab
+    slot="fixed"
+    vertical="bottom"
+    horizontal="end"
+    *ngIf="selectedDorms().length < maxDorms()"
+  >
     <ion-fab-button color="primary" (click)="openSelectModal()">
       <ion-icon name="add"></ion-icon>
     </ion-fab-button>
@@ -186,9 +288,14 @@
     <ng-template>
       <ion-header class="ion-no-border">
         <ion-toolbar class="main-toolbar">
-          <ion-title>เลือกหอพัก ({{ tempSelectedDormIds().length + selectedDorms().length }} / {{ maxDorms() }})</ion-title>
+          <ion-title
+            >เลือกหอพัก ({{ tempSelectedDormIds().length +
+            selectedDorms().length }} / {{ maxDorms() }})</ion-title
+          >
           <ion-buttons slot="end">
-            <ion-button color="dark" (click)="closeModal()"><ion-icon name="close-outline" slot="icon-only"></ion-icon></ion-button>
+            <ion-button color="dark" (click)="closeModal()"
+              ><ion-icon name="close-outline" slot="icon-only"></ion-icon
+            ></ion-button>
           </ion-buttons>
         </ion-toolbar>
         <app-filter-group
@@ -205,35 +312,53 @@
           <ion-spinner color="dark"></ion-spinner>
         </div>
         <ion-list *ngIf="!isLoadingModal()" lines="none" class="minimal-list">
-          <ion-item *ngFor="let dorm of filteredDorms()" 
-                    [class.selected-item]="tempSelectedDormIds().includes(dorm.DORM_ID)"
-                    class="dorm-list-item">
-            <ion-checkbox 
-              slot="start" 
+          <ion-item
+            *ngFor="let dorm of filteredDorms()"
+            [class.selected-item]="tempSelectedDormIds().includes(dorm.DORM_ID)"
+            class="dorm-list-item"
+          >
+            <ion-checkbox
+              slot="start"
               (ionChange)="toggleDormSelection(dorm.DORM_ID, $event)"
               [disabled]="!tempSelectedDormIds().includes(dorm.DORM_ID) && (selectedDorms().length + tempSelectedDormIds().length >= maxDorms())"
               [checked]="tempSelectedDormIds().includes(dorm.DORM_ID)"
             ></ion-checkbox>
             <ion-avatar slot="start">
-              <img #modalDormImg [src]="dorm.image || 'https://placehold.co/100x100?text=No+Img'" (error)="modalDormImg.src = 'https://placehold.co/100x100?text=No+Img'" />
+              <img
+                #modalDormImg
+                [src]="dorm.image || 'https://placehold.co/100x100?text=No+Img'"
+                (error)="modalDormImg.src = 'https://placehold.co/100x100?text=No+Img'"
+              />
             </ion-avatar>
             <ion-label>
               <h2>{{ dorm.DORM_NAME }}</h2>
               <p>{{ dorm.zone }}</p>
             </ion-label>
             <ion-label slot="end" class="text-right">
-              <p class="font-bold text-dark">{{ dorm.start_price | number }}฿</p>
+              <p class="font-bold text-dark">
+                {{ dorm.start_price | number }}บาท
+              </p>
             </ion-label>
           </ion-item>
         </ion-list>
-        <div class="ion-padding text-center text-gray-500" *ngIf="!isLoadingModal() && filteredDorms().length === 0">
+        <div
+          class="ion-padding text-center text-gray-500"
+          *ngIf="!isLoadingModal() && filteredDorms().length === 0"
+        >
           ไม่พบหอพักที่ค้นหา หรือคุณเลือกหอพักทั้งหมดไปแล้ว
         </div>
       </ion-content>
-      
-      <ion-footer class="ion-no-border" *ngIf="tempSelectedDormIds().length > 0">
+
+      <ion-footer
+        class="ion-no-border"
+        *ngIf="tempSelectedDormIds().length > 0"
+      >
         <div class="ion-padding">
-          <ion-button expand="block" color="primary" (click)="confirmDormSelection()">
+          <ion-button
+            expand="block"
+            color="primary"
+            (click)="confirmDormSelection()"
+          >
             เพิ่มหอพักเปรียบเทียบ ({{ tempSelectedDormIds().length }})
           </ion-button>
         </div>
@@ -241,7 +366,12 @@
     </ng-template>
   </ion-modal>
 
-  <ion-modal [isOpen]="isMapModalOpen()" (ionModalDidPresent)="onMapModalPresented($event)" (didDismiss)="onMapModalDismissed()" class="map-modal minimal-modal">
+  <ion-modal
+    [isOpen]="isMapModalOpen()"
+    (ionModalDidPresent)="onMapModalPresented($event)"
+    (didDismiss)="onMapModalDismissed()"
+    class="map-modal minimal-modal"
+  >
     <ng-template>
       <ion-header class="ion-no-border">
         <ion-toolbar class="main-toolbar">
@@ -264,7 +394,13 @@
             <ion-icon name="checkmark-circle-outline"></ion-icon>
             เลือกจุดอ้างอิงเรียบร้อยแล้ว
           </p>
-          <ion-button expand="block" color="dark" (click)="confirmMapSelection()" [disabled]="!refPoint()">ยืนยันตำแหน่งนี้</ion-button>
+          <ion-button
+            expand="block"
+            color="dark"
+            (click)="confirmMapSelection()"
+            [disabled]="!refPoint()"
+            >ยืนยันตำแหน่งนี้</ion-button
+          >
         </div>
       </ion-footer>
     </ng-template>
