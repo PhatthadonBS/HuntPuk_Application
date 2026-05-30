@@ -63,7 +63,7 @@ export class ForgetPasswordPage implements OnInit {
     this.isLoading.set(true);
     const email = this.emailForm.value.email;
 
-    this.authSv.reqOTP(email).subscribe({
+    this.authSv.reqOTP(email, 'reset').subscribe({
       next: (res) => {
         if (res.success == false) {
           this.errMsg.set('ไม่พบอีเมลนี้ในระบบ');

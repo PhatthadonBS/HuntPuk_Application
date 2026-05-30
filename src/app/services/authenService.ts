@@ -82,8 +82,13 @@ export class AuthenService implements CanActivate {
     return false;
   }
 
-  reqOTP(email: string): Observable<any>{
-    const url = `${this.endPoint}/auth/SendOTP`;
+  reqOTP(email: string, type: 'register' | 'reset' | 'general' = 'register'): Observable<any>{
+    let url = `${this.endPoint}/auth/SendOTP`;
+    if (type === 'register') {
+      url = `${this.endPoint}/auth/SendOTP/register`;
+    } else if (type === 'reset') {
+      url = `${this.endPoint}/auth/SendOTP/reset`;
+    }
     return this.http.post(url, {email});
   }
 
