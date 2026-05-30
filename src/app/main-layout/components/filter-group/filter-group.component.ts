@@ -74,6 +74,8 @@ export class FilterGroupComponent implements OnInit, OnChanges, OnDestroy {
   @Input() initialParams: FilterParams | null = null;
   @Input() openFilterOnLoad: boolean = false;
   @Output() filterApplied = new EventEmitter<FilterParams>();
+  @Output() searchFocus = new EventEmitter<void>();
+  @Output() searchBlur = new EventEmitter<void>();
 
   searchQuery: string = '';
   suggestions: DormSummary[] = [];
@@ -206,10 +208,16 @@ export class FilterGroupComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   onBlur() {
+    this.searchBlur.emit();
     // Small delay to allow clicking a suggestion
     setTimeout(() => {
       this.showSuggestions = false;
     }, 200);
+  }
+
+  onFocus() {
+    this.showSuggestions = true;
+    this.searchFocus.emit();
   }
 
   selectSuggestion(name: string) {

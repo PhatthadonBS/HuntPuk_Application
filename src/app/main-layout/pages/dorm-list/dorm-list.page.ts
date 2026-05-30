@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, signal, computed, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -26,16 +26,32 @@ import {
   IonRow,
   IonCol,
   IonList,
-  IonBackButton
+  IonBackButton,
+  IonFab,
+  IonFabButton
 } from '@ionic/angular/standalone';
 import { DormServices } from 'src/app/services/dormServices';
 import { DormSummary, DormZone } from 'src/app/model/dorm.model';
 import { addIcons } from 'ionicons';
-import { filterOutline, star, locationOutline, cashOutline, arrowBackCircleOutline, searchOutline } from 'ionicons/icons';
+import { 
+  filterOutline, 
+  star, 
+  locationOutline, 
+  cashOutline, 
+  arrowBackCircleOutline, 
+  searchOutline, 
+  timeOutline, 
+  chevronForwardOutline,
+  bookmarkOutline,
+  bookmark,
+  bedOutline,
+  arrowUpOutline
+} from 'ionicons/icons';
 import { environment } from 'src/environments/environment';
 import { ActivatedRoute } from '@angular/router';
 import { NavController } from '@ionic/angular';
 import { FilterGroupComponent, FilterParams } from '../../components/filter-group/filter-group.component';
+import { MainLayoutPage } from '../../main-layout.page';
 
 @Component({
   selector: 'app-dorm-list',
@@ -70,10 +86,14 @@ import { FilterGroupComponent, FilterParams } from '../../components/filter-grou
     IonCol,
     IonList,
     IonBackButton,
+    IonFab,
+    IonFabButton,
     FilterGroupComponent
   ],
 })
 export class DormListPage implements OnInit {
+  @ViewChild(IonContent, { static: false }) content?: IonContent;
+
   allDorms = signal<DormSummary[]>([]);
   zones = signal<DormZone[]>([]);
   
@@ -83,6 +103,7 @@ export class DormListPage implements OnInit {
   selectedZoneId = signal<string | null>(null); // Store Zone ID as string
   initialParams = signal<FilterParams | null>(null);
   autoOpenFilter = signal<boolean>(false);
+  showScrollBtn = signal<boolean>(false);
 
   env = environment;
 
@@ -115,9 +136,23 @@ export class DormListPage implements OnInit {
   constructor(
     private dormSv: DormServices, 
     private route: ActivatedRoute,
-    private navCtrl: NavController
+    private navCtrl: NavController,
+    private mainLayout: MainLayoutPage
   ) {
-    addIcons({ filterOutline, star, locationOutline, cashOutline, arrowBackCircleOutline, searchOutline });
+    addIcons({ 
+      filterOutline, 
+      star, 
+      locationOutline, 
+      cashOutline, 
+      arrowBackCircleOutline, 
+      searchOutline,
+      timeOutline,
+      chevronForwardOutline,
+      bookmarkOutline,
+      bookmark,
+      bedOutline,
+      arrowUpOutline
+    });
   }
 
   ngOnInit() {
@@ -179,6 +214,32 @@ export class DormListPage implements OnInit {
     this.minPrice.set(null);
     this.maxPrice.set(null);
     this.selectedZoneId.set(null);
+  }
+
+  goToDormDetail(id: number) {
+    this.navCtrl.navigateForward(`/dorm-detail/${id}`);
+  }
+
+  toggleFavorite(event: Event, dorm: DormSummary) {
+    event.stopPropagation();
+    console.log('Toggle favorite for:', dorm.DORM_NAME);
+  }
+
+  onScroll(event: any) {
+    const scrollTop = event.detail.scrollTop;
+    this.showScrollBtn.set(scrollTop > 400);
+  }
+
+  scrollToTop() {
+    this.content?.scrollToTop(500);
+  }
+
+  onSearchFocus() {
+    this.mainLayout.hideFooter.set(true);
+  }
+
+  onSearchBlur() {
+    this.mainLayout.hideFooter.set(false);
   }
 
   goBack() {
