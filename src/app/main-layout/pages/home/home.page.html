@@ -1,7 +1,7 @@
 <ion-content fullscreen [scrollY]="false">
   <capacitor-google-map #map id="map"></capacitor-google-map>
 
-  <div class="filter-group-wrapper" *ngIf="!isOpenMenu() && !isPinMode()">
+  <div class="filter-group-wrapper mt-[2rem]" *ngIf="!isOpenMenu() && !isPinMode()">
     <app-filter-group
       [zones]="zones()"
       [initialParams]="getFilterParams()"
