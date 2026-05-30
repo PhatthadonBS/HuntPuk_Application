@@ -461,13 +461,6 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
             zoom: 14,
             disableDefaultUI: false,
             clickableIcons: false,
-            styles: [
-              {
-                featureType: 'all',
-                elementType: 'labels.icon',
-                stylers: [{ visibility: 'off' }],
-              },
-            ],
           },
         });
 

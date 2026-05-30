@@ -1,9 +1,9 @@
 <ion-header class="ion-no-border">
   <ion-toolbar class="main-toolbar">
-    <ion-buttons slot="start">
+    <ion-buttons slot="start" color="primary" size="large">
       <ion-back-button
         defaultHref="/home"
-        icon="arrow-back-outline"
+        icon="arrow-back-circle-outline"
       ></ion-back-button>
     </ion-buttons>
     <ion-title class="toolbar-title">เปรียบเทียบหอพัก</ion-title>
@@ -44,7 +44,7 @@
     </p>
   </div>
 
-  <div class="ref-chip-bar" *ngIf="refPoint()">
+  <!-- <div class="ref-chip-bar" *ngIf="refPoint()">
     <div class="ref-chip">
       <ion-icon name="location-outline"></ion-icon>
       <span
@@ -60,7 +60,7 @@
         <ion-icon name="close-outline" slot="icon-only"></ion-icon>
       </ion-button>
     </div>
-  </div>
+  </div> -->
 
   <div class="empty-state" [class.hidden]="selectedDorms().length > 0">
     <div class="empty-content">
@@ -151,11 +151,11 @@
         class="cell data-cell utility-cell"
         *ngFor="let dorm of selectedDorms()"
       >
-        <ng-container *ngIf="dorm.WATER_UNIT; else noWater">
+        <ng-container *ngIf="dorm.WATER_UNIT !== null && dorm.WATER_UNIT !== undefined; else noWater">
           <span class="util-value">{{ dorm.WATER_UNIT}}</span
           ><span class="util-unit">บาท/หน่วย</span>
           <br />
-          <div class="lump-divider" *ngIf="dorm.WATER_LUMP > 0">
+          <div class="lump-divider" *ngIf="dorm.WATER_LUMP !== null && dorm.WATER_LUMP !== undefined && dorm.WATER_LUMP > 0">
             <span class="util-unit">(เหมา </span>
             <span class="util-value">{{ dorm.WATER_LUMP }}</span>
             <span class="util-unit">บาท)</span>
@@ -174,9 +174,9 @@
         class="cell data-cell utility-cell"
         *ngFor="let dorm of selectedDorms()"
       >
-        <ng-container *ngIf="dorm.ELECT_UNIT; else noElec">
-          <span class="util-value">{{ dorm.ELECT_UNIT }}</span
-          ><span class="util-unit">บาท/หน่วย</span>
+        <ng-container *ngIf="dorm.ELECT_UNIT !== null && dorm.ELECT_UNIT !== undefined; else noElec" class="!text-center">
+          <span class="util-value">{{ dorm.ELECT_UNIT }}</span>
+          <span class="util-unit">บาท/หน่วย</span>
         </ng-container>
         <ng-template #noElec><span class="no-data">—</span></ng-template>
       </div>
@@ -243,7 +243,7 @@
         <ul *ngIf="dorm.rooms?.length; else noRooms">
           <li *ngFor="let r of dorm.rooms">
             <span class="room-name">{{ r.ROOM_TYPE_NAME }}</span
-            ><span class="room-price">{{ r.PRICE | number }}บาท</span>
+            ><span class="room-price">{{ r.PRICE | number }} บาท</span>
           </li>
         </ul>
         <ng-template #noRooms><span class="no-data">—</span></ng-template>
@@ -266,7 +266,7 @@
     </div>
   </div>
 
-  <ion-fab
+  <!-- <ion-fab
     slot="fixed"
     vertical="bottom"
     horizontal="end"
@@ -275,14 +275,7 @@
     <ion-fab-button color="primary" (click)="openSelectModal()">
       <ion-icon name="add"></ion-icon>
     </ion-fab-button>
-  </ion-fab>
-
-  <div class="loading-overlay" *ngIf="isLoadingDetail()">
-    <div class="loading-card">
-      <ion-spinner name="crescent" color="dark"></ion-spinner>
-      <p>กำลังโหลดข้อมูล...</p>
-    </div>
-  </div>
+  </ion-fab> -->
 
   <ion-modal [isOpen]="isModalOpen()" class="minimal-modal select-dorm-modal">
     <ng-template>
@@ -308,9 +301,6 @@
       </ion-header>
 
       <ion-content>
-        <div class="ion-padding text-center" *ngIf="isLoadingModal()">
-          <ion-spinner color="dark"></ion-spinner>
-        </div>
         <ion-list *ngIf="!isLoadingModal()" lines="none" class="minimal-list">
           <ion-item
             *ngFor="let dorm of filteredDorms()"
@@ -405,4 +395,6 @@
       </ion-footer>
     </ng-template>
   </ion-modal>
+
+  <app-loading-ui *ngIf="isLoadingModal() || isLoadingDetail()"></app-loading-ui>
 </ion-content>
