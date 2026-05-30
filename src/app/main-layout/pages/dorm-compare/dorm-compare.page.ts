@@ -619,6 +619,10 @@ export class DormComparePage implements OnInit, OnDestroy {
     this.closeMapModal();
   }
 
+  getDistanceKm(distance: number): number {
+    return Math.floor(distance / 1000);
+  }
+
   recalculateDistances() {
     const point = this.refPoint();
     if (!point) return;

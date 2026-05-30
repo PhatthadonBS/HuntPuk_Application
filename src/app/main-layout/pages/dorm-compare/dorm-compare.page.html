@@ -216,13 +216,6 @@
         <ng-container *ngIf="dorm.distance !== undefined; else noPin">
           <span class="dist-value">{{ dorm.distance | number }}</span
           ><span class="dist-unit">เมตร</span>
-          <span *ngIf="dorm.distance >= 1000" class="dist-label"
-            >หรือ
-            <hr class="dist-divider" />
-          </span>
-          <span *ngIf="dorm.distance >= 1000" class="dist-value"
-            >{{ dorm.distance/1000 | number:'1.1-1' }}</span
-          ><span *ngIf="dorm.distance >= 1000" class="dist-unit">กิโลเมตร</span>
         </ng-container>
         <ng-template #noPin>
           <span class="no-data pin-hint" (click)="openMapModal()"
