@@ -18,6 +18,7 @@ import {
   IonInputPasswordToggle,
   IonToast,
   IonText,
+  NavController,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -65,11 +66,12 @@ export class RegisterPage {
   isLoading = signal<boolean>(false);
   succMsg = signal<string | null>(null);
   uDataAfterNL = signal<UserRegPostReq | null>(null);
-  nextBtnHidden = signal<boolean>(false)
+  nextBtnHidden = signal<boolean>(false);
   constructor(
     private fb: FormBuilder,
     private userSv: UserServices,
-    private router: Router
+    private router: Router,
+    private navCtrl: NavController
   ) {
     addIcons({
       person,
@@ -104,7 +106,7 @@ export class RegisterPage {
   }
 
   onSubmit() {
-    this.errMsg.set(null) ;
+    this.errMsg.set(null);
     if (this.registerForm.invalid) {
       this.registerForm.markAllAsTouched();
 
@@ -163,7 +165,7 @@ export class RegisterPage {
   getVerify(status: boolean) {
     this.isLoading.set(true);
     this.registerForm.disable();
-    this.nextBtnHidden.set(true)
+    this.nextBtnHidden.set(true);
     if (this.uDataAfterNL()) {
       this.userSv
         .register2(this.uDataAfterNL()!, status, false)
@@ -188,18 +190,21 @@ export class RegisterPage {
         });
     }
   }
+  backBtnClicked() {
+    this.navCtrl.back();
+  }
 
   ionViewWillEnter() {
-  this.registerForm.reset();
-  this.registerForm.enable();
+    this.registerForm.reset();
+    this.registerForm.enable();
 
-  this.errMsg.set(null);
-  this.succMsg.set(null);
-  this.isLoading.set(false);
-  this.isOpenPopUpVerify.set(false);
-  this.nextBtnHidden.set(false);
-  this.uDataAfterNL.set(null);
-}
+    this.errMsg.set(null);
+    this.succMsg.set(null);
+    this.isLoading.set(false);
+    this.isOpenPopUpVerify.set(false);
+    this.nextBtnHidden.set(false);
+    this.uDataAfterNL.set(null);
+  }
 }
 
 export const passwordMatchValidator: ValidatorFn = (
