@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed, ViewChild } from '@angular/core';
+import { Component, OnInit, signal, computed, ViewChild, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -28,9 +28,12 @@ import {
   IonList,
   IonBackButton,
   IonFab,
-  IonFabButton
+  IonFabButton,
+  ToastController
 } from '@ionic/angular/standalone';
 import { DormServices } from 'src/app/services/dormServices';
+import { UserServices } from 'src/app/services/userServices';
+import { AuthenService } from 'src/app/services/authenService';
 import { DormSummary, DormZone } from 'src/app/model/dorm.model';
 import { addIcons } from 'ionicons';
 import { 
@@ -52,6 +55,8 @@ import { ActivatedRoute } from '@angular/router';
 import { NavController } from '@ionic/angular';
 import { FilterGroupComponent, FilterParams } from '../../components/filter-group/filter-group.component';
 import { MainLayoutPage } from '../../main-layout.page';
+import { LoadingUIComponent } from '../../components/loading-ui/loading-ui.component';
+import { finalize, Subscription, forkJoin, of } from 'rxjs';
 
 @Component({
   selector: 'app-dorm-list',
@@ -88,14 +93,16 @@ import { MainLayoutPage } from '../../main-layout.page';
     IonBackButton,
     IonFab,
     IonFabButton,
-    FilterGroupComponent
+    FilterGroupComponent,
+    LoadingUIComponent
   ],
 })
-export class DormListPage implements OnInit {
+export class DormListPage implements OnInit, OnDestroy {
   @ViewChild(IonContent, { static: false }) content?: IonContent;
 
   allDorms = signal<DormSummary[]>([]);
   zones = signal<DormZone[]>([]);
+  isLoading = signal<boolean>(false);
   
   searchQuery = signal<string>('');
   minPrice = signal<number | null>(null);
@@ -107,6 +114,9 @@ export class DormListPage implements OnInit {
   showScrollBtn = signal<boolean>(false);
 
   env = environment;
+  private userSub?: Subscription;
+  currentUser: any = null;
+  favIds = signal<number[]>([]);
 
   filteredDorms = computed(() => {
     let dorms = this.allDorms();
@@ -115,6 +125,12 @@ export class DormListPage implements OnInit {
     const max = this.maxPrice();
     const zoneId = this.selectedZoneId();
     const score = this.selectedScore();
+    const favs = this.favIds();
+
+    dorms = dorms.map(d => ({
+      ...d,
+      isFavorite: favs.includes(d.DORM_ID)
+    }));
 
     if (query) {
       dorms = dorms.filter((d) => d.DORM_NAME.toLowerCase().includes(query));
@@ -139,10 +155,13 @@ export class DormListPage implements OnInit {
   });
 
   constructor(
-    private dormSv: DormServices, 
+    private dormSv: DormServices,
+    private userSv: UserServices,
+    private authSv: AuthenService,
     private route: ActivatedRoute,
     private navCtrl: NavController,
-    private mainLayout: MainLayoutPage
+    private mainLayout: MainLayoutPage,
+    private toastCtrl: ToastController
   ) {
     addIcons({ 
       filterOutline, 
@@ -161,6 +180,15 @@ export class DormListPage implements OnInit {
   }
 
   ngOnInit() {
+    this.userSub = this.authSv.user$.subscribe((user) => {
+      this.currentUser = user;
+      if (user) {
+        this.loadFavIds();
+      } else {
+        this.favIds.set([]);
+      }
+    });
+
     this.route.queryParams.subscribe(params => {
       const p: FilterParams = {};
       if (params['q']) {
@@ -192,8 +220,25 @@ export class DormListPage implements OnInit {
     this.loadZones();
   }
 
+  ngOnDestroy() {
+    if (this.userSub) this.userSub.unsubscribe();
+  }
+
+  loadFavIds() {
+    if (!this.currentUser) return;
+    this.userSv.getMyFavorites(this.currentUser.id).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.favIds.set(res.data.map((f: any) => f.DORMID));
+        }
+      },
+      error: (err) => console.error('Error fetching favorites', err)
+    });
+  }
+
   loadDorms() {
-    this.dormSv.getDormsMobile().subscribe({
+    this.isLoading.set(true);
+    this.dormSv.getDormsMobile().pipe(finalize(() => this.isLoading.set(false))).subscribe({
       next: (res) => {
         if (res.success) {
           this.allDorms.set(res.data);
@@ -245,6 +290,41 @@ export class DormListPage implements OnInit {
 
   toggleFavorite(event: Event, dorm: DormSummary) {
     event.stopPropagation();
+    if (!this.currentUser) {
+      this.showToast('กรุณาเข้าสู่ระบบเพื่อเพิ่มรายการโปรด', 'warning');
+      return;
+    }
+
+    const currentFavs = this.favIds();
+    const isFav = currentFavs.includes(dorm.DORM_ID);
+
+    if (isFav) {
+      this.userSv.removeFavorite(dorm.DORM_ID).subscribe({
+        next: () => {
+          this.favIds.set(currentFavs.filter(id => id !== dorm.DORM_ID));
+          this.showToast('ลบออกจากรายการโปรดแล้ว', 'success');
+        },
+        error: (err) => console.error(err)
+      });
+    } else {
+      this.userSv.addFavorite(dorm.DORM_ID).subscribe({
+        next: () => {
+          this.favIds.set([...currentFavs, dorm.DORM_ID]);
+          this.showToast('เพิ่มลงในรายการโปรดแล้ว', 'success');
+        },
+        error: (err) => console.error(err)
+      });
+    }
+  }
+
+  async showToast(message: string, color: string) {
+    const toast = await this.toastCtrl.create({
+      message,
+      duration: 2000,
+      color,
+      position: 'bottom'
+    });
+    await toast.present();
   }
 
   onScroll(event: any) {

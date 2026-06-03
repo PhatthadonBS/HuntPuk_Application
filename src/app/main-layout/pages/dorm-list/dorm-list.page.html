@@ -53,9 +53,10 @@
           <ion-button 
             fill="clear" 
             class="fav-btn" 
+            [class.active]="dorm.isFavorite"
             (click)="toggleFavorite($event, dorm)"
           >
-            <ion-icon name="bookmark-outline" slot="icon-only"></ion-icon>
+            <ion-icon [name]="dorm.isFavorite ? 'bookmark' : 'bookmark-outline'" slot="icon-only"></ion-icon>
           </ion-button>
 
           <div class="full-status-banner" *ngIf="dorm.status == 3">
@@ -124,4 +125,6 @@
       <ion-icon name="arrow-up-outline"></ion-icon>
     </ion-fab-button>
   </ion-fab>
+
+  <app-loading-ui *ngIf="isLoading()"></app-loading-ui>
 </ion-content>

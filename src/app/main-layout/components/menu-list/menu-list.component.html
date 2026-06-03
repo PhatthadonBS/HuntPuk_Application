@@ -15,7 +15,7 @@
               <div
                 class="menu-card"
                 [class.selected]="selected() === m.key"
-                (click)="onSelect(m.key, m.user_id ?? null)"
+                (click)="onSelect(m.key, m.needsId ?? false, m.path)"
               >
                 <ion-icon [name]="m.icon"></ion-icon>
                 <p>{{ m.label }}</p>

@@ -19,15 +19,18 @@ import {
   IonList,
   IonItem,
   IonInput,
+  IonButtons,
+  IonBackButton
 } from '@ionic/angular/standalone';
 import { UserServices } from 'src/app/services/userServices';
 import { UserDataGetRes, UserUpdatePostReqForm } from 'src/app/model/user.model';
-import { timer } from 'rxjs';
+import { timer, finalize } from 'rxjs';
 import { NavController, AlertController } from '@ionic/angular';
 import { extractErrorMessage } from 'src/app/utils/error.util';
 import { ActivatedRoute } from '@angular/router';
 import { addIcons } from 'ionicons';
 import { person, personOutline, callOutline, arrowBackCircleOutline } from 'ionicons/icons';
+import { LoadingUIComponent } from '../../components/loading-ui/loading-ui.component';
 
 @Component({
   selector: 'app-profile-update',
@@ -46,9 +49,12 @@ import { person, personOutline, callOutline, arrowBackCircleOutline } from 'ioni
     IonList,
     IonItem,
     IonInput,
+    IonButtons,
+    IonBackButton,
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
+    LoadingUIComponent
   ],
 })
 export class ProfileUpdatePage {
@@ -57,6 +63,7 @@ export class ProfileUpdatePage {
   errMsg = signal<string | null>(null);
   succMsg = signal<string | null>(null);
   user_id = signal<number | null>(null);
+  isLoading = signal<boolean>(false);
 
   constructor(
     private userSv: UserServices,
@@ -76,7 +83,8 @@ export class ProfileUpdatePage {
     const uid_param = this.actRouter.snapshot.paramMap.get('user_id');
     this.user_id.set(Number(uid_param)); 
     
-    this.userSv.getUserByID(Number(uid_param)).subscribe({
+    this.isLoading.set(true);
+    this.userSv.getUserByID(Number(uid_param)).pipe(finalize(() => this.isLoading.set(false))).subscribe({
       next: (u) => {
         this.user.set(u);
         this.updateForm.patchValue({
@@ -126,7 +134,8 @@ export class ProfileUpdatePage {
     
     const formData = this.updateForm.getRawValue();
     
-    this.userSv.profileUpdate(this.user()!.USER_ID, formData).subscribe({
+    this.isLoading.set(true);
+    this.userSv.profileUpdate(this.user()!.USER_ID, formData).pipe(finalize(() => this.isLoading.set(false))).subscribe({
       next: () => {
         this.errMsg.set(null);
         this.succMsg.set('แก้ไขข้อมูลเสร็จสิ้น');

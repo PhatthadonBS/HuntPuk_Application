@@ -9,6 +9,7 @@ import {
   CUSTOM_ELEMENTS_SCHEMA,
   Renderer2,
   effect,
+  computed,
 } from '@angular/core';
 import {
   IonContent,
@@ -29,12 +30,15 @@ import {
   IonRow,
   IonCol,
   IonIcon,
+  ToastController,
 } from '@ionic/angular/standalone';
 import { CommonModule } from '@angular/common';
 import { NavigationEnd, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { DormSummary, DormZone } from 'src/app/model/dorm.model';
 import { DormServices, DormQueryParams } from 'src/app/services/dormServices';
+import { UserServices } from 'src/app/services/userServices';
+import { AuthenService } from 'src/app/services/authenService';
 import { LoadingUIComponent } from '../../components/loading-ui/loading-ui.component';
 import { filter, finalize, Subscription } from 'rxjs';
 import { GoogleMap } from '@capacitor/google-maps';
@@ -51,6 +55,7 @@ import {
   timeOutline,
   closeOutline,
   bookmarkOutline,
+  bookmark,
   navigateOutline,
   pinOutline,
   chevronForwardOutline,
@@ -101,9 +106,30 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
   private isUpdatingMarkers = false;
   private pendingMarkersUpdate: DormSummary[] | null = null;
   private isInitializingMap = false;
+  private isDestroyingMap = false;
 
-  dorms = signal<DormSummary[]>([]);
-  selectedDorm = signal<DormSummary | null>(null);
+  private allDorms = signal<DormSummary[]>([]);
+  favIds = signal<number[]>([]);
+
+  dorms = computed(() => {
+    const raw = this.allDorms();
+    const favs = this.favIds();
+    return raw.map(d => ({
+      ...d,
+      isFavorite: favs.includes(d.DORM_ID)
+    }));
+  });
+
+  selectedDormRaw = signal<DormSummary | null>(null);
+  selectedDorm = computed(() => {
+    const selected = this.selectedDormRaw();
+    if (!selected) return null;
+    return {
+      ...selected,
+      isFavorite: this.favIds().includes(selected.DORM_ID)
+    };
+  });
+
   sheetOpen = signal(false);
   isLoading = signal(false);
   mapReady = signal(false);
@@ -133,12 +159,17 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
   readonly FILTER_RADIUS_KM = 0.5;
 
   private routerSub: Subscription;
+  private userSub?: Subscription;
+  currentUser: any = null;
 
   constructor(
     private dormService: DormServices,
+    private userSv: UserServices,
+    private authSv: AuthenService,
     private router: Router,
     private zone: NgZone,
     private renderer: Renderer2,
+    private toastCtrl: ToastController,
     public mainLayout: MainLayoutPage
   ) {
     addIcons({
@@ -189,35 +220,63 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
 
   // 🌟 ก่อนหน้าจะแสดงผล: สร้างแผนที่ขึ้นมาใหม่
   ionViewWillEnter() {
+    this.userSub = this.authSv.user$.subscribe((user) => {
+      this.currentUser = user;
+      if (user) {
+        this.loadFavIds();
+      } else {
+        this.favIds.set([]);
+      }
+    });
     this.forceReload();
   }
 
   // 🌟 ก่อนจะเปลี่ยนหน้าไปที่อื่น: สั่งทำลายแผนที่ล่วงหน้าเพื่อคืน Resource ให้ Native Bridge
   ionViewWillLeave() {
+    if (this.userSub) this.userSub.unsubscribe();
     this.cleanupMapAndView();
+  }
+
+  loadFavIds() {
+    if (!this.currentUser) return;
+    this.userSv.getMyFavorites(this.currentUser.id).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.favIds.set(res.data.map((f: any) => f.DORMID));
+        }
+      },
+      error: (err) => console.error('Error fetching favorites', err)
+    });
   }
 
   async forceReload() {
     this.resetFilters();
 
     this.sheetOpen.set(false);
-    this.selectedDorm.set(null);
+    this.selectedDormRaw.set(null);
     this.mapReady.set(false);
     this.isPinMode.set(false);
     this.pinnedLocation.set(null);
     this.mainLayout.hideFooter.set(false);
 
-    if (this.newMap) {
-      await this.newMap
-        .destroy()
-        .catch((e) => console.error('Failed to destroy map:', e));
-      // @ts-ignore
-      this.newMap = null;
-      this.currentMarkerIds = [];
-      this.currentCircleIds = [];
-      this.pinMarkerId = null;
-      this.markerMap.clear();
-      this.pendingMarkersUpdate = null;
+    if (this.newMap && !this.isDestroyingMap) {
+      this.isDestroyingMap = true;
+      try {
+        await this.newMap.destroy();
+      } catch (e: any) {
+        if (!e?.message?.includes('Map not found')) {
+          console.error('Failed to destroy map:', e);
+        }
+      } finally {
+        // @ts-ignore
+        this.newMap = null;
+        this.currentMarkerIds = [];
+        this.currentCircleIds = [];
+        this.pinMarkerId = null;
+        this.markerMap.clear();
+        this.pendingMarkersUpdate = null;
+        this.isDestroyingMap = false;
+      }
     }
 
     this.dormService.getZones().subscribe({
@@ -239,11 +298,14 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
     this.mapReady.set(false);
     this.mainLayout.hideFooter.set(false);
 
-    if (this.newMap) {
+    if (this.newMap && !this.isDestroyingMap) {
+      this.isDestroyingMap = true;
       try {
         await this.newMap.destroy();
-      } catch (e) {
-        console.error('Failed to destroy map on leave:', e);
+      } catch (e: any) {
+        if (!e?.message?.includes('Map not found')) {
+          console.error('Failed to destroy map on leave:', e);
+        }
       } finally {
         // @ts-ignore
         this.newMap = null;
@@ -252,6 +314,7 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
         this.pinMarkerId = null;
         this.markerMap.clear();
         this.pendingMarkersUpdate = null;
+        this.isDestroyingMap = false;
       }
     }
   }
@@ -303,7 +366,7 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
         next: async (res) => {
           if (res.success && Array.isArray(res.data)) {
             this.zone.run(() => {
-              this.dorms.set(res.data);
+              this.allDorms.set(res.data);
             });
 
             setTimeout(async () => {
@@ -369,7 +432,7 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
       !this.selectedZone()
     ) {
       this.sheetOpen.set(false);
-      this.selectedDorm.set(null);
+      this.selectedDormRaw.set(null);
     }
 
     this.loadDorms();
@@ -403,7 +466,7 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
       this.maxPrice.set(null);
       this.selectedScore.set(null);
       this.sheetOpen.set(false);
-      this.selectedDorm.set(null);
+      this.selectedDormRaw.set(null);
 
       this.loadDorms();
     }
@@ -415,11 +478,46 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
   }
 
   goToDormDetail(id: number) {
-    this.router.navigate(['/dorm', id]);
+    this.router.navigate(['/dorm-detail', id]);
   }
 
   toggleFavorite(event: Event, dorm: DormSummary) {
     event.stopPropagation();
+    if (!this.currentUser) {
+      this.showToast('กรุณาเข้าสู่ระบบเพื่อเพิ่มรายการโปรด', 'warning');
+      return;
+    }
+
+    const currentFavs = this.favIds();
+    const isFav = currentFavs.includes(dorm.DORM_ID);
+
+    if (isFav) {
+      this.userSv.removeFavorite(dorm.DORM_ID).subscribe({
+        next: () => {
+          this.favIds.set(currentFavs.filter(id => id !== dorm.DORM_ID));
+          this.showToast('ลบออกจากรายการโปรดแล้ว', 'success');
+        },
+        error: (err) => console.error(err)
+      });
+    } else {
+      this.userSv.addFavorite(dorm.DORM_ID).subscribe({
+        next: () => {
+          this.favIds.set([...currentFavs, dorm.DORM_ID]);
+          this.showToast('เพิ่มลงในรายการโปรดแล้ว', 'success');
+        },
+        error: (err) => console.error(err)
+      });
+    }
+  }
+
+  async showToast(message: string, color: string) {
+    const toast = await this.toastCtrl.create({
+      message,
+      duration: 2000,
+      color,
+      position: 'bottom'
+    });
+    await toast.present();
   }
 
   async handlePinAction(lat: number, lng: number) {
@@ -498,7 +596,7 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
 
             const selected = this.markerMap.get(marker.markerId);
             if (selected) {
-              this.selectedDorm.set(selected);
+              this.selectedDormRaw.set(selected);
               this.sheetOpen.set(true);
 
               this.newMap.setCamera({

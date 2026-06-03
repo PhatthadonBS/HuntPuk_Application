@@ -67,6 +67,7 @@ export class MenuListComponent implements OnDestroy, AfterViewInit {
       {
         key: 'home',
         label: 'หน้าหลัก',
+        path: '/home',
         icon: 'home-outline',
         always: true,
         forRole: [0, 1, 2, 3],
@@ -74,6 +75,7 @@ export class MenuListComponent implements OnDestroy, AfterViewInit {
       {
         key: 'dorms',
         label: 'รายการ',
+        path: '/dorms',
         icon: 'list-outline',
         always: true,
         forRole: [0, 1, 2, 3],
@@ -81,14 +83,16 @@ export class MenuListComponent implements OnDestroy, AfterViewInit {
       {
         key: 'profile',
         label: 'บัญชีของฉัน',
+        path: '/profile',
         icon: 'person-outline',
-        user_id: uid,
+        needsId: true,
         neddLogin: true,
         forRole: [1, 2, 3],
       },
       {
         key: 'register',
         label: 'สมัครสมาชิก',
+        path: '/register',
         icon: 'reader-outline',
         neddLogin: false,
         forRole: [0],
@@ -96,30 +100,70 @@ export class MenuListComponent implements OnDestroy, AfterViewInit {
       {
         key: 'dorm-reg',
         label: 'ลงทะเบียนหอพัก',
+        path: '/dorm-register',
         icon: 'clipboard-outline',
+        needsId: true,
         neddLogin: true,
         forRole: [2, 3],
       },
       {
         key: 'dorm-manage',
         label: 'จัดการหอพัก',
+        path: '/dorm-mangement',
         icon: 'business-outline',
         neddLogin: true,
         forRole: [2, 3],
       },
       {
-        key: 'favorite',
+        key: 'my-favorites',
         label: 'รายการโปรด',
+        path: '/my-favorites',
         icon: 'heart-outline',
+        needsId: true,
         neddLogin: true,
         forRole: [1, 2, 3],
       },
       {
         key: 'request-owner',
         label: 'ร้องขอสิทธิ์เจ้าของหอ',
+        path: '/owner-register',
         icon: 'key-outline',
+        needsId: true,
         neddLogin: true,
         forRole: [1],
+      },
+      // Admin Only Menus
+      {
+        key: 'dashboard',
+        label: 'แดชบอร์ด',
+        path: '/dashboard',
+        icon: 'stats-chart-outline',
+        neddLogin: true,
+        forRole: [3],
+      },
+      {
+        key: 'owner-manage',
+        label: 'จัดการเจ้าของหอ',
+        path: '/owner-management',
+        icon: 'people-outline',
+        neddLogin: true,
+        forRole: [3],
+      },
+      {
+        key: 'member-manage',
+        label: 'จัดการสมาชิก',
+        path: '/member-management',
+        icon: 'people-outline',
+        neddLogin: true,
+        forRole: [3],
+      },
+      {
+        key: 'icon-manage',
+        label: 'จัดการไอคอน',
+        path: '/icon-management',
+        icon: 'document-text-outline',
+        neddLogin: true,
+        forRole: [3],
       },
     ];
 
@@ -207,8 +251,11 @@ export class MenuListComponent implements OnDestroy, AfterViewInit {
     }
   }
 
-  onSelect(menuKey: string, uid: number | null) {
-    const destination = { destination: menuKey, id: uid ?? this.user_id() };
+  onSelect(menuKey: string, needsId: boolean, path: string) {
+    const destination = { 
+      destination: path, 
+      id: needsId ? this.user_id() : null 
+    };
     
     if (this.isClosing()) return;
     this.isClosing.set(true);

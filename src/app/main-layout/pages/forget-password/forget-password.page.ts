@@ -9,13 +9,25 @@ import { extractErrorMessage } from 'src/app/utils/error.util';
 import { addIcons } from 'ionicons';
 import { mailOutline, keyOutline, lockClosedOutline } from 'ionicons/icons';
 import { UserOtpVerifyPostRes } from 'src/app/model/user.model';
+import { LoadingUIComponent } from '../../components/loading-ui/loading-ui.component';
 
 @Component({
   selector: 'app-forget-password',
   templateUrl: './forget-password.page.html',
   styleUrls: ['./forget-password.page.scss'],
   standalone: true,
-  imports: [IonContent, CommonModule, FormsModule, ReactiveFormsModule, IonIcon, IonButton, IonInput, IonToast, IonInputPasswordToggle]
+  imports: [
+    IonContent, 
+    CommonModule, 
+    FormsModule, 
+    ReactiveFormsModule, 
+    IonIcon, 
+    IonButton, 
+    IonInput, 
+    IonToast, 
+    IonInputPasswordToggle,
+    LoadingUIComponent
+  ]
 })
 export class ForgetPasswordPage implements OnInit {
   step = signal<number>(1);

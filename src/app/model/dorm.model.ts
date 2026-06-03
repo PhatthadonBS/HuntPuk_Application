@@ -51,6 +51,7 @@ export interface DormSummary {
   start_price: number;
   update_at?: string;
   status?: number;
+  isFavorite?: boolean;
 }
 
 export interface DormDetail {

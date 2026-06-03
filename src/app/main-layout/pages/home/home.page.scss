@@ -144,6 +144,13 @@
     width: 36px;
     height: 36px;
     margin: 0;
+    transition: all 0.3s ease;
+    
+    &.active {
+      --color: #ffcc00;
+      --background: rgba(255, 255, 255, 0.9);
+      transform: scale(1.1);
+    }
   }
   .image-container {
     position: relative;

@@ -48,6 +48,86 @@ export const routes: Routes = [
             (m) => m.DormDetailPage
           ),
       },
+
+      {
+        path: 'dorm-compare',
+        loadComponent: () =>
+          import('./main-layout/pages/dorm-compare/dorm-compare.page').then(
+            (m) => m.DormComparePage
+          ),
+      },
+
+      {
+        path: 'my-favorites/:user_id',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import('./main-layout/pages/my-favorites/my-favorites.page').then(
+            (m) => m.MyFavoritesPage
+          ),
+      },
+
+      {
+        path: 'dorm-register/:user_id',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import('./main-layout/pages/dorm-register/dorm-register.page').then(
+            (m) => m.DormRegisterPage
+          ),
+      },
+
+      {
+        path: 'owner-register/:user_id',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import('./main-layout/pages/owner-register/owner-register.page').then(
+            (m) => m.OwnerRegisterPage
+          ),
+      },
+
+      {
+        path: 'dorm-mangement',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import('./main-layout/pages/dorm-mangement/dorm-mangement.page').then(
+            (m) => m.DormMangementPage
+          ),
+      },
+
+      {
+        path: 'dashboard',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import('./main-layout/pages/dashboard/dashboard.page').then(
+            (m) => m.DashboardPage
+          ),
+      },
+
+      {
+        path: 'owner-management',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import('./main-layout/pages/owner-management/owner-management.page').then(
+            (m) => m.OwnerManagementPage
+          ),
+      },
+
+      {
+        path: 'icon-management',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import('./main-layout/pages/icon-management/icon-management.page').then(
+            (m) => m.IconManagementPage
+          ),
+      },
+
+      {
+        path: 'member-management',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import('./main-layout/pages/member-management/member-management.page').then(
+            (m) => m.MemberManagementPage
+          ),
+      },
     ],
   },
 
@@ -63,53 +143,16 @@ export const routes: Routes = [
     path: 'login',
     loadComponent: () => import('./login/login.page').then((m) => m.LoginPage),
   },
+
   {
     path: 'register',
     loadComponent: () =>
       import('./register/register.page').then((m) => m.RegisterPage),
   },
-  {
-    path: 'dorm-compare',
-    loadComponent: () =>
-      import('./main-layout/pages/dorm-compare/dorm-compare.page').then(
-        (m) => m.DormComparePage
-      ),
-  },
+
   {
     path: '**',
     loadComponent: () =>
       import('./not-found/not-found.page').then((m) => m.NotFoundPage),
-  },
-  {
-    path: 'my-favorites',
-    loadComponent: () => import('./main-layout/pages/my-favorites/my-favorites.page').then( m => m.MyFavoritesPage)
-  },
-  {
-    path: 'dorm-register',
-    loadComponent: () => import('./main-layout/pages/dorm-register/dorm-register.page').then( m => m.DormRegisterPage)
-  },
-  {
-    path: 'owner-register',
-    loadComponent: () => import('./main-layout/pages/owner-register/owner-register.page').then( m => m.OwnerRegisterPage)
-  },
-  {
-    path: 'dorm-mangement',
-    loadComponent: () => import('./main-layout/pages/dorm-mangement/dorm-mangement.page').then( m => m.DormMangementPage)
-  },
-  {
-    path: 'dashboard',
-    loadComponent: () => import('./main-layout/pages/dashboard/dashboard.page').then( m => m.DashboardPage)
-  },
-  {
-    path: 'owner-management',
-    loadComponent: () => import('./main-layout/pages/owner-management/owner-management.page').then( m => m.OwnerManagementPage)
-  },
-  {
-    path: 'icon-management',
-    loadComponent: () => import('./main-layout/pages/icon-management/icon-management.page').then( m => m.IconManagementPage)
-  },
-  {
-    path: 'member-management',
-    loadComponent: () => import('./main-layout/pages/member-management/member-management.page').then( m => m.MemberManagementPage)
   },
 ];

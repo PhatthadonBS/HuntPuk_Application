@@ -182,6 +182,14 @@ export class DormComparePage implements OnInit, OnDestroy {
       const isLoggedIn = !!user;
       this.maxDorms.set(isLoggedIn ? 5 : 2);
     });
+
+    // Check for pre-selected IDs from navigation state (e.g., from My Favorites page)
+    const state = history.state;
+    if (state && state.preSelectedIds && Array.isArray(state.preSelectedIds)) {
+      this.tempSelectedDormIds.set(state.preSelectedIds);
+      this.confirmDormSelection();
+    }
+
     this.loadAllDorms();
     this.loadZones();
   }

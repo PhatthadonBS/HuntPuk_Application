@@ -70,14 +70,14 @@ export class NavFooterComponent implements OnInit {
   }
 
   onLoginClick() {
-    this.loginClick.emit({destination: "login", id: null});
+    this.loginClick.emit({destination: "/login", id: null});
   }
 
   onAccountClick() {
-    this.accountClick.emit({destination: "profile", id: this.userId()});
+    this.accountClick.emit({destination: "/profile", id: this.userId()});
   }
 
   onHomeClick() {
-    this.homeClick.emit({destination: "", id: null});
+    this.homeClick.emit({destination: "/home", id: null});
   }
 }

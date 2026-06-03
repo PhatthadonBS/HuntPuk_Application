@@ -147,6 +147,13 @@ $border-light: rgba(255, 255, 255, 0.4);
         margin: 0;
         backdrop-filter: blur(4px);
         z-index: 2;
+        transition: all 0.3s ease;
+
+        &.active {
+          --color: #ffcc00;
+          --background: rgba(255, 255, 255, 0.9);
+          transform: scale(1.1);
+        }
         
         ion-icon {
           font-size: 1.2rem;

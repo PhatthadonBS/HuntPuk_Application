@@ -249,7 +249,7 @@ export class DormDetailPage implements OnInit, OnDestroy {
           });
           await toast.present();
           
-          // Reload all data to ensure consistent state and new average score
+      // Reload all data to ensure consistent state and new average score
           this.loadAllData();
         }
       },

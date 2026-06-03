@@ -64,4 +64,9 @@ export class UserServices {
     const url = `${this.endPoint}/other/delFavorite`;
     return this.http.request('delete', url, { body: { dorm_id } });
   }
+
+  getMyFavorites(uid: number): Observable<{success: boolean, data: any[]}> {
+    const url = `${this.endPoint}/spec/favorite/${uid}`;
+    return this.http.get<{success: boolean, data: any[]}>(url);
+  }
 }
