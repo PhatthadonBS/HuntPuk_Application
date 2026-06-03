@@ -92,7 +92,6 @@ export class LoginPage {
           }
         },
         error: (err) => {
-          console.log(err);
           if (err.name === 'TimeoutError') {
             this.errMsg.set('เชื่อมต่อเซิร์ฟเวอร์ไม่ได้');
             return;

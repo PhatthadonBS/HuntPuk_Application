@@ -48,7 +48,6 @@ export class AppComponent implements OnInit, OnDestroy {
       
       await SplashScreen.hide();
       this.isSplashActive.set(false);
-      console.log('App initialized.');
     } catch (error) {
       console.error('Initialization error:', error);
       await SplashScreen.hide();
