@@ -69,7 +69,7 @@ export interface DormDetail {
   instagram: string;
   telegram: string;
   x: string;
-  facilities: string[];
+  facilities: { name: string; icon: string }[];
   gallery: string[];
   rooms: { ROOM_TYPE_NAME: string; PRICE: number }[];
   WATER_UNIT: number;

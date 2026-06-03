@@ -245,14 +245,35 @@
       <!-- ─── ROW 9: Facilities ─── -->
       <div class="cell title-cell labels-column flex-grow">
         <ion-icon name="checkmark-done-outline" class="row-icon"></ion-icon
-        ><span>สิ่งอำนวยฯ</span>
+        ><span>สิ่งอำนวย<br />ความสะดวก</span>
       </div>
       <div
         class="cell data-cell list-cell flex-grow"
         *ngFor="let dorm of selectedDorms()"
       >
         <ul *ngIf="dorm.facilities?.length; else noFacs">
-          <li *ngFor="let f of dorm.facilities">{{ f }}</li>
+          <li *ngFor="let f of dorm.facilities" class="facility-item">
+            <div class="fac-icon-wrapper">
+              <ng-container *ngIf="f.icon; else noIconTemplate">
+                <img
+                  #facImg
+                  [src]="f.icon"
+                  (load)="facImg.classList.add('loaded')"
+                  alt="facility"
+                  class="fac-img-element"
+                />
+                <ion-icon
+                  name="cube-outline"
+                  color="medium"
+                  class="fac-fallback-icon"
+                ></ion-icon>
+              </ng-container>
+              <ng-template #noIconTemplate>
+                <ion-icon name="cube-outline" color="medium"></ion-icon>
+              </ng-template>
+            </div>
+            <span class="fac-name">{{ f.name }}</span>
+          </li>
         </ul>
         <ng-template #noFacs><span class="no-data">—</span></ng-template>
       </div>

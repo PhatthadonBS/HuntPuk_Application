@@ -261,15 +261,13 @@ export class DormComparePage implements OnInit, OnDestroy {
     const fetchPromises = idsToFetch.map((id) => {
       return new Promise<CompareDorm | null>((resolve) => {
         this.dormSv.getDormById(id).subscribe({
-          next: (res) => {
+          next: async (res) => {
             if (res.success) {
               const newDorm: CompareDorm = { ...res.data };
               if (this.refPoint()) {
-                newDorm.distance = this.calculateDistance(
-                  this.refPoint()!.lat,
-                  this.refPoint()!.lng,
-                  newDorm.lat,
-                  newDorm.lng
+                newDorm.distance = await this.getDrivingDistance(
+                  this.refPoint()!,
+                  { lat: newDorm.lat, lng: newDorm.lng }
                 );
               }
               resolve(newDorm);
@@ -484,6 +482,15 @@ export class DormComparePage implements OnInit, OnDestroy {
             const route = result.routes[0];
             const leg = route.legs[0];
 
+            // Update Signal distance to match map (Driving Distance)
+            this.selectedDorms.update(current => {
+              const updated = [...current];
+              if (updated[index]) {
+                updated[index] = { ...updated[index], distance: leg.distance.value };
+              }
+              return updated;
+            });
+
             // ==================================
             // Custom Polyline
             // ==================================
@@ -623,21 +630,48 @@ export class DormComparePage implements OnInit, OnDestroy {
     return Math.floor(distance / 1000);
   }
 
-  recalculateDistances() {
+  async recalculateDistances() {
     const point = this.refPoint();
     if (!point) return;
 
-    this.selectedDorms.update((dorms) =>
-      dorms.map((dorm) => ({
+    const currentDorms = this.selectedDorms();
+    const updatedDorms = [...currentDorms];
+
+    for (let i = 0; i < updatedDorms.length; i++) {
+      const dorm = updatedDorms[i];
+      updatedDorms[i] = {
         ...dorm,
-        distance: this.calculateDistance(
-          point.lat,
-          point.lng,
-          dorm.lat,
-          dorm.lng
-        ),
-      }))
-    );
+        distance: await this.getDrivingDistance(point, { lat: dorm.lat, lng: dorm.lng })
+      };
+    }
+
+    this.selectedDorms.set(updatedDorms);
+  }
+
+  async getDrivingDistance(origin: any, destination: any): Promise<number> {
+    try {
+      await this.gMapSv.load();
+      const service = new google.maps.DirectionsService();
+      
+      const req: google.maps.DirectionsRequest = {
+        origin,
+        destination,
+        travelMode: google.maps.TravelMode.DRIVING,
+      };
+
+      return new Promise((resolve) => {
+        service.route(req, (result: any, status: any) => {
+          if (status === 'OK' && result) {
+            resolve(result.routes[0].legs[0].distance.value);
+          } else {
+            // Fallback to Haversine if Directions fails
+            resolve(this.calculateDistance(origin.lat, origin.lng, destination.lat, destination.lng));
+          }
+        });
+      });
+    } catch (e) {
+      return this.calculateDistance(origin.lat, origin.lng, destination.lat, destination.lng);
+    }
   }
 
   calculateDistance(
