@@ -1,0 +1,506 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="main-toolbar">
+    <ion-buttons slot="start" color="primary">
+      <ion-back-button
+        defaultHref="/home"
+        icon="arrow-back-circle-outline"
+      ></ion-back-button>
+    </ion-buttons>
+    <ion-title class="toolbar-title">ข้อมูลหอพัก</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="dorm-detail-content">
+  <!-- Error State -->
+  <div
+    class="flex flex-col items-center justify-center h-full p-6 text-center"
+    *ngIf="!isLoading() && hasError()"
+  >
+    <ion-icon
+      name="alert-circle-outline"
+      class="text-6xl text-gray-400 mb-4"
+    ></ion-icon>
+    <h2 class="text-xl font-bold text-gray-700 mb-2">ไม่พบข้อมูลหอพัก</h2>
+    <p class="text-gray-500 mb-6">
+      หอพักนี้อาจถูกลบไปแล้ว หรือมีข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์
+    </p>
+    <ion-button color="primary" (click)="loadAllData()"
+      >ลองใหม่อีกครั้ง</ion-button
+    >
+  </div>
+
+  <ng-container *ngIf="!isLoading() && !hasError() && dorm() as d">
+    <!-- Section 2: Album Display -->
+    <div class="gallery-section relative group">
+      <!-- Slide Left Button -->
+      <button
+        class="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white/80 rounded-full flex items-center justify-center shadow-md active:bg-gray-100 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+        (click)="scrollGallery('left')"
+        *ngIf="d.gallery && d.gallery.length > 1"
+      >
+        <ion-icon
+          name="chevron-back-outline"
+          class="text-2xl text-gray-800"
+        ></ion-icon>
+      </button>
+
+      <div class="gallery-scroll-container" #galleryContainer>
+        <!-- Display fallback if no images exist -->
+        <div class="gallery-item" *ngIf="!d.gallery || d.gallery.length === 0">
+          <img
+            src="https://placehold.co/600x400?text=No+Image"
+            alt="No image available"
+          />
+        </div>
+
+        <!-- Render gallery images -->
+        <div class="gallery-item" *ngFor="let imgUrl of d.gallery">
+          <img
+            [src]="imgUrl"
+            (error)="img.src = 'https://placehold.co/600x400?text=No+Image'"
+            #img
+            alt="Dorm Image"
+          />
+        </div>
+      </div>
+
+      <!-- Slide Right Button -->
+      <button
+        class="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white/80 rounded-full flex items-center justify-center shadow-md active:bg-gray-100 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+        (click)="scrollGallery('right')"
+        *ngIf="d.gallery && d.gallery.length > 1"
+      >
+        <ion-icon
+          name="chevron-forward-outline"
+          class="text-2xl text-gray-800"
+        ></ion-icon>
+      </button>
+    </div>
+
+    <!-- Section 3: Dorm Name & Address -->
+    <div class="info-section p-4 bg-white mb-2">
+      <div class="flex justify-between items-start mb-1">
+        <h1 class="text-2xl font-bold text-gray-800 m-0 pr-2">{{ d.DORM_NAME }}</h1>
+        <!-- Favorite Button -->
+        <ion-button
+          class="favorite-btn-inline m-0"
+          fill="clear"
+          (click)="toggleFavorite()"
+          *ngIf="currentUser"
+        >
+          <ion-icon
+            [name]="isFavorite() ? 'bookmark' : 'bookmark-outline'"
+            [color]="isFavorite() ? 'primary' : 'medium'"
+            slot="icon-only"
+            class="text-3xl"
+          ></ion-icon>
+        </ion-button>
+      </div>
+
+      <div class="flex items-center gap-2 mb-3">
+        <span
+          class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded"
+        >
+          โซน: {{ d.ZONE_NAME }}
+        </span>
+      </div>
+
+      <div class="flex items-start text-gray-600">
+        <ion-icon
+          name="location-outline"
+          class="mt-1 mr-2 text-xl text-primary"
+        ></ion-icon>
+        <p class="text-sm m-0 leading-relaxed">{{ d.ADDRESS }}</p>
+      </div>
+    </div>
+
+    <!-- Section 5: Pricing Table -->
+    <div
+      class="pricing-section p-4 bg-white mb-2"
+      *ngIf="d.rooms && d.rooms.length > 0"
+    >
+      <div class="flex justify-between items-end mb-3">
+        <h2 class="text-lg font-bold text-gray-800 m-0 flex items-center">
+          <ion-icon name="bed-outline" class="mr-2 text-primary"></ion-icon>
+          ราคาห้องพัก
+        </h2>
+        <span class="text-xs text-gray-400 flex items-center animate-pulse">
+          <ion-icon name="swap-horizontal-outline" class="mr-1"></ion-icon> เลื่อนดูได้
+        </span>
+      </div>
+
+      <div class="overflow-x-auto rounded-xl border border-gray-100 shadow-sm relative">
+        <table class="w-full text-sm text-left text-gray-500">
+          <thead class="text-xs text-gray-700 bg-gray-50 uppercase">
+            <tr>
+              <th scope="col" class="px-4 py-3 whitespace-nowrap">
+                ประเภทห้อง
+              </th>
+              <th scope="col" class="px-4 py-3 whitespace-nowrap text-center">
+                เตียง
+              </th>
+              <th scope="col" class="px-4 py-3 whitespace-nowrap text-center">
+                รายวัน (บาท)
+              </th>
+              <th scope="col" class="px-4 py-3 whitespace-nowrap text-center">
+                รายเดือน (บาท)
+              </th>
+              <th scope="col" class="px-4 py-3 whitespace-nowrap text-center">
+                รายเทอม (บาท)
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="let room of d.rooms"
+              class="bg-white border-b last:border-b-0 hover:bg-gray-50"
+            >
+              <th
+                scope="row"
+                class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap"
+              >
+                {{ room.ROOM_TYPE_NAME }}
+              </th>
+              <td class="px-4 py-3 text-center whitespace-nowrap text-gray-700">
+                {{ room.bedType ? room.bedType : '-' }}
+              </td>
+              <td class="px-4 py-3 text-center">
+                {{ room.perDay ? (room.perDay | number) : '-' }}
+              </td>
+              <td class="px-4 py-3 text-center text-primary font-bold">
+                {{ room.PRICE ? (room.PRICE | number) : '-' }}
+              </td>
+              <td class="px-4 py-3 text-center">
+                {{ room.perTerm ? (room.perTerm | number) : '-' }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Section 6: Facilities -->
+    <div
+      class="facilities-section p-4 bg-white mb-2"
+      *ngIf="d.facilities && d.facilities.length > 0"
+    >
+      <h2 class="text-lg font-bold text-gray-800 mb-3">สิ่งอำนวยความสะดวก</h2>
+      <div class="grid grid-cols-2 gap-3">
+        <div
+          *ngFor="let fac of d.facilities; let i = index"
+          class="flex items-center text-gray-700"
+        >
+          <!-- Show icon, if error show fallback ion-icon -->
+          <ng-container
+            *ngIf="fac.icon && !facImageErrors[i]; else fallbackIcon"
+          >
+            <img
+              [src]="fac.icon"
+              alt="icon"
+              class="w-6 h-6 mr-2 object-contain"
+              (error)="handleFacImageError(i)"
+            />
+          </ng-container>
+          <ng-template #fallbackIcon>
+            <ion-icon
+              name="cube-outline"
+              class="w-6 h-6 mr-2 text-gray-400"
+            ></ion-icon>
+          </ng-template>
+
+          <span class="text-sm truncate">{{ fac.name }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 7: Utilities -->
+    <div class="utilities-section p-4 bg-white mb-2">
+      <h2 class="text-lg font-bold text-gray-800 mb-3">ค่าน้ำ / ค่าไฟ</h2>
+      <div class="flex flex-col gap-3">
+        <div
+          class="flex items-center justify-between p-3 bg-blue-50 rounded-xl border border-blue-100"
+        >
+          <div class="flex items-center text-blue-800">
+            <ion-icon name="water-outline" class="text-2xl mr-3"></ion-icon>
+            <span class="font-medium">ค่าน้ำ</span>
+          </div>
+          <div class="text-right">
+            <p class="m-0 font-bold text-gray-800" *ngIf="d.WATER_UNIT">
+              {{ d.WATER_UNIT }}
+              <span class="text-sm font-normal text-gray-500">บ./หน่วย</span>
+            </p>
+            <p class="m-0 font-bold text-gray-800" *ngIf="d.WATER_LUMP">
+              {{ d.WATER_LUMP }}
+              <span class="text-sm font-normal text-gray-500"
+                >บ./เดือน (เหมา)</span
+              >
+            </p>
+            <p
+              class="m-0 text-gray-500 text-sm"
+              *ngIf="!d.WATER_UNIT && !d.WATER_LUMP"
+            >
+              -
+            </p>
+          </div>
+        </div>
+
+        <div
+          class="flex items-center justify-between p-3 bg-yellow-50 rounded-xl border border-yellow-100"
+        >
+          <div class="flex items-center text-yellow-800">
+            <ion-icon name="flash-outline" class="text-2xl mr-3"></ion-icon>
+            <span class="font-medium">ค่าไฟ</span>
+          </div>
+          <div class="text-right">
+            <p class="m-0 font-bold text-gray-800" *ngIf="d.ELECT_UNIT">
+              {{ d.ELECT_UNIT }}
+              <span class="text-sm font-normal text-gray-500">บ./หน่วย</span>
+            </p>
+            <p class="m-0 text-gray-500 text-sm" *ngIf="!d.ELECT_UNIT">-</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 7.5: Additional Details -->
+    <div
+      class="additional-info-section p-4 bg-white mb-2"
+      *ngIf="d.ADD_DORM_DATA"
+    >
+      <h2 class="text-lg font-bold text-gray-800 mb-3 flex items-center">
+        <ion-icon
+          name="information-circle-outline"
+          class="mr-2 text-primary"
+        ></ion-icon>
+        ข้อมูลเพิ่มเติม
+      </h2>
+      <p class="text-sm text-gray-700 leading-relaxed m-0 whitespace-pre-line">
+        {{ d.ADD_DORM_DATA }}
+      </p>
+    </div>
+
+
+    <!-- Section 4: Owner Contact (Moved below Additional Details) -->
+    <div
+      class="contact-section p-4 bg-white mb-2"
+      *ngIf="d.phone || d.line || d.facebook || d.instagram || d.telegram || d.x"
+    >
+      <h2 class="text-lg font-bold text-gray-800 mb-3 flex items-center">
+        <ion-icon name="call-outline" class="mr-2 text-primary"></ion-icon>
+        ข้อมูลติดต่อผู้ดูแลหอพัก
+      </h2>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <a
+          *ngIf="d.phone && d.phone !== '-'"
+          [href]="'tel:' + d.phone"
+          class="contact-card flex items-center p-3 rounded-xl border border-gray-100 shadow-sm active:bg-gray-50"
+        >
+          <div
+            class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center mr-3 text-blue-600"
+          >
+            <ion-icon name="call-outline" class="text-xl"></ion-icon>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500 mb-0">เบอร์โทรศัพท์</p>
+            <p class="font-semibold text-gray-800 m-0">{{ d.phone }}</p>
+          </div>
+        </a>
+
+        <a
+          *ngIf="d.line && d.line !== '-'"
+          [href]="'https://line.me/ti/p/~' + d.line"
+          target="_blank"
+          class="contact-card flex items-center p-3 rounded-xl border border-gray-100 shadow-sm active:bg-gray-50"
+        >
+          <div
+            class="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center mr-3 text-green-600"
+          >
+            <ion-icon name="chatbubble-outline" class="text-xl"></ion-icon>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500 mb-0">LINE ID</p>
+            <p class="font-semibold text-gray-800 m-0">{{ d.line }}</p>
+          </div>
+        </a>
+
+        <a
+          *ngIf="d.facebook && d.facebook !== '-'"
+          [href]="d.facebook.includes('http') ? d.facebook : 'https://facebook.com/' + d.facebook"
+          target="_blank"
+          class="contact-card flex items-center p-3 rounded-xl border border-gray-100 shadow-sm active:bg-gray-50"
+        >
+          <div
+            class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center mr-3 text-blue-600"
+          >
+            <ion-icon name="logo-facebook" class="text-xl"></ion-icon>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500 mb-0">Facebook</p>
+            <p class="font-semibold text-gray-800 m-0 truncate w-32">
+              {{ d.facebook }}
+            </p>
+          </div>
+        </a>
+
+        <a
+          *ngIf="d.instagram && d.instagram !== '-'"
+          [href]="'https://instagram.com/' + d.instagram"
+          target="_blank"
+          class="contact-card flex items-center p-3 rounded-xl border border-gray-100 shadow-sm active:bg-gray-50"
+        >
+          <div
+            class="w-10 h-10 rounded-full bg-pink-50 flex items-center justify-center mr-3 text-pink-600"
+          >
+            <ion-icon name="logo-instagram" class="text-xl"></ion-icon>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500 mb-0">Instagram</p>
+            <p class="font-semibold text-gray-800 m-0">{{ d.instagram }}</p>
+          </div>
+        </a>
+
+        <a
+          *ngIf="d.telegram && d.telegram !== '-'"
+          [href]="'https://t.me/' + d.telegram"
+          target="_blank"
+          class="contact-card flex items-center p-3 rounded-xl border border-gray-100 shadow-sm active:bg-gray-50"
+        >
+          <div
+            class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center mr-3 text-blue-500"
+          >
+            <ion-icon name="paper-plane-outline" class="text-xl"></ion-icon>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500 mb-0">Telegram</p>
+            <p class="font-semibold text-gray-800 m-0">{{ d.telegram }}</p>
+          </div>
+        </a>
+
+        <a
+          *ngIf="d.x && d.x !== '-'"
+          [href]="'https://x.com/' + d.x"
+          target="_blank"
+          class="contact-card flex items-center p-3 rounded-xl border border-gray-100 shadow-sm active:bg-gray-50"
+        >
+          <div
+            class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mr-3 text-gray-800"
+          >
+            <ion-icon name="logo-twitter" class="text-xl"></ion-icon>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500 mb-0">X (Twitter)</p>
+            <p class="font-semibold text-gray-800 m-0">{{ d.x }}</p>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- Section 8: Reviews -->
+    <div class="reviews-section p-4 bg-white pb-10">
+      <h2 class="text-lg font-bold text-gray-800 mb-1">รีวิวหอพัก</h2>
+
+      <div class="flex items-center mb-6 mt-2">
+        <div class="text-4xl font-black text-gray-800 mr-4">
+          {{ d.SCORE ? (d.SCORE | number:'1.1-1') : '0.0' }}
+        </div>
+        <div>
+          <div class="flex text-primary text-xl">
+            <ion-icon
+              name="star"
+              *ngFor="let i of [1,2,3,4,5]"
+              [class.text-gray-300]="i > getParsedScore(d.SCORE)"
+            ></ion-icon>
+          </div>
+          <p class="text-xs text-gray-500 m-0 mt-1">
+            จากผู้รีวิว {{ reviews().length }} คน
+          </p>
+        </div>
+      </div>
+
+      <!-- Add Review Form (Only logged in) -->
+      <div
+        class="add-review-box p-3 bg-gray-50 rounded-xl mb-6 border border-gray-200"
+        *ngIf="currentUser"
+      >
+        <p class="font-medium text-gray-700 mb-2">ให้คะแนนหอพักนี้</p>
+        <div class="flex text-3xl mb-3 text-gray-300 justify-center gap-2">
+          <ion-icon
+            name="star"
+            *ngFor="let i of [1,2,3,4,5]"
+            (click)="setRating(i)"
+            [class.text-primary]="i <= newReviewScore"
+            class="transition-colors active:scale-90"
+          ></ion-icon>
+        </div>
+        <ion-textarea
+          placeholder="พิมพ์ความคิดเห็นของคุณที่นี่..."
+          [(ngModel)]="newReviewComment"
+          class="bg-white rounded-lg border border-gray-200 mb-2 px-2"
+          rows="3"
+        ></ion-textarea>
+        <ion-button
+          expand="block"
+          (click)="submitReview()"
+          [disabled]="newReviewScore === 0"
+          class="h-12 font-bold m-0"
+        >
+          <ion-icon name="send-outline" slot="start"></ion-icon> ส่งรีวิว
+        </ion-button>
+      </div>
+
+      <!-- Review List -->
+      <div class="review-list flex flex-col gap-4">
+        <div
+          class="text-center text-gray-500 py-6"
+          *ngIf="reviews().length === 0"
+        >
+          <ion-icon
+            name="chatbubble-outline"
+            class="text-4xl mb-2 text-gray-300"
+          ></ion-icon>
+          <p>ยังไม่มีรีวิวสำหรับหอพักนี้</p>
+        </div>
+
+        <div
+          class="review-card border-b border-gray-100 pb-4 last:border-0"
+          *ngFor="let rev of reviews()"
+        >
+          <div class="flex justify-between items-start mb-2">
+            <div class="flex items-center">
+              <div
+                class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold mr-2 text-sm"
+              >
+                {{ rev.USERNAME.charAt(0).toUpperCase() }}
+              </div>
+              <div>
+                <p class="font-medium text-gray-800 text-sm m-0">
+                  {{ rev.USERNAME }}
+                </p>
+                <p class="text-xs text-gray-400 m-0">
+                  {{ rev.CREATE_AT | date:'mediumDate' }}
+                </p>
+              </div>
+            </div>
+            <div class="flex text-primary text-sm">
+              <ion-icon
+                name="star"
+                *ngFor="let i of [1,2,3,4,5]"
+                [class.text-gray-300]="i > rev.SCORE"
+              ></ion-icon>
+            </div>
+          </div>
+          <p
+            class="text-sm text-gray-600 m-0 mt-2 leading-relaxed"
+            *ngIf="rev.COMMENTS"
+          >
+            {{ rev.COMMENTS }}
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="bottom-spacer h-20"></div>
+  </ng-container>
+
+  <app-loading-ui *ngIf="isLoading()"></app-loading-ui>
+</ion-content>

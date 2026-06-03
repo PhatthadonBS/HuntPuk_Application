@@ -54,4 +54,14 @@ export class UserServices {
     const url = `${this.endPoint}/user/resetPassword`;
     return this.http.put(url, data);
   }
+
+  addFavorite(dorm_id: number): Observable<any> {
+    const url = `${this.endPoint}/other/addFavorite`;
+    return this.http.post(url, { dorm_id });
+  }
+
+  removeFavorite(dorm_id: number): Observable<any> {
+    const url = `${this.endPoint}/other/delFavorite`;
+    return this.http.request('delete', url, { body: { dorm_id } });
+  }
 }

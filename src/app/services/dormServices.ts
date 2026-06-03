@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, timeout, catchError, throwError } from 'rxjs';
-import { DormAllGetRes, FacOfDormGetRes, DormZoneGetRes, DormDetailGetRes } from '../model/dorm.model';
+import { DormAllGetRes, FacOfDormGetRes, DormZoneGetRes, DormDetailGetRes, ReviewGetRes } from '../model/dorm.model';
 import { environment } from 'src/environments/environment';
 
 export interface DormQueryParams {
@@ -91,6 +91,28 @@ export class DormServices {
       timeout(this.REQUEST_TIMEOUT),
       catchError(err => {
         console.error('getZones error or timeout:', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  getReviewsByDormId(dorm_id: number): Observable<ReviewGetRes> {
+    const url = `${this.endPoint}/dorms/review/${dorm_id}`;
+    return this.http.get<ReviewGetRes>(url).pipe(
+      timeout(this.REQUEST_TIMEOUT),
+      catchError(err => {
+        console.error('getReviewsByDormId error or timeout:', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  addReview(data: { user_id: number; dorm_id: number; score: number; comment: string }): Observable<any> {
+    const url = `${this.endPoint}/user/review`;
+    return this.http.post<any>(url, data).pipe(
+      timeout(this.REQUEST_TIMEOUT),
+      catchError(err => {
+        console.error('addReview error or timeout:', err);
         return throwError(() => err);
       })
     );

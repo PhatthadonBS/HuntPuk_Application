@@ -40,6 +40,14 @@ export const routes: Routes = [
             (m) => m.DormListPage
           ),
       },
+
+      {
+        path: 'dorm-detail/:dorm_id',
+        loadComponent: () =>
+          import('./main-layout/pages/dorm-detail/dorm-detail.page').then(
+            (m) => m.DormDetailPage
+          ),
+      },
     ],
   },
 
@@ -71,5 +79,37 @@ export const routes: Routes = [
     path: '**',
     loadComponent: () =>
       import('./not-found/not-found.page').then((m) => m.NotFoundPage),
+  },
+  {
+    path: 'my-favorites',
+    loadComponent: () => import('./main-layout/pages/my-favorites/my-favorites.page').then( m => m.MyFavoritesPage)
+  },
+  {
+    path: 'dorm-register',
+    loadComponent: () => import('./main-layout/pages/dorm-register/dorm-register.page').then( m => m.DormRegisterPage)
+  },
+  {
+    path: 'owner-register',
+    loadComponent: () => import('./main-layout/pages/owner-register/owner-register.page').then( m => m.OwnerRegisterPage)
+  },
+  {
+    path: 'dorm-mangement',
+    loadComponent: () => import('./main-layout/pages/dorm-mangement/dorm-mangement.page').then( m => m.DormMangementPage)
+  },
+  {
+    path: 'dashboard',
+    loadComponent: () => import('./main-layout/pages/dashboard/dashboard.page').then( m => m.DashboardPage)
+  },
+  {
+    path: 'owner-management',
+    loadComponent: () => import('./main-layout/pages/owner-management/owner-management.page').then( m => m.OwnerManagementPage)
+  },
+  {
+    path: 'icon-management',
+    loadComponent: () => import('./main-layout/pages/icon-management/icon-management.page').then( m => m.IconManagementPage)
+  },
+  {
+    path: 'member-management',
+    loadComponent: () => import('./main-layout/pages/member-management/member-management.page').then( m => m.MemberManagementPage)
   },
 ];

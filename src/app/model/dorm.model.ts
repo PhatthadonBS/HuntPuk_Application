@@ -63,6 +63,7 @@ export interface DormDetail {
   lat: number;
   lng: number;
   start_price: number;
+  term_price?: number;
   phone: string;
   line: string;
   facebook: string;
@@ -71,11 +72,14 @@ export interface DormDetail {
   x: string;
   facilities: { name: string; icon: string }[];
   gallery: string[];
-  rooms: { ROOM_TYPE_NAME: string; PRICE: number }[];
+  rooms: { ROOM_TYPE_NAME: string; PRICE: number; perTerm: number; perDay: number; bedType: string }[];
   WATER_UNIT: number;
   WATER_LUMP: number;
   ELECT_UNIT: number;
-  DETAIL: string;
+  ADD_DORM_DATA: string;
+  DORM_OWNER_ID: number;
+  FIRST_NAME: string;
+  LAST_NAME: string;
 }
 
 export interface DormDetailGetRes {
@@ -106,4 +110,19 @@ export interface DormZone {
 export interface DormZoneGetRes {
   success: boolean;
   data: DormZone[];
+}
+
+export interface ReviewItem {
+  REVIEW_ID: number;
+  SCORE: number;
+  COMMENTS: string;
+  CREATE_AT: string;
+  USER_ID: number;
+  USERNAME: string;
+}
+
+export interface ReviewGetRes {
+  success: boolean;
+  count: number;
+  data: ReviewItem[];
 }
