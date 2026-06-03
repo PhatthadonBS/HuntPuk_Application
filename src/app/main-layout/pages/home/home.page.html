@@ -28,7 +28,7 @@
   <div
     class="dorm-popup-card"
     *ngIf="sheetOpen() && selectedDorm() as dorm"
-    (click)="goToDormDetail(dorm.DORM_ID)"
+    
   >
     <ion-button
       fill="clear"
@@ -53,13 +53,13 @@
         (error)="dormImg.src = 'https://placehold.co/600x400?text=No+Image'"
       />
       <div class="full-status-badge" *ngIf="$any(dorm).status == 3">
-        <ion-label>ที่พักเต็ม</ion-label>
+        <ion-label>ห้องพักเต็ม</ion-label>
       </div>
     </div>
 
     <div class="content-details">
       <div class="header-row">
-        <h2 class="dorm-name">{{ dorm.DORM_NAME }}</h2>
+        <h2 class="dorm-name" (click)="goToDormDetail(dorm.DORM_ID)">{{ dorm.DORM_NAME }}</h2>
         <div class="score-badge">
           <ion-icon name="star"></ion-icon>
           <span>{{ dorm.SCORE ? (dorm.SCORE | number:'1.1-1') : '0.0' }}</span>
@@ -80,7 +80,7 @@
           date:'mediumDate' }}
         </p>
       </div>
-      <div class="click-detail-msg">
+      <div class="click-detail-msg" (click)="goToDormDetail(dorm.DORM_ID)">
         <span>คลิกเพื่อดูรายละเอียดเพิ่มเติม</span
         ><ion-icon name="chevron-forward-outline"></ion-icon>
       </div>
