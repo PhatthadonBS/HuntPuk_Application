@@ -202,7 +202,7 @@ export class DormComparePage implements OnInit, OnDestroy {
 
   loadAllDorms() {
     this.isLoadingModal.set(true);
-    this.dormSv.getDorms(this.filterParams()).subscribe({
+    this.dormSv.getDormsMobile(this.filterParams()).subscribe({
       next: (res) => {
         if (res.success) this.allDorms.set(res.data);
         this.isLoadingModal.set(false);

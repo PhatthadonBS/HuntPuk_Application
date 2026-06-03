@@ -46,6 +46,7 @@ export interface FilterParams {
   minPrice?: number | null;
   maxPrice?: number | null;
   zone?: string;
+  score?: number | null;
 }
 
 @Component({
@@ -88,6 +89,7 @@ export class FilterGroupComponent implements OnInit, OnChanges, OnDestroy {
   minPrice: number | null = null;
   maxPrice: number | null = null;
   selectedZone: string = '';
+  selectedScore: number | null = null;
 
   private searchSubject = new Subject<void>();
   private autocompleteSubject = new Subject<string>();
@@ -131,7 +133,7 @@ export class FilterGroupComponent implements OnInit, OnChanges, OnDestroy {
         switchMap((query) => {
           const trimmed = query.trim();
           if (!trimmed) return of({ success: true, data: [] });
-          return this.dormService.getDorms({ search: trimmed });
+          return this.dormService.getDormsMobile({ search: trimmed });
         }),
         takeUntil(this.destroy$)
       )
@@ -142,46 +144,49 @@ export class FilterGroupComponent implements OnInit, OnChanges, OnDestroy {
       });
   }
 
+  private parseNumber(val: any): number | null {
+    if (val === null || val === undefined || val === '') return null;
+    const num = Number(val);
+    return isNaN(num) ? null : num;
+  }
+
   ngOnChanges(changes: SimpleChanges) {
     if (changes['initialParams'] && this.initialParams) {
-      // 1. Sync search query only if it actually changed from outside (e.g., Parent cleared it)
-      // This prevents the cursor from jumping while the user is actively typing.
       if (this.searchQuery !== (this.initialParams.search || '')) {
         this.searchQuery = this.initialParams.search || '';
       }
 
-      // 2. Only sync modal fields (price, zone) if the modal is CLOSED.
-      // If the modal is OPEN, the user is actively interacting with the inputs,
-      // so we MUST NOT overwrite their typing with the parent's current state.
       if (!this.isFilterModalOpen) {
-        this.minPrice = this.initialParams.minPrice !== undefined && this.initialParams.minPrice !== null ? Number(this.initialParams.minPrice) : null;
-        this.maxPrice = this.initialParams.maxPrice !== undefined && this.initialParams.maxPrice !== null ? Number(this.initialParams.maxPrice) : null;
+        this.minPrice = this.parseNumber(this.initialParams.minPrice);
+        this.maxPrice = this.parseNumber(this.initialParams.maxPrice);
         this.selectedZone = this.initialParams.zone ? this.initialParams.zone.toString() : '';
+        this.selectedScore = this.parseNumber(this.initialParams.score);
       }
     }
   }
 
   private syncFromInitialParams() {
     if (this.initialParams) {
-      // Force sync all params when opening the modal explicitly
       this.searchQuery = this.initialParams.search || '';
-      this.minPrice = this.initialParams.minPrice !== undefined && this.initialParams.minPrice !== null ? Number(this.initialParams.minPrice) : null;
-      this.maxPrice = this.initialParams.maxPrice !== undefined && this.initialParams.maxPrice !== null ? Number(this.initialParams.maxPrice) : null;
+      this.minPrice = this.parseNumber(this.initialParams.minPrice);
+      this.maxPrice = this.parseNumber(this.initialParams.maxPrice);
       this.selectedZone = this.initialParams.zone ? this.initialParams.zone.toString() : '';
+      this.selectedScore = this.parseNumber(this.initialParams.score);
     } else {
       this.searchQuery = '';
       this.minPrice = null;
       this.maxPrice = null;
       this.selectedZone = '';
+      this.selectedScore = null;
     }
   }
 
   private syncParams(params: FilterParams) {
     this.searchQuery = params.search || '';
-    this.minPrice = params.minPrice !== undefined && params.minPrice !== null ? Number(params.minPrice) : null;
-    this.maxPrice = params.maxPrice !== undefined && params.maxPrice !== null ? Number(params.maxPrice) : null;
+    this.minPrice = this.parseNumber(params.minPrice);
+    this.maxPrice = this.parseNumber(params.maxPrice);
+    this.selectedScore = this.parseNumber(params.score);
     
-    // Ensure selectedZone is correctly parsed as a string for the <select> value binding
     if (params.zone) {
       this.selectedZone = params.zone.toString();
     } else {
@@ -269,6 +274,10 @@ export class FilterGroupComponent implements OnInit, OnChanges, OnDestroy {
       params.zone = this.selectedZone;
     }
 
+    if (this.selectedScore !== null && this.selectedScore !== undefined) {
+      params.score = this.selectedScore;
+    }
+
     this.filterApplied.emit(params);
   }
 
@@ -276,8 +285,11 @@ export class FilterGroupComponent implements OnInit, OnChanges, OnDestroy {
     this.minPrice = null;
     this.maxPrice = null;
     this.selectedZone = '';
+    this.selectedScore = null;
     this.searchQuery = '';
-    this.isFilterModalOpen = false;
+    
+    // Do not close the modal, allow the user to see the fields reset to their default values.
+    // They can then close the modal using the close button or by applying filters.
     
     setTimeout(() => {
       this.emitFilters();

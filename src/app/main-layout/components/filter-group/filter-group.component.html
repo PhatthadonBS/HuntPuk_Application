@@ -70,6 +70,18 @@
           </select>
         </div>
 
+        <div class="custom-field">
+          <label class="field-label">คะแนนรีวิว</label>
+          <select [(ngModel)]="selectedScore" class="native-input-elem">
+            <option [ngValue]="null">ทุกคะแนน</option>
+            <option [ngValue]="1">1 ดาว</option>
+            <option [ngValue]="2">2 ดาว</option>
+            <option [ngValue]="3">3 ดาว</option>
+            <option [ngValue]="4">4 ดาว</option>
+            <option [ngValue]="5">5 ดาว</option>
+          </select>
+        </div>
+
         <div class="price-range-container">
           <p class="section-title">ช่วงราคา (บาท/เดือน)</p>
           <div class="price-inputs">

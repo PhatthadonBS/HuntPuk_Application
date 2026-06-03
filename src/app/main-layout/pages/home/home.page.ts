@@ -113,6 +113,7 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
   minPrice = signal<number | null>(null);
   maxPrice = signal<number | null>(null);
   selectedZone = signal<string | null>(null);
+  selectedScore = signal<number | null>(null);
 
   isPinMode = signal(false);
   pinnedLocation = signal<{ lat: number; lng: number } | null>(null);
@@ -179,6 +180,7 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
     this.minPrice.set(null);
     this.maxPrice.set(null);
     this.selectedZone.set(null);
+    this.selectedScore.set(null);
   }
 
   isOpenMenu() {
@@ -262,6 +264,7 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
     if (this.searchQuery()) params.search = this.searchQuery();
     if (this.minPrice() !== null) params.minPrice = this.minPrice();
     if (this.maxPrice() !== null) params.maxPrice = this.maxPrice();
+    if (this.selectedScore() !== null) params.score = this.selectedScore();
 
     const selectedZoneId = this.selectedZone();
     const pin = this.pinnedLocation();
@@ -290,7 +293,7 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
     }
 
     this.dormService
-      .getDorms(params)
+      .getDormsMobile(params)
       .pipe(
         finalize(() => {
           this.isLoading.set(false);
@@ -314,6 +317,7 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
                   !!this.searchQuery() ||
                   this.minPrice() !== null ||
                   this.maxPrice() !== null ||
+                  this.selectedScore() !== null ||
                   !!this.selectedZone();
 
                 const shouldResetCamera = !isFiltering || !hasDorms;
@@ -353,6 +357,7 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
     this.minPrice.set(params.minPrice !== undefined ? params.minPrice : null);
     this.maxPrice.set(params.maxPrice !== undefined ? params.maxPrice : null);
     this.selectedZone.set(params.zone || null);
+    this.selectedScore.set(params.score !== undefined ? params.score : null);
 
     this.clearPin(false);
 
@@ -360,6 +365,7 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
       !this.searchQuery() &&
       this.minPrice() === null &&
       this.maxPrice() === null &&
+      this.selectedScore() === null &&
       !this.selectedZone()
     ) {
       this.sheetOpen.set(false);
@@ -395,6 +401,7 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
       this.searchQuery.set('');
       this.minPrice.set(null);
       this.maxPrice.set(null);
+      this.selectedScore.set(null);
       this.sheetOpen.set(false);
       this.selectedDorm.set(null);
 
@@ -413,7 +420,6 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
 
   toggleFavorite(event: Event, dorm: DormSummary) {
     event.stopPropagation();
-    console.log('Toggle favorite for:', dorm.DORM_NAME);
   }
 
   async handlePinAction(lat: number, lng: number) {
@@ -626,6 +632,7 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
       minPrice: this.minPrice(),
       maxPrice: this.maxPrice(),
       zone: this.selectedZone() || undefined,
+      score: this.selectedScore() !== null ? this.selectedScore() : undefined,
     };
   }
 

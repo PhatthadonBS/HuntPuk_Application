@@ -100,6 +100,7 @@ export class DormListPage implements OnInit {
   searchQuery = signal<string>('');
   minPrice = signal<number | null>(null);
   maxPrice = signal<number | null>(null);
+  selectedScore = signal<number | null>(null);
   selectedZoneId = signal<string | null>(null); // Store Zone ID as string
   initialParams = signal<FilterParams | null>(null);
   autoOpenFilter = signal<boolean>(false);
@@ -113,6 +114,7 @@ export class DormListPage implements OnInit {
     const min = this.minPrice();
     const max = this.maxPrice();
     const zoneId = this.selectedZoneId();
+    const score = this.selectedScore();
 
     if (query) {
       dorms = dorms.filter((d) => d.DORM_NAME.toLowerCase().includes(query));
@@ -122,6 +124,9 @@ export class DormListPage implements OnInit {
     }
     if (max !== null) {
       dorms = dorms.filter((d) => d.start_price <= max);
+    }
+    if (score !== null) {
+      dorms = dorms.filter((d) => Number(d.SCORE) >= score);
     }
     if (zoneId) {
       const zoneObj = this.zones().find(z => z.ZONE_ID.toString() === zoneId);
@@ -166,6 +171,13 @@ export class DormListPage implements OnInit {
         p.zone = params['zone'];
         this.selectedZoneId.set(params['zone']);
       }
+      if (params['score']) {
+        const scoreNum = Number(params['score']);
+        if (!isNaN(scoreNum)) {
+          p.score = scoreNum;
+          this.selectedScore.set(scoreNum);
+        }
+      }
       
       if (Object.keys(p).length > 0) {
         this.initialParams.set(p);
@@ -181,7 +193,7 @@ export class DormListPage implements OnInit {
   }
 
   loadDorms() {
-    this.dormSv.getDorms().subscribe({
+    this.dormSv.getDormsMobile().subscribe({
       next: (res) => {
         if (res.success) {
           this.allDorms.set(res.data);
@@ -206,13 +218,24 @@ export class DormListPage implements OnInit {
     this.searchQuery.set(params.search || '');
     this.minPrice.set(params.minPrice ?? null);
     this.maxPrice.set(params.maxPrice ?? null);
+    this.selectedScore.set(params.score ?? null);
     this.selectedZoneId.set(params.zone || null);
+    
+    // Ensure the filter modal state stays in sync if it gets re-opened
+    this.initialParams.set({
+        search: params.search,
+        minPrice: params.minPrice,
+        maxPrice: params.maxPrice,
+        score: params.score,
+        zone: params.zone
+    });
   }
 
   clearFilters() {
     this.searchQuery.set('');
     this.minPrice.set(null);
     this.maxPrice.set(null);
+    this.selectedScore.set(null);
     this.selectedZoneId.set(null);
   }
 
@@ -222,7 +245,6 @@ export class DormListPage implements OnInit {
 
   toggleFavorite(event: Event, dorm: DormSummary) {
     event.stopPropagation();
-    console.log('Toggle favorite for:', dorm.DORM_NAME);
   }
 
   onScroll(event: any) {

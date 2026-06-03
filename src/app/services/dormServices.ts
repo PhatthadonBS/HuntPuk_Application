@@ -9,6 +9,7 @@ export interface DormQueryParams {
   zone?: string;
   minPrice?: number | null;
   maxPrice?: number | null;
+  score?: number | null;
   lat?: number;
   lng?: number;
   radius?: number; // in kilometers
@@ -25,16 +26,28 @@ export class DormServices {
 
   getDorms(params?: DormQueryParams): Observable<DormAllGetRes> {
     const url = `${this.endPoint}/dorms`;
+    return this.fetchDorms(url, params);
+  }
+
+  getDormsMobile(params?: DormQueryParams): Observable<DormAllGetRes> {
+    const url = `${this.endPoint}/dorms/mobile`;
+    return this.fetchDorms(url, params);
+  }
+
+  private fetchDorms(url: string, params?: DormQueryParams): Observable<DormAllGetRes> {
     let httpParams = new HttpParams();
 
     if (params) {
       if (params.search) httpParams = httpParams.set('search', params.search);
       if (params.zone) httpParams = httpParams.set('zone', params.zone);
-      if (params.minPrice !== undefined && params.minPrice !== null) {
+      if (params.minPrice !== undefined && params.minPrice !== null && !isNaN(params.minPrice)) {
         httpParams = httpParams.set('minPrice', params.minPrice.toString());
       }
-      if (params.maxPrice !== undefined && params.maxPrice !== null) {
+      if (params.maxPrice !== undefined && params.maxPrice !== null && !isNaN(params.maxPrice)) {
         httpParams = httpParams.set('maxPrice', params.maxPrice.toString());
+      }
+      if (params.score !== undefined && params.score !== null && !isNaN(params.score)) {
+        httpParams = httpParams.set('score', params.score.toString());
       }
       if (params.lat) httpParams = httpParams.set('lat', params.lat.toString());
       if (params.lng) httpParams = httpParams.set('lng', params.lng.toString());
@@ -44,7 +57,7 @@ export class DormServices {
     return this.http.get<DormAllGetRes>(url, { params: httpParams }).pipe(
       timeout(this.REQUEST_TIMEOUT),
       catchError(err => {
-        console.error('getDorms error or timeout:', err);
+        console.error(`fetchDorms error or timeout at ${url}:`, err);
         return throwError(() => err);
       })
     );
