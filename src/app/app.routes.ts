@@ -85,15 +85,6 @@ export const routes: Routes = [
       },
 
       {
-        path: 'owner-management',
-        canActivate: [authGuard],
-        loadComponent: () =>
-          import(
-            './main-layout/pages/owner-management/owner-management.page'
-          ).then((m) => m.OwnerManagementPage),
-      },
-
-      {
         path: 'icon-management',
         canActivate: [authGuard],
         loadComponent: () =>
@@ -155,10 +146,15 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./register/register.page').then((m) => m.RegisterPage),
   },
+  
+  {
+    path: 'owner-requests',
+    loadComponent: () => import('./main-layout/pages/owner-requests/owner-requests.page').then( m => m.OwnerRequestsPage)
+  },
 
   {
     path: '**',
     loadComponent: () =>
       import('./not-found/not-found.page').then((m) => m.NotFoundPage),
-  },
+  }
 ];

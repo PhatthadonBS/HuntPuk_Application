@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { catchError, Observable, shareReplay, take } from 'rxjs';
-import { UserAllGetRes, UserDataGetRes, UserRegPostReq, UserUpdatePostReq } from '../model/user.model';
+import { UserAllGetRes, UserDataGetRes, UserDormOwnerGetRes, UserRegPostReq, UserUpdatePostReq } from '../model/user.model';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 
@@ -93,5 +93,15 @@ export class UserServices {
   requestDormOwner(formData: FormData): Observable<any> {
     const url = `${this.endPoint}/user/dormOwner`;
     return this.http.post(url, formData);
+  }
+
+  getPendingOwnerRequests(): Observable<{success: boolean, data: UserDormOwnerGetRes[]}> {
+    const url = `${this.endPoint}/user/dormOwnerReq`;
+    return this.http.get<{success: boolean, data: UserDormOwnerGetRes[]}>(url);
+  }
+
+  approveDormOwnerRequest(user_id: number, approve_status: boolean, msg: string): Observable<any> {
+    const url = `${this.endPoint}/user/approve`;
+    return this.http.put(url, { user_id, approve_status, msg });
   }
 }
