@@ -60,6 +60,8 @@ export interface UserAllGetRes {
   PHONE_NUMBER: string;
   ROLE_TYPE_ID: number;
   ACCOUNT_STATUS: number;
+  FIRST_NAME?: string;
+  LAST_NAME?: string;
 }
 
 export interface UserDataGetRes {

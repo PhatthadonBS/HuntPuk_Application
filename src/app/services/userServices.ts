@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { catchError, Observable, shareReplay, take } from 'rxjs';
-import { UserDataGetRes, UserRegPostReq, UserUpdatePostReq } from '../model/user.model';
+import { UserAllGetRes, UserDataGetRes, UserRegPostReq, UserUpdatePostReq } from '../model/user.model';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 
@@ -68,5 +68,30 @@ export class UserServices {
   getMyFavorites(uid: number): Observable<{success: boolean, data: any[]}> {
     const url = `${this.endPoint}/spec/favorite/${uid}`;
     return this.http.get<{success: boolean, data: any[]}>(url);
+  }
+
+  getMembers(): Observable<UserAllGetRes[]> {
+    const url = `${this.endPoint}/user/members`;
+    return this.http.get<UserAllGetRes[]>(url);
+  }
+
+  getDormOwners(): Observable<UserAllGetRes[]> {
+    const url = `${this.endPoint}/user/dormOwners`;
+    return this.http.get<UserAllGetRes[]>(url);
+  }
+
+  banAccount(user_id: number): Observable<any> {
+    const url = `${this.endPoint}/spec/banAccount/${user_id}`;
+    return this.http.put(url, {});
+  }
+
+  unbanAccount(user_id: number): Observable<any> {
+    const url = `${this.endPoint}/spec/unbanAccount/${user_id}`;
+    return this.http.put(url, {});
+  }
+
+  requestDormOwner(formData: FormData): Observable<any> {
+    const url = `${this.endPoint}/user/dormOwner`;
+    return this.http.post(url, formData);
   }
 }

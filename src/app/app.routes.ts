@@ -58,29 +58,11 @@ export const routes: Routes = [
       },
 
       {
-        path: 'my-favorites/:user_id',
-        canActivate: [authGuard],
-        loadComponent: () =>
-          import('./main-layout/pages/my-favorites/my-favorites.page').then(
-            (m) => m.MyFavoritesPage
-          ),
-      },
-
-      {
         path: 'dorm-register/:user_id',
         canActivate: [authGuard],
         loadComponent: () =>
           import('./main-layout/pages/dorm-register/dorm-register.page').then(
             (m) => m.DormRegisterPage
-          ),
-      },
-
-      {
-        path: 'owner-register/:user_id',
-        canActivate: [authGuard],
-        loadComponent: () =>
-          import('./main-layout/pages/owner-register/owner-register.page').then(
-            (m) => m.OwnerRegisterPage
           ),
       },
 
@@ -106,31 +88,55 @@ export const routes: Routes = [
         path: 'owner-management',
         canActivate: [authGuard],
         loadComponent: () =>
-          import('./main-layout/pages/owner-management/owner-management.page').then(
-            (m) => m.OwnerManagementPage
-          ),
+          import(
+            './main-layout/pages/owner-management/owner-management.page'
+          ).then((m) => m.OwnerManagementPage),
       },
 
       {
         path: 'icon-management',
         canActivate: [authGuard],
         loadComponent: () =>
-          import('./main-layout/pages/icon-management/icon-management.page').then(
-            (m) => m.IconManagementPage
-          ),
+          import(
+            './main-layout/pages/icon-management/icon-management.page'
+          ).then((m) => m.IconManagementPage),
       },
 
       {
         path: 'member-management',
         canActivate: [authGuard],
         loadComponent: () =>
-          import('./main-layout/pages/member-management/member-management.page').then(
-            (m) => m.MemberManagementPage
+          import(
+            './main-layout/pages/member-management/member-management.page'
+          ).then((m) => m.MemberManagementPage),
+      },
+      {
+        path: 'owner-profile/:user_id',
+        loadComponent: () =>
+          import('./main-layout/pages/owner-profile/owner-profile.page').then(
+            (m) => m.OwnerProfilePage
           ),
       },
     ],
   },
 
+  {
+    path: 'my-favorites/:user_id',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./main-layout/pages/my-favorites/my-favorites.page').then(
+        (m) => m.MyFavoritesPage
+      ),
+  },
+
+  {
+    path: 'owner-register/:user_id',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./main-layout/pages/owner-register/owner-register.page').then(
+        (m) => m.OwnerRegisterPage
+      ),
+  },
   {
     path: 'forgotPasswd',
     loadComponent: () =>
