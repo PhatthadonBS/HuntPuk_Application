@@ -252,8 +252,13 @@ export class MenuListComponent implements OnDestroy, AfterViewInit {
   }
 
   onSelect(menuKey: string, needsId: boolean, path: string) {
+    let finalPath = path;
+    if (menuKey === 'profile' && this.inRole() === 2) {
+      finalPath = '/owner-profile';
+    }
+
     const destination = { 
-      destination: path, 
+      destination: finalPath, 
       id: needsId ? this.user_id() : null 
     };
     

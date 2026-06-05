@@ -1,0 +1,105 @@
+<ion-content [fullscreen]="true" class="profile-content minimal-style">
+  <div class="background-container"></div>
+
+  <div class="content-wrapper">
+    <ion-button fill="clear" class="absolute-back-btn" (click)="goBack()">
+      <ion-icon name="arrow-back-circle-outline" slot="icon-only" color="dark"></ion-icon>
+    </ion-button>
+
+    <div class="profile-header">
+      <div class="profile-upload-wrapper" (click)="presentPhotoOptions()">
+        <div class="preview-container shadow-2xl">
+          <img [src]="imagePreview() || 'assets/icon.png'" class="profile-preview" *ngIf="imagePreview()" />
+          <div class="placeholder-preview" *ngIf="!imagePreview()">
+            <ion-icon name="person-outline" class="text-5xl text-gray-300"></ion-icon>
+          </div>
+          <div class="upload-badge">
+            <ion-icon name="camera-outline"></ion-icon>
+          </div>
+        </div>
+      </div>
+      <p class="text-sm font-bold text-gray-500 mt-4 uppercase tracking-widest text-center">แตะเพื่อเปลี่ยนรูปโปรไฟล์</p>
+      <h1 class="page-title mt-4 text-center">แก้ไขข้อมูลเจ้าของหอพัก</h1>
+      <div class="username-badge mt-2 text-center">
+        <p class="user-handle">{{ user()?.USERNAME || 'กำลังโหลด...' }}</p>
+      </div>
+    </div>
+
+    <form [formGroup]="updateForm" (ngSubmit)="confirmUpdate()" class="info-section">
+      <ion-list lines="none" class="minimal-list">
+        <ion-item class="highlight-item">
+          <ion-icon name="person-outline" slot="start"></ion-icon>
+          <ion-label position="stacked">ชื่อผู้ใช้</ion-label>
+          <ion-input
+            type="text"
+            placeholder="Username"
+            formControlName="username"
+          ></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-icon name="person-circle-outline" slot="start" class="!mt-[2.3rem]"></ion-icon>
+          <ion-label position="stacked">ชื่อจริง</ion-label>
+          <ion-input
+            type="text"
+            placeholder="First Name"
+            formControlName="first_name"
+          ></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-icon name="person-circle-outline" slot="start" class="!mt-[2.3rem]"></ion-icon>
+          <ion-label position="stacked">นามสกุล</ion-label>
+          <ion-input
+            type="text"
+            placeholder="Last Name"
+            formControlName="last_name"
+          ></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-icon name="call-outline" slot="start" class="!mt-[2.3rem]"></ion-icon>
+          <ion-label position="stacked">เบอร์โทรศัพท์</ion-label>
+          <ion-input
+            type="tel"
+            placeholder="0xx-xxx-xxxx"
+            formControlName="phone_number"
+          ></ion-input>
+        </ion-item>
+      </ion-list>
+
+      <div class="save-section">
+        <ion-button
+          expand="block"
+          fill="solid"
+          class="save-btn"
+          type="submit"
+          [disabled]="updateForm.invalid"
+        >
+          บันทึกข้อมูล
+        </ion-button>
+      </div>
+    </form>
+
+    <div class="bottom-spacer"></div>
+  </div>
+
+  <ion-toast
+    [isOpen]="succMsg() !== null"
+    [message]="succMsg()"
+    [duration]="5000"
+    color="success"
+    position="bottom"
+    (didDismiss)="succMsg.set(null)"
+  ></ion-toast>
+  <ion-toast
+    [isOpen]="errMsg() !== null"
+    [message]="errMsg()"
+    [duration]="5000"
+    color="danger"
+    position="bottom"
+    (didDismiss)="errMsg.set(null)"
+  ></ion-toast>
+
+  <app-loading-ui *ngIf="isLoading()"></app-loading-ui>
+</ion-content>

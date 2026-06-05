@@ -74,7 +74,20 @@ export const routes: Routes = [
             './main-layout/pages/member-management/member-management.page'
           ).then((m) => m.MemberManagementPage),
       },
-    
+      {
+        path: 'owner-profile/:user_id',
+        loadComponent: () =>
+          import('./main-layout/pages/owner-profile/owner-profile.page').then(
+            (m) => m.OwnerProfilePage
+          ),
+      },
+      {
+        path: 'owner-profile-update/:user_id',
+        loadComponent: () =>
+          import(
+            './main-layout/pages/owner-profile-update/owner-profile-update.page'
+          ).then((m) => m.OwnerProfileUpdatePage),
+      },
     ],
   },
 
@@ -113,10 +126,13 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./register/register.page').then((m) => m.RegisterPage),
   },
-  
+
   {
     path: 'owner-requests',
-    loadComponent: () => import('./main-layout/pages/owner-requests/owner-requests.page').then( m => m.OwnerRequestsPage)
+    loadComponent: () =>
+      import('./main-layout/pages/owner-requests/owner-requests.page').then(
+        (m) => m.OwnerRequestsPage
+      ),
   },
 
   {
@@ -124,8 +140,4 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./not-found/not-found.page').then((m) => m.NotFoundPage),
   },
-  {
-    path: 'owner-profile',
-    loadComponent: () => import('./main-layout/pages/owner-profile/owner-profile.page').then( m => m.OwnerProfilePage)
-  }
 ];

@@ -27,6 +27,8 @@ export interface UserRegPostReq {
 export interface UserUpdatePostReq {
   username: string | null;
   phone_number: string | null;
+  first_name?: string | null;
+  last_name?: string | null;
 }
 
 export interface UserRegPostReqForm {
@@ -40,6 +42,8 @@ export interface UserRegPostReqForm {
 export interface UserUpdatePostReqForm {
   username: FormControl<string | null>;
   phone_number: FormControl<string | null>;
+  first_name?: FormControl<string | null>;
+  last_name?: FormControl<string | null>;
 }
 
 export interface UserDormOwnerReqPostReq {
@@ -62,6 +66,7 @@ export interface UserAllGetRes {
   ACCOUNT_STATUS: number;
   FIRST_NAME?: string;
   LAST_NAME?: string;
+  PROFILE_IMAGE?: string;
 }
 
 export interface UserDataGetRes {

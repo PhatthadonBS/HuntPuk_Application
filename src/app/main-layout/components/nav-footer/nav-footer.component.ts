@@ -74,7 +74,14 @@ export class NavFooterComponent implements OnInit {
   }
 
   onAccountClick() {
-    this.accountClick.emit({destination: "/profile", id: this.userId()});
+    const user = this.authSv.currentUserValue;
+    let dest = "/profile";
+    
+    if (user && user.role === 2) {
+      dest = "/owner-profile";
+    }
+    
+    this.accountClick.emit({destination: dest, id: this.userId()});
   }
 
   onHomeClick() {

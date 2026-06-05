@@ -1,0 +1,214 @@
+$accent-yellow: #ffcc00;
+$base-dark: #333333;
+$border-light: rgba(255, 255, 255, 0.4);
+
+ion-content.minimal-style {
+  --background: #f9fafb;
+
+  .background-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    background: linear-gradient(135deg, #ffcc00 0%, #fff5cc 100%);
+    overflow: hidden;
+
+    &::before {
+      content: "";
+      position: absolute;
+      width: 150%;
+      height: 100%;
+      background: #ffcc00;
+      top: -50%;
+      left: -25%;
+      transform: rotate(-10deg);
+      border-radius: 0 0 50% 50%;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  .absolute-back-btn {
+    position: absolute;
+    top: 4rem;
+    left: 1rem;
+    z-index: 50;
+    --padding-start: 0;
+    --padding-end: 0;
+    width: 44px;
+    height: 44px;
+    margin: 0;
+  
+    ion-icon {
+      font-size: 45px;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    }
+  
+    &:active ion-icon {
+      opacity: 1;
+      transform: scale(0.95);
+    }
+  }
+
+  .content-wrapper {
+    position: relative;
+    z-index: 10;
+    padding: 1.5rem;
+    padding-top: 4rem;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .profile-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 3rem 1.5rem 2rem;
+
+    .avatar-placeholder {
+      width: 86px;
+      height: 86px;
+      border-radius: 32px;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      border: 1px solid $border-light;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+
+      ion-icon {
+        font-size: 40px;
+        color: $base-dark;
+      }
+    }
+
+    .page-title {
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: $base-dark;
+      margin: 0;
+      letter-spacing: -0.03em;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .username-badge {
+      background: rgba($base-dark, 0.1);
+      backdrop-filter: blur(5px);
+      padding: 0.35rem 1.25rem;
+      border-radius: 100px;
+      margin-top: 0.75rem;
+      border: 1px solid rgba($base-dark, 0.05);
+
+      .user-handle {
+        font-size: 24px;
+        font-weight: 700;
+        color: $base-dark;
+        margin: 0;
+      }
+    }
+  }
+
+  .info-section {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 28px;
+    border: 1px solid $border-light;
+    box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+    padding: 0.5rem;
+  }
+
+  .minimal-list {
+    background: transparent;
+
+    ion-item {
+      --background: transparent;
+      --padding-start: 16px;
+      --inner-padding-end: 16px;
+      margin-bottom: 0.5rem;
+      position: relative;
+
+      &::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 10%;
+        width: 80%;
+        height: 1px;
+        background: $base-dark;
+        opacity: 0.3;
+        z-index: 1;
+        filter: blur(0.5px);
+      }
+
+      &.highlight-item {
+        --background: rgba($accent-yellow, 0.1);
+        border-radius: 20px;
+      }
+
+      ion-icon[slot="start"] {
+        color: $base-dark;
+        font-size: 28px;
+        margin-right: 12px;
+        margin-top: 2.2rem;
+        opacity: 0.7;
+      }
+
+      ion-label {
+        color: rgba($base-dark, 0.5);
+        font-size: 20px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-top: 12px;
+      }
+
+      ion-input {
+        color: $base-dark;
+        font-weight: 600;
+        font-size: 1rem;
+        --padding-start: 0;
+        --padding-top: 4px;
+        --padding-bottom: 12px;
+      }
+    }
+  }
+
+  .save-section {
+    padding: 1rem 1.5rem;
+
+    .save-btn {
+      --background: #{$base-dark};
+      --background-activated: #000000;
+      --color: #ffffff;
+      --border-radius: 16px;
+      height: 56px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin: 0;
+      text-transform: none;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      
+      &:active {
+        opacity: 0.9;
+        transform: scale(0.98);
+      }
+
+      &[disabled] {
+        opacity: 0.5;
+      }
+    }
+  }
+
+  .bottom-spacer {
+    height: 7rem;
+  }
+}

@@ -11,7 +11,7 @@
   <div class="px-5 pt-10 pb-32">
     <!-- Profile Image Uploader -->
     <div class="flex flex-col items-center mb-10">
-      <div class="profile-upload-wrapper" (click)="fileInput.click()">
+      <div class="profile-upload-wrapper" (click)="presentPhotoOptions()">
         <div class="preview-container shadow-2xl">
           <img [src]="imagePreview() || 'assets/icon.png'" class="profile-preview" *ngIf="imagePreview()" />
           <div class="placeholder-preview" *ngIf="!imagePreview()">
@@ -21,7 +21,6 @@
             <ion-icon name="camera-outline"></ion-icon>
           </div>
         </div>
-        <input type="file" #fileInput class="hidden" (change)="onFileSelected($event)" accept="image/*" />
       </div>
       <p class="text-sm font-bold text-gray-500 mt-4 uppercase tracking-widest">Upload Profile Photo</p>
     </div>

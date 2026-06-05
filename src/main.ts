@@ -22,6 +22,7 @@ import { authInterceptor } from './app/services/auth-interceptor';
 import { LOCALE_ID } from '@angular/core';
 import { registerLocaleData } from '@angular/common';
 import localeTh from '@angular/common/locales/th';
+import { defineCustomElements } from '@ionic/pwa-elements/loader';
 
 registerLocaleData(localeTh);
 
@@ -44,3 +45,5 @@ bootstrapApplication(AppComponent, {
     ),
   ],
 });
+
+defineCustomElements(window);
