@@ -151,11 +151,16 @@
         class="cell data-cell utility-cell"
         *ngFor="let dorm of selectedDorms()"
       >
-        <ng-container *ngIf="dorm.WATER_UNIT !== null && dorm.WATER_UNIT !== undefined; else noWater">
+        <ng-container
+          *ngIf="dorm.WATER_UNIT !== null && dorm.WATER_UNIT !== undefined; else noWater"
+        >
           <span class="util-value">{{ dorm.WATER_UNIT}}</span
           ><span class="util-unit">บาท/หน่วย</span>
           <br />
-          <div class="lump-divider" *ngIf="dorm.WATER_LUMP !== null && dorm.WATER_LUMP !== undefined && dorm.WATER_LUMP > 0">
+          <div
+            class="lump-divider"
+            *ngIf="dorm.WATER_LUMP !== null && dorm.WATER_LUMP !== undefined && dorm.WATER_LUMP > 0"
+          >
             <span class="util-unit">(เหมา </span>
             <span class="util-value">{{ dorm.WATER_LUMP }}</span>
             <span class="util-unit">บาท)</span>
@@ -174,7 +179,10 @@
         class="cell data-cell utility-cell"
         *ngFor="let dorm of selectedDorms()"
       >
-        <ng-container *ngIf="dorm.ELECT_UNIT !== null && dorm.ELECT_UNIT !== undefined; else noElec" class="!text-center">
+        <ng-container
+          *ngIf="dorm.ELECT_UNIT !== null && dorm.ELECT_UNIT !== undefined; else noElec"
+          class="!text-center"
+        >
           <span class="util-value">{{ dorm.ELECT_UNIT }}</span>
           <span class="util-unit">บาท/หน่วย</span>
         </ng-container>
@@ -278,6 +286,7 @@
         <ng-template #noFacs><span class="no-data">—</span></ng-template>
       </div>
     </div>
+    <div class="h-[3rem] w-full"></div>
   </div>
 
   <!-- <ion-fab
@@ -410,5 +419,7 @@
     </ng-template>
   </ion-modal>
 
-  <app-loading-ui *ngIf="isLoadingModal() || isLoadingDetail()"></app-loading-ui>
+  <app-loading-ui
+    *ngIf="isLoadingModal() || isLoadingDetail()"
+  ></app-loading-ui>
 </ion-content>

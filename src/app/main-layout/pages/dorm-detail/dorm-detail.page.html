@@ -190,23 +190,25 @@
           *ngFor="let fac of d.facilities; let i = index"
           class="flex items-center text-gray-700"
         >
-          <!-- Show icon, if error show fallback ion-icon -->
-          <ng-container
-            *ngIf="fac.icon && !facImageErrors[i]; else fallbackIcon"
-          >
-            <img
-              [src]="fac.icon"
-              alt="icon"
-              class="w-6 h-6 mr-2 object-contain"
-              (error)="handleFacImageError(i)"
-            />
-          </ng-container>
-          <ng-template #fallbackIcon>
-            <ion-icon
-              name="cube-outline"
-              class="w-6 h-6 mr-2 text-gray-400"
-            ></ion-icon>
-          </ng-template>
+          <div class="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center mr-3 shrink-0">
+            <!-- Show icon, if error show fallback ion-icon -->
+            <ng-container
+              *ngIf="fac.icon && !facImageErrors[i]; else fallbackIcon"
+            >
+              <img
+                [src]="fac.icon"
+                alt="icon"
+                class="w-5 h-5 object-contain"
+                (error)="handleFacImageError(i)"
+              />
+            </ng-container>
+            <ng-template #fallbackIcon>
+              <ion-icon
+                name="cube-outline"
+                class="text-lg text-gray-400"
+              ></ion-icon>
+            </ng-template>
+          </div>
 
           <span class="text-sm truncate">{{ fac.name }}</span>
         </div>

@@ -45,7 +45,7 @@ import {
   mapOutline,
   locationOutline,
   location,
-  ellipsisVerticalOutline,
+  ellipsisHorizontal,
   trashOutline,
   starOutline,
   star,
@@ -63,6 +63,7 @@ import {
   gitCompareOutline,
   addCircle,
   reorderThreeOutline,
+  cubeOutline,
 } from 'ionicons/icons';
 import { GoogleMapService } from 'src/app/services/google-map-service';
 import { Subscription } from 'rxjs';
@@ -156,7 +157,7 @@ export class DormComparePage implements OnInit, OnDestroy {
       mapOutline,
       locationOutline,
       location,
-      ellipsisVerticalOutline,
+      ellipsisHorizontal,
       trashOutline,
       starOutline,
       star,
@@ -174,6 +175,7 @@ export class DormComparePage implements OnInit, OnDestroy {
       gitCompareOutline,
       addCircle,
       reorderThreeOutline,
+      cubeOutline,
     });
   }
 

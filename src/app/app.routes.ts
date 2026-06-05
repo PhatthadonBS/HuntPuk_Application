@@ -67,33 +67,6 @@ export const routes: Routes = [
       },
 
       {
-        path: 'dorm-mangement',
-        canActivate: [authGuard],
-        loadComponent: () =>
-          import('./main-layout/pages/dorm-mangement/dorm-mangement.page').then(
-            (m) => m.DormMangementPage
-          ),
-      },
-
-      {
-        path: 'dashboard',
-        canActivate: [authGuard],
-        loadComponent: () =>
-          import('./main-layout/pages/dashboard/dashboard.page').then(
-            (m) => m.DashboardPage
-          ),
-      },
-
-      {
-        path: 'icon-management',
-        canActivate: [authGuard],
-        loadComponent: () =>
-          import(
-            './main-layout/pages/icon-management/icon-management.page'
-          ).then((m) => m.IconManagementPage),
-      },
-
-      {
         path: 'member-management',
         canActivate: [authGuard],
         loadComponent: () =>
@@ -101,13 +74,7 @@ export const routes: Routes = [
             './main-layout/pages/member-management/member-management.page'
           ).then((m) => m.MemberManagementPage),
       },
-      {
-        path: 'owner-profile/:user_id',
-        loadComponent: () =>
-          import('./main-layout/pages/owner-profile/owner-profile.page').then(
-            (m) => m.OwnerProfilePage
-          ),
-      },
+    
     ],
   },
 
@@ -156,5 +123,9 @@ export const routes: Routes = [
     path: '**',
     loadComponent: () =>
       import('./not-found/not-found.page').then((m) => m.NotFoundPage),
+  },
+  {
+    path: 'owner-profile',
+    loadComponent: () => import('./main-layout/pages/owner-profile/owner-profile.page').then( m => m.OwnerProfilePage)
   }
 ];
