@@ -1,0 +1,67 @@
+.main-toolbar {
+  --background: #fff;
+  --border-width: 0;
+}
+
+.toolbar-title {
+  font-weight: 800;
+  color: #333;
+}
+
+.my-dorm-content {
+  --background: #f8fafc;
+}
+
+.content-wrapper {
+  padding: 1.25rem;
+}
+
+.dorm-card {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  transition: transform 0.2s ease;
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.thumbnail-wrapper {
+  ion-thumbnail {
+    --border-radius: 18px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+}
+
+.status-indicator {
+  z-index: 5;
+  
+  ion-badge {
+    --padding-start: 8px;
+    --padding-end: 8px;
+    --padding-top: 4px;
+    --padding-bottom: 4px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    border-radius: 8px;
+    border: 1.5px solid #fff;
+  }
+}
+
+.action-btn {
+  --padding-start: 0;
+  --padding-end: 0;
+  margin: 0;
+  
+  span {
+    margin-top: 2px;
+  }
+}
+
+.danger-alert {
+  --color: #ef4444;
+  
+  .alert-button-destructive {
+    color: #ef4444;
+    font-weight: bold;
+  }
+}

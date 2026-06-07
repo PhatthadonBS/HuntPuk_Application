@@ -68,7 +68,8 @@ export class AuthenService implements CanActivate {
   logoutUser() {
     localStorage.clear();
     this.userState.next(null);
-    return this.navCtrl.navigateRoot('/login')
+    this.navCtrl.navigateRoot('/login');
+    return ;
   }
 
   canActivate(): boolean {

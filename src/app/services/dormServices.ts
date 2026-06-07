@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, timeout, catchError, throwError, of, map } from 'rxjs';
-import { DormAllGetRes, FacOfDormGetRes, DormZoneGetRes, DormDetailGetRes, ReviewGetRes, FacilityGetRes, MasterType } from '../model/dorm.model';
+import { DormAllGetRes, FacOfDormGetRes, DormZoneGetRes, DormDetailGetRes, ReviewGetRes, FacilityGetRes, MasterType, DormSummary } from '../model/dorm.model';
 import { environment } from 'src/environments/environment';
 
 export interface DormQueryParams {
@@ -182,6 +182,61 @@ export class DormServices {
       timeout(60000), // Longer timeout for multiple high-res images
       catchError(err => {
         console.error('uploadDormImages error:', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  getDormByOwner(user_id: number): Observable<{ success: boolean; data: DormSummary[] }> {
+    const url = `${this.endPoint}/spec/dorm/${user_id}`;
+    return this.http.get<{ success: boolean; data: DormSummary[] }>(url).pipe(
+      timeout(this.REQUEST_TIMEOUT),
+      catchError(err => {
+        console.error('getDormByOwner error:', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  updateDorm(dorm_id: number, data: any): Observable<any> {
+    const url = `${this.endPoint}/spec/dorm/${dorm_id}`;
+    return this.http.put<any>(url, data).pipe(
+      timeout(this.REQUEST_TIMEOUT),
+      catchError(err => {
+        console.error('updateDorm error:', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  changeDormStatus(dorm_id: number, status_id: number): Observable<any> {
+    const url = `${this.endPoint}/dorms/changeStatus/${dorm_id}`;
+    return this.http.put<any>(url, { status_id }).pipe(
+      timeout(this.REQUEST_TIMEOUT),
+      catchError(err => {
+        console.error('changeDormStatus error:', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  removeDorm(dorm_id: number): Observable<any> {
+    const url = `${this.endPoint}/spec/dorm/${dorm_id}`;
+    return this.http.delete<any>(url).pipe(
+      timeout(this.REQUEST_TIMEOUT),
+      catchError(err => {
+        console.error('removeDorm error:', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  getFacilitiesOfDorm(dorm_id: string): Observable<any> {
+    const url = `${this.endPoint}/dorms/facility/${dorm_id}`;
+    return this.http.get<any>(url).pipe(
+      timeout(this.REQUEST_TIMEOUT),
+      catchError(err => {
+        console.error('getFacilitiesOfDorm error:', err);
         return throwError(() => err);
       })
     );

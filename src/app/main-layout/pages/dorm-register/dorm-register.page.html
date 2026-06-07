@@ -6,7 +6,9 @@
         [icon]="'arrow-back-circle-outline'"
       ></ion-back-button>
     </ion-buttons>
-    <ion-title class="toolbar-title">ลงทะเบียนหอพัก</ion-title>
+    <ion-title class="toolbar-title"
+      >{{ isEditMode() ? 'แก้ไขข้อมูลหอพัก' : 'ลงทะเบียนหอพัก' }}</ion-title
+    >
   </ion-toolbar>
 </ion-header>
 
@@ -83,7 +85,7 @@
         </div>
       </div>
 
-      <!-- 2.2 Room Info (Moved up) -->
+      <!-- 2.2 Room Info -->
       <div class="section-container" formArrayName="rooms">
         <div class="flex justify-between items-center mb-3">
           <h2 class="section-title m-0">
@@ -163,6 +165,39 @@
         </div>
       </div>
 
+      <!-- Utilities (Cost related) -->
+      <div class="section-container">
+        <h2 class="section-title">
+          <ion-icon name="water-outline"></ion-icon> ค่าน้ำ / ค่าไฟ
+        </h2>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="input-group">
+            <label>ค่าน้ำ (บาท/หน่วย)</label>
+            <ion-input
+              type="number"
+              formControlName="water_unit"
+              class="custom-input"
+            ></ion-input>
+          </div>
+          <div class="input-group">
+            <label>ค่าไฟ (บาท/หน่วย)</label>
+            <ion-input
+              type="number"
+              formControlName="elect_unit"
+              class="custom-input"
+            ></ion-input>
+          </div>
+        </div>
+        <div class="input-group">
+          <label>ค่าน้ำเหมาจ่าย (บาท/เดือน - ถ้ามี)</label>
+          <ion-input
+            type="number"
+            formControlName="water_lump"
+            class="custom-input"
+          ></ion-input>
+        </div>
+      </div>
+
       <!-- 2.3 Facilities -->
       <div class="section-container">
         <h2 class="section-title">
@@ -223,39 +258,6 @@
         </div>
       </div>
 
-      <!-- Utilities -->
-      <div class="section-container">
-        <h2 class="section-title">
-          <ion-icon name="water-outline"></ion-icon> ค่าน้ำ / ค่าไฟ
-        </h2>
-        <div class="grid grid-cols-2 gap-3">
-          <div class="input-group">
-            <label>ค่าน้ำ (บาท/หน่วย)</label>
-            <ion-input
-              type="number"
-              formControlName="water_unit"
-              class="custom-input"
-            ></ion-input>
-          </div>
-          <div class="input-group">
-            <label>ค่าไฟ (บาท/หน่วย)</label>
-            <ion-input
-              type="number"
-              formControlName="elect_unit"
-              class="custom-input"
-            ></ion-input>
-          </div>
-        </div>
-        <div class="input-group">
-          <label>ค่าน้ำเหมาจ่าย (บาท/เดือน - ถ้ามี)</label>
-          <ion-input
-            type="number"
-            formControlName="water_lump"
-            class="custom-input"
-          ></ion-input>
-        </div>
-      </div>
-
       <!-- Images -->
       <div class="section-container">
         <h2 class="section-title">
@@ -264,7 +266,7 @@
         <p class="section-hint">
           กรุณาอัปโหลดรูปภาพที่จำเป็น (สูงสุด 1 รูปต่อรายการ)
         </p>
-        <p class="text-red-500 text-sm mt-2 mb-2">
+        <p class="text-red-500 text-sm mt-2 mb-2" *ngIf="!isEditMode()">
           *** รูปใบอนุญาตประกอบการหอพัก จะถูกลบเมื่อได้รับการตรวจสอบจากทีมงาน
           เพื่อความปลอดภัยของข้อมูลของผู้ใช้งาน ***
         </p>
@@ -290,7 +292,7 @@
             </ion-button>
           </div>
 
-          <div class="image-box" (click)="selectImage('LICENSE')">
+          <div class="image-box" (click)="selectImage('LICENSE')" *ngIf="!isEditMode()">
             <img
               *ngIf="images['LICENSE'].preview"
               [src]="images['LICENSE'].preview"
@@ -334,7 +336,9 @@
               *ngIf="images['WALL'].preview"
               [src]="images['WALL'].preview"
             />
-            <div class="placeholder"><span class="!text-sm">ผนังห้อง</span></div>
+            <div class="placeholder" *ngIf="!images['WALL'].preview">
+              <span class="!text-sm">ผนังห้อง</span>
+            </div>
             <ion-button
               fill="clear"
               color="danger"
@@ -351,7 +355,9 @@
               *ngIf="images['FLOOR'].preview"
               [src]="images['FLOOR'].preview"
             />
-            <div class="placeholder"><span class="!text-sm">พื้นห้อง</span></div>
+            <div class="placeholder" *ngIf="!images['FLOOR'].preview">
+              <span class="!text-sm">พื้นห้อง</span>
+            </div>
             <ion-button
               fill="clear"
               color="danger"
@@ -368,7 +374,9 @@
               *ngIf="images['BATHROOM'].preview"
               [src]="images['BATHROOM'].preview"
             />
-            <div class="placeholder"><span class="!text-sm" >ห้องน้ำ</span></div>
+            <div class="placeholder" *ngIf="!images['BATHROOM'].preview">
+              <span class="!text-sm">ห้องน้ำ</span>
+            </div>
             <ion-button
               fill="clear"
               color="danger"
@@ -385,7 +393,9 @@
               *ngIf="images['BALCONY'].preview"
               [src]="images['BALCONY'].preview"
             />
-            <div class="placeholder"><span class="!text-sm">ระเบียง</span></div>
+            <div class="placeholder" *ngIf="!images['BALCONY'].preview">
+              <span class="!text-sm">ระเบียง</span>
+            </div>
             <ion-button
               fill="clear"
               color="danger"
@@ -433,7 +443,7 @@
         <ion-textarea
           rows="5"
           placeholder="ระบุรายละเอียดเพิ่มเติมที่คุณต้องการบอกลูกค้า..."
-          formControlName="additionalData"
+          formControlName="detail"
           class="custom-input"
         ></ion-textarea>
       </div>
@@ -445,7 +455,7 @@
           class="confirm-btn"
           [disabled]="dormForm.invalid"
         >
-          ลงทะเบียนหอพัก
+          {{ isEditMode() ? 'บันทึกการแก้ไข' : 'ลงทะเบียนหอพัก' }}
         </ion-button>
       </div>
     </form>

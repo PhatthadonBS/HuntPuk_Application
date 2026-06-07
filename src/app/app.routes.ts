@@ -79,6 +79,11 @@ export const routes: Routes = [
             './main-layout/pages/owner-profile-update/owner-profile-update.page'
           ).then((m) => m.OwnerProfileUpdatePage),
       },
+      {
+        path: 'my-dorm/:user_id',
+        canActivate: [authGuard],
+        loadComponent: () => import('./main-layout/pages/my-dorm/my-dorm.page').then( m => m.MyDormPage)
+      },
     ],
   },
 
@@ -101,6 +106,14 @@ export const routes: Routes = [
   },
   {
     path: 'dorm-register/:user_id',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./main-layout/pages/dorm-register/dorm-register.page').then(
+        (m) => m.DormRegisterPage
+      ),
+  },
+  {
+    path: 'dorm-register/:user_id/:dorm_id',
     canActivate: [authGuard],
     loadComponent: () =>
       import('./main-layout/pages/dorm-register/dorm-register.page').then(

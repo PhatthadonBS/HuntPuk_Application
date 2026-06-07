@@ -61,13 +61,17 @@ export interface DormSummary {
   DORM_NAME: string;
   ADDRESS: string;
   SCORE: string;
-  image: string;
-  zone: string;
+  image?: string; // used by some endpoints
+  FRONT_DORM_IMAGE?: string; // used by owner endpoints
+  zone?: string;
+  ZONE_NAME?: string;
   lat: number;
   lng: number;
   start_price: number;
   update_at?: string;
-  status?: number;
+  DORM_STATUS_ID: number;
+  DORM_STATUS_NAME: string;
+  REQ_STATUS: number;
   isFavorite?: boolean;
 }
 
@@ -77,7 +81,9 @@ export interface DormDetail {
   ADDRESS: string;
   SCORE: string;
   image: string;
+  ZONE_ID: number;
   ZONE_NAME: string;
+  DORM_TYPE_ID: number;
   lat: number;
   lng: number;
   start_price: number;
@@ -90,7 +96,20 @@ export interface DormDetail {
   x: string;
   facilities: { name: string; icon: string }[];
   gallery: string[];
-  rooms: { ROOM_TYPE_NAME: string; PRICE: number; perTerm: number; perDay: number; bedType: string }[];
+  ceiling_img?: string;
+  wall_img?: string;
+  floor_img?: string;
+  bathroom_img?: string;
+  balcony_img?: string;
+  rooms: { 
+    ROOM_TYPE_ID: number;
+    ROOM_TYPE_NAME: string; 
+    PRICE: number; 
+    perTerm: number; 
+    perDay: number; 
+    bedType: string;
+    BED_TYPE_ID: number;
+  }[];
   WATER_UNIT: number;
   WATER_LUMP: number;
   ELECT_UNIT: number;

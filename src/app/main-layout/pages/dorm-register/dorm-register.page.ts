@@ -6,7 +6,7 @@ import {
   IonItem, IonLabel, IonInput, IonSelect, IonSelectOption, IonButton,
   IonIcon, IonGrid, IonRow, IonCol, IonCheckbox, IonTextarea, IonModal,
   IonFooter, IonAvatar, IonFab, IonFabButton, ToastController, NavController,
-  IonImg
+  IonImg, AlertController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -49,6 +49,9 @@ export class DormRegisterPage implements OnInit, OnDestroy {
 
   dormForm: FormGroup;
   isLoading = signal<boolean>(false);
+  isEditMode = signal<boolean>(false);
+  dormId: number | null = null;
+  userId: number | null = null;
   
   // Master Data
   dormTypes = signal<MasterType[]>([]);
@@ -86,7 +89,8 @@ export class DormRegisterPage implements OnInit, OnDestroy {
     private gMapSv: GoogleMapService,
     private route: ActivatedRoute,
     private toastCtrl: ToastController,
-    private navCtrl: NavController
+    private navCtrl: NavController,
+    private alertCtrl: AlertController
   ) {
     addIcons({
       camera, image, pin, map, closeCircle, add, trash, arrowBackCircleOutline,
@@ -106,7 +110,7 @@ export class DormRegisterPage implements OnInit, OnDestroy {
       water_unit: [0, [Validators.required, Validators.min(0)]],
       elect_unit: [0, [Validators.required, Validators.min(0)]],
       water_lump: [0, [Validators.required, Validators.min(0)]],
-      additionalData: [''],
+      detail: [''],
       rooms: this.fb.array([]),
       facilities: this.fb.array([])
     });
@@ -116,13 +120,94 @@ export class DormRegisterPage implements OnInit, OnDestroy {
   get facilities() { return this.dormForm.get('facilities') as FormArray; }
 
   ngOnInit() {
-    const userId = this.route.snapshot.paramMap.get('user_id');
-    if (userId) {
-      this.dormForm.patchValue({ user_id: Number(userId) });
+    const uId = this.route.snapshot.paramMap.get('user_id');
+    const dId = this.route.snapshot.paramMap.get('dorm_id');
+
+    if (uId) {
+      this.userId = Number(uId);
+      this.dormForm.patchValue({ user_id: this.userId });
+    }
+
+    if (dId) {
+      this.dormId = Number(dId);
+      this.isEditMode.set(true);
+      this.loadDormData(this.dormId);
     }
 
     this.loadMasterData();
-    this.addRoom(); // Default 1 room
+    if (!this.isEditMode()) {
+      this.addRoom(); // Default 1 room for new reg
+    }
+  }
+
+  loadDormData(id: number) {
+    this.isLoading.set(true);
+    this.dormSv.getDormById(id)
+      .pipe(finalize(() => this.isLoading.set(false)))
+      .subscribe({
+        next: (res) => {
+          if (res.success && res.data) {
+            const d = res.data;
+            this.dormForm.patchValue({
+              name: d.DORM_NAME,
+              type_id: d.DORM_TYPE_ID,
+              zone_id: d.ZONE_ID,
+              address: d.ADDRESS,
+              lat: d.lat,
+              lng: d.lng,
+              water_unit: d.WATER_UNIT,
+              elect_unit: d.ELECT_UNIT,
+              water_lump: d.WATER_LUMP,
+              detail: d.ADD_DORM_DATA
+            });
+
+            // Rebuild Rooms
+            this.rooms.clear();
+            if (d.rooms && d.rooms.length > 0) {
+              d.rooms.forEach((r: any) => {
+                const group = this.fb.group({
+                  roomType: [r.ROOM_TYPE_ID, Validators.required],
+                  bedType: [r.BED_TYPE_ID || 1, Validators.required],
+                  perDay: [r.perDay || 0, [Validators.required, Validators.min(0)]],
+                  perMonth: [r.PRICE || 0, [Validators.required, Validators.min(0)]],
+                  perTerm: [r.perTerm || 0, [Validators.required, Validators.min(0)]],
+                });
+                this.rooms.push(group);
+              });
+            } else {
+              this.addRoom();
+            }
+
+            // Patch Facilities
+            this.dormSv.getFacilitiesOfDorm(id.toString()).subscribe(facRes => {
+              if (Array.isArray(facRes)) {
+                this.facilities.clear();
+                facRes.forEach(f => {
+                  this.facilities.push(this.fb.control(f.FAC_TYPE_ID));
+                });
+              }
+            });
+
+            // Map Images (Previews only)
+            if (d.image) this.images['FRONT'].preview = d.image;
+            
+            // Map Room Component Images
+            if (d.ceiling_img) this.images['CEILING'].preview = d.ceiling_img;
+            if (d.wall_img) this.images['WALL'].preview = d.wall_img;
+            if (d.floor_img) this.images['FLOOR'].preview = d.floor_img;
+            if (d.bathroom_img) this.images['BATHROOM'].preview = d.bathroom_img;
+            if (d.balcony_img) this.images['BALCONY'].preview = d.balcony_img;
+
+            if (d.gallery && d.gallery.length > 0) {
+              this.otherImages.set(d.gallery.map(url => ({ file: null, preview: url })));
+            }
+          }
+        },
+        error: (err) => {
+          console.error(err);
+          this.showToast('ไม่สามารถดึงข้อมูลหอพักได้', 'danger');
+        }
+      });
   }
 
   ngOnDestroy() {
@@ -333,42 +418,78 @@ export class DormRegisterPage implements OnInit, OnDestroy {
   }
 
   async confirmAndRegister() {
+    const alert = await this.alertCtrl.create({
+      header: this.isEditMode() ? 'ยืนยันการแก้ไข?' : 'ยืนยันการลงทะเบียน?',
+      message: this.isEditMode() 
+        ? 'คุณต้องการบันทึกการเปลี่ยนแปลงข้อมูลหอพักใช่หรือไม่?' 
+        : 'คุณต้องการส่งข้อมูลลงทะเบียนหอพักใช่หรือไม่?',
+      buttons: [
+        { text: 'ยกเลิก', role: 'cancel' },
+        {
+          text: 'ยืนยัน',
+          handler: () => this.executeSubmission()
+        }
+      ]
+    });
+    await alert.present();
+  }
+
+  async executeSubmission() {
     this.isLoading.set(true);
     const formVal = this.dormForm.getRawValue();
 
     // Step 1: Submit Text Data
     const textData = { ...formVal };
-    // Remove complex nested objects if necessary or keep them for JSON stringify
     // Backend expects strings for these in createDorm_api
     textData.facilities = JSON.stringify(formVal.facilities);
     textData.rooms = JSON.stringify(formVal.rooms);
     textData.new_fac_name = this.customFacName;
 
-    this.dormSv.registerDorm(textData)
-      .subscribe({
-        next: (res) => {
-          if (res.success && res.dormId) {
-            // Step 2: Upload Images
-            this.performImageUpload(res.dormId);
-          } else {
+    if (this.isEditMode()) {
+      this.dormSv.updateDorm(this.dormId!, textData)
+        .subscribe({
+          next: (res) => {
+            if (res.success) {
+              this.performImageUpload(this.dormId!);
+            } else {
+              this.isLoading.set(false);
+              this.showToast('อัปเดตข้อมูลล้มเหลว', 'danger');
+            }
+          },
+          error: (err) => {
             this.isLoading.set(false);
-            this.showToast('ลงทะเบียนล้มเหลว กรุณาลองใหม่อีกครั้ง', 'danger');
+            console.error(err);
+            this.showToast('เกิดข้อผิดพลาดในการอัปเดต', 'danger');
           }
-        },
-        error: (err) => {
-          this.isLoading.set(false);
-          console.error(err);
-          this.showToast('เกิดข้อผิดพลาดในการลงทะเบียน', 'danger');
-        }
-      });
+        });
+    } else {
+      this.dormSv.registerDorm(textData)
+        .subscribe({
+          next: (res) => {
+            if (res.success && res.dormId) {
+              // Step 2: Upload Images
+              this.performImageUpload(res.dormId);
+            } else {
+              this.isLoading.set(false);
+              this.showToast('ลงทะเบียนล้มเหลว กรุณาลองใหม่อีกครั้ง', 'danger');
+            }
+          },
+          error: (err) => {
+            this.isLoading.set(false);
+            console.error(err);
+            this.showToast('เกิดข้อผิดพลาดในการลงทะเบียน', 'danger');
+          }
+        });
+    }
   }
 
   async performImageUpload(dormId: number) {
     const formData = new FormData();
 
-    // Append Images
+    // Only append if file is newly selected
     if (this.images['FRONT'].file) formData.append('FRONT_DORM_IMG', this.images['FRONT'].file);
-    if (this.images['LICENSE'].file) formData.append('LICENSE_IMG', this.images['LICENSE'].file);
+    if (!this.isEditMode() && this.images['LICENSE'].file) formData.append('LICENSE_IMG', this.images['LICENSE'].file);
+    
     if (this.images['CEILING'].file) formData.append('CEILING_IMG', this.images['CEILING'].file);
     if (this.images['WALL'].file) formData.append('WALL_IMG', this.images['WALL'].file);
     if (this.images['FLOOR'].file) formData.append('FLOOR_IMG', this.images['FLOOR'].file);
@@ -383,20 +504,35 @@ export class DormRegisterPage implements OnInit, OnDestroy {
       formData.append('FACILITY_IMG', this.customFacIcon.file);
     }
 
+    // Check if anything to upload
+    let hasFiles = false;
+    formData.forEach(() => { hasFiles = true; });
+
+    if (this.isEditMode() && !hasFiles) {
+       this.isLoading.set(false);
+       this.showToast('บันทึกข้อมูลเรียบร้อยแล้ว', 'success');
+       this.navCtrl.navigateRoot(`/my-dorm/${this.userId}`);
+       return;
+    }
+
     this.dormSv.uploadDormImages(dormId, formData)
       .pipe(finalize(() => this.isLoading.set(false)))
       .subscribe({
         next: () => {
-          this.navCtrl.navigateForward(`/dorm-detail/${dormId}`, {
-            queryParams: { preview: 'true' }
-          });
+          this.showToast(this.isEditMode() ? 'อัปเดตข้อมูลสำเร็จ' : 'ลงทะเบียนสำเร็จ', 'success');
+          if (this.isEditMode()) {
+            this.navCtrl.navigateRoot(`/my-dorm/${this.userId}`);
+          } else {
+            this.navCtrl.navigateForward(`/dorm-detail/${dormId}`, {
+              queryParams: { preview: 'true' }
+            });
+          }
         },
         error: (err) => {
           console.error(err);
-          this.showToast('อัปโหลดรูปภาพไม่สำเร็จ กรุณาอัปโหลดใหม่ในหน้าแก้ไข', 'warning');
-          this.navCtrl.navigateForward(`/dorm-detail/${dormId}`, {
-            queryParams: { preview: 'true' }
-          });
+          const msg = this.isEditMode() ? 'อัปเดตข้อมูลสำเร็จ แต่รูปภาพบางส่วนไม่สามารถอัปโหลดได้' : 'อัปโหลดรูปภาพไม่สำเร็จ กรุณาอัปโหลดใหม่ในหน้าแก้ไข';
+          this.showToast(msg, 'warning');
+          this.navCtrl.navigateRoot(`/my-dorm/${this.userId}`);
         }
       });
   }

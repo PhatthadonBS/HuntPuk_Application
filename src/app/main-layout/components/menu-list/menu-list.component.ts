@@ -109,8 +109,9 @@ export class MenuListComponent implements OnDestroy, AfterViewInit {
       {
         key: 'dorm-manage',
         label: 'จัดการหอพัก',
-        path: '/dorm-mangement',
+        path: '/my-dorm',
         icon: 'business-outline',
+        needsId: true,
         neddLogin: true,
         forRole: [2, 3],
       },
