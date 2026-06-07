@@ -1,22 +1,39 @@
+export interface FacilityItem {
+  FAC_TYPE_ID: number;
+  FAC_TYPE_NAME: string;
+  FAC_TYPE_ICON: string;
+  REQ_STATUS?: number;
+}
+
+export interface FacilityGetRes {
+  success: boolean;
+  data: FacilityItem[];
+}
+
+export interface MasterType {
+  id: number;
+  name: string;
+}
+
 export interface Coordinates {
   x: number;
   y: number;
 }
 
 export interface DormRegPostReq {
-  owner_id: number;
+  user_id: number;
   name: string;
   address: string;
   lat: number;
   lng: number;
   zone_id: number;
   type_id: number;
-  water_unit: number;
-  water_lump: number;
-  elect_unit: number;
+  water_unit: number | null;
+  water_lump: number | null;
+  elect_unit: number | null;
   detail: string;
-  facilities: string;
-  roomTypes: string;
+  facilities: string; // JSON string of IDs
+  roomTypes: string; // JSON string of RoomTypeItems
 }
 
 export interface RoomTypeItem {
@@ -78,7 +95,7 @@ export interface DormDetail {
   WATER_LUMP: number;
   ELECT_UNIT: number;
   ADD_DORM_DATA: string;
-  DORM_OWNER_ID: number;
+  USER_ID: number;
   FIRST_NAME: string;
   LAST_NAME: string;
 }

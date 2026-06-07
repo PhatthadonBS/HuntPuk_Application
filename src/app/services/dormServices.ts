@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, timeout, catchError, throwError } from 'rxjs';
-import { DormAllGetRes, FacOfDormGetRes, DormZoneGetRes, DormDetailGetRes, ReviewGetRes } from '../model/dorm.model';
+import { Observable, timeout, catchError, throwError, of, map } from 'rxjs';
+import { DormAllGetRes, FacOfDormGetRes, DormZoneGetRes, DormDetailGetRes, ReviewGetRes, FacilityGetRes, MasterType } from '../model/dorm.model';
 import { environment } from 'src/environments/environment';
 
 export interface DormQueryParams {
@@ -113,6 +113,75 @@ export class DormServices {
       timeout(this.REQUEST_TIMEOUT),
       catchError(err => {
         console.error('addReview error or timeout:', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  getFacilities(): Observable<FacilityGetRes> {
+    const url = `${this.endPoint}/dorms/facilities`;
+    return this.http.get<FacilityGetRes>(url).pipe(
+      timeout(this.REQUEST_TIMEOUT),
+      catchError(err => {
+        console.error('getFacilities error:', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  getDormTypes(): Observable<MasterType[]> {
+    const url = `${this.endPoint}/dorms/dormTypes`;
+    return this.http.get<{ success: boolean; data: MasterType[] }>(url).pipe(
+      timeout(this.REQUEST_TIMEOUT),
+      map(res => res.data),
+      catchError(err => {
+        console.error('getDormTypes error:', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  getRoomTypes(): Observable<MasterType[]> {
+    const url = `${this.endPoint}/dorms/roomTypes`;
+    return this.http.get<{ success: boolean; data: MasterType[] }>(url).pipe(
+      timeout(this.REQUEST_TIMEOUT),
+      map(res => res.data),
+      catchError(err => {
+        console.error('getRoomTypes error:', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  getBedTypes(): Observable<MasterType[]> {
+    const url = `${this.endPoint}/dorms/bedTypes`;
+    return this.http.get<{ success: boolean; data: MasterType[] }>(url).pipe(
+      timeout(this.REQUEST_TIMEOUT),
+      map(res => res.data),
+      catchError(err => {
+        console.error('getBedTypes error:', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  registerDorm(data: any): Observable<any> {
+    const url = `${this.endPoint}/dorms/mobile`;
+    return this.http.post<any>(url, data).pipe(
+      timeout(this.REQUEST_TIMEOUT),
+      catchError(err => {
+        console.error('registerDorm error:', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  uploadDormImages(dormId: number, formData: FormData): Observable<any> {
+    const url = `${this.endPoint}/dorms/mobile/${dormId}/images`;
+    return this.http.post<any>(url, formData).pipe(
+      timeout(60000), // Longer timeout for multiple high-res images
+      catchError(err => {
+        console.error('uploadDormImages error:', err);
         return throwError(() => err);
       })
     );

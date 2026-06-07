@@ -58,15 +58,6 @@ export const routes: Routes = [
       },
 
       {
-        path: 'dorm-register/:user_id',
-        canActivate: [authGuard],
-        loadComponent: () =>
-          import('./main-layout/pages/dorm-register/dorm-register.page').then(
-            (m) => m.DormRegisterPage
-          ),
-      },
-
-      {
         path: 'member-management',
         canActivate: [authGuard],
         loadComponent: () =>
@@ -106,6 +97,14 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./main-layout/pages/owner-register/owner-register.page').then(
         (m) => m.OwnerRegisterPage
+      ),
+  },
+  {
+    path: 'dorm-register/:user_id',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./main-layout/pages/dorm-register/dorm-register.page').then(
+        (m) => m.DormRegisterPage
       ),
   },
   {

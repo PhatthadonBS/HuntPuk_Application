@@ -22,6 +22,7 @@ import {
   IonLabel,
   IonTextarea,
   ToastController,
+  NavController,
 } from '@ionic/angular/standalone';
 import { ActivatedRoute } from '@angular/router';
 import { DormServices } from 'src/app/services/dormServices';
@@ -98,6 +99,8 @@ export class DormDetailPage implements OnInit, OnDestroy {
   isFavorite = signal<boolean>(false);
   hasError = signal<boolean>(false);
   
+  isPreview = signal<boolean>(false);
+  
   userSub?: Subscription;
   currentUser: any = null;
   newReviewScore: number = 0;
@@ -109,7 +112,8 @@ export class DormDetailPage implements OnInit, OnDestroy {
     private dormSv: DormServices,
     private userSv: UserServices,
     private authSv: AuthenService,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private navCtrl: NavController
   ) {
     addIcons({
       arrowBackCircleOutline,
@@ -141,6 +145,10 @@ export class DormDetailPage implements OnInit, OnDestroy {
   ngOnInit() {
     this.userSub = this.authSv.user$.subscribe((user) => {
       this.currentUser = user;
+    });
+
+    this.route.queryParams.subscribe(params => {
+      this.isPreview.set(params['preview'] === 'true');
     });
 
     const idParam = this.route.snapshot.paramMap.get('dorm_id');
@@ -180,8 +188,11 @@ export class DormDetailPage implements OnInit, OnDestroy {
         if (dormDetails && dormDetails.success) {
           const dData = dormDetails.data;
           // Combine front image with gallery for the album
-          if (dData.image && !dData.gallery.includes(dData.image)) {
-            dData.gallery.unshift(dData.image);
+          if (dData.image) {
+            if (!dData.gallery) dData.gallery = [];
+            if (!dData.gallery.includes(dData.image)) {
+              dData.gallery.unshift(dData.image);
+            }
           }
           this.dorm.set(dData);
         } else {
@@ -278,5 +289,19 @@ export class DormDetailPage implements OnInit, OnDestroy {
       }
     }
   }
-}
 
+  async finalConfirm() {
+    const toast = await this.toastController.create({
+      message: 'ยืนยันการลงทะเบียนหอพักเรียบร้อยแล้ว!',
+      duration: 3000,
+      color: 'success',
+      icon: 'checkmark-circle-outline'
+    });
+    await toast.present();
+    this.navCtrl.navigateRoot('/');
+  }
+
+  goBackToEdit() {
+    this.navCtrl.back();
+  }
+}

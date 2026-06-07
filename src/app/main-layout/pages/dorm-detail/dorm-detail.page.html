@@ -6,11 +6,16 @@
         icon="arrow-back-circle-outline"
       ></ion-back-button>
     </ion-buttons>
-    <ion-title class="toolbar-title">ข้อมูลหอพัก</ion-title>
+    <ion-title class="toolbar-title">{{ isPreview() ? 'ตรวจสอบข้อมูล' : 'ข้อมูลหอพัก' }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true" class="dorm-detail-content">
+  <!-- Watermark for Preview Mode -->
+  <div class="preview-watermark" *ngIf="isPreview()">
+    <span>ตัวอย่าง</span>
+  </div>
+
   <!-- Error State -->
   <div
     class="flex flex-col items-center justify-center h-full p-6 text-center"
@@ -86,7 +91,7 @@
           class="favorite-btn-inline m-0"
           fill="clear"
           (click)="toggleFavorite()"
-          *ngIf="currentUser"
+          *ngIf="currentUser && !isPreview()"
         >
           <ion-icon
             [name]="isFavorite() ? 'bookmark' : 'bookmark-outline'"
@@ -282,10 +287,10 @@
     </div>
 
 
-    <!-- Section 4: Owner Contact (Moved below Additional Details) -->
+    <!-- Section 4: Owner Contact -->
     <div
       class="contact-section p-4 bg-white mb-2"
-      *ngIf="d.phone || d.line || d.facebook || d.instagram || d.telegram || d.x"
+      *ngIf="(d.phone || d.line || d.facebook || d.instagram || d.telegram || d.x) && !isPreview()"
     >
       <h2 class="text-lg font-bold text-gray-800 mb-3 flex items-center">
         <ion-icon name="call-outline" class="mr-2 text-primary"></ion-icon>
@@ -399,7 +404,7 @@
     </div>
 
     <!-- Section 8: Reviews -->
-    <div class="reviews-section p-4 bg-white pb-10">
+    <div class="reviews-section p-4 bg-white pb-10" *ngIf="!isPreview()">
       <h2 class="text-lg font-bold text-gray-800 mb-1">รีวิวหอพัก</h2>
 
       <div class="flex items-center mb-6 mt-2">
@@ -501,7 +506,15 @@
         </div>
       </div>
     </div>
-    <div class="bottom-spacer h-20"></div>
+    
+    <div class="bottom-spacer h-20" *ngIf="!isPreview()"></div>
+
+    <!-- Preview Actions -->
+    <div class="preview-actions p-4 flex gap-4 bg-white border-t sticky bottom-0 z-20" *ngIf="isPreview()">
+      <ion-button expand="block" fill="outline" class="flex-1" (click)="goBackToEdit()">แก้ไขข้อมูล</ion-button>
+      <ion-button expand="block" class="flex-1 confirm-btn" (click)="finalConfirm()">ยืนยันข้อมูล</ion-button>
+    </div>
+    <div class="h-10" *ngIf="isPreview()"></div>
   </ng-container>
 
   <app-loading-ui *ngIf="isLoading()"></app-loading-ui>

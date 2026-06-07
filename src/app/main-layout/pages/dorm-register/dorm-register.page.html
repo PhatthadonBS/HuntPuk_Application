@@ -1,13 +1,492 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>dormRegister</ion-title>
+<ion-header class="ion-no-border">
+  <ion-toolbar class="main-toolbar">
+    <ion-buttons slot="start">
+      <ion-back-button
+        defaultHref="/"
+        [icon]="'arrow-back-circle-outline'"
+      ></ion-back-button>
+    </ion-buttons>
+    <ion-title class="toolbar-title">ลงทะเบียนหอพัก</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">dormRegister</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content [fullscreen]="true" class="dorm-register-content">
+  <div class="content-wrapper">
+    <form [formGroup]="dormForm" class="register-form">
+      <!-- 2.1 Dorm Info -->
+      <div class="section-container">
+        <h2 class="section-title">
+          <ion-icon name="business-outline"></ion-icon> ข้อมูลหอพัก
+        </h2>
+
+        <div class="input-group">
+          <label>ชื่อหอพัก</label>
+          <ion-input
+            mode="md"
+            placeholder="ชื่อหอพักของคุณ"
+            formControlName="name"
+            class="custom-input"
+          ></ion-input>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="input-group">
+            <label>ประเภทหอพัก</label>
+            <select formControlName="type_id" class="native-select">
+              <option [ngValue]="null" disabled selected>เลือกประเภท</option>
+              <option *ngFor="let t of dormTypes()" [ngValue]="t.id">
+                {{ t.name }}
+              </option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>โซน</label>
+            <select formControlName="zone_id" class="native-select">
+              <option [ngValue]="null" disabled selected>เลือกโซน</option>
+              <option *ngFor="let z of zones()" [ngValue]="z.ZONE_ID">
+                {{ z.ZONE_NAME }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>ที่อยู่</label>
+          <ion-textarea
+            rows="3"
+            placeholder="ระบุเลขที่บ้าน ถนน ตำบล..."
+            formControlName="address"
+            class="custom-input"
+          ></ion-textarea>
+        </div>
+
+        <div class="input-group">
+          <label>ตำแหน่งที่ตั้ง</label>
+          <ion-button
+            expand="block"
+            fill="outline"
+            (click)="openMapModal()"
+            class="location-btn"
+          >
+            <ion-icon name="pin" slot="start"></ion-icon>
+            {{ (dormForm.get('lat')?.value) ? 'แก้ไขตำแหน่งบนแผนที่' :
+            'ระบุตำแหน่งบนแผนที่' }}
+          </ion-button>
+          <p class="location-hint" *ngIf="dormForm.get('lat')?.value">
+            <ion-icon
+              name="checkmark-circle-outline"
+              color="success"
+            ></ion-icon>
+            บันทึกตำแหน่งแล้ว ({{ dormForm.get('lat')?.value | number:'1.2-2'
+            }}, {{ dormForm.get('lng')?.value | number:'1.2-2' }})
+          </p>
+        </div>
+      </div>
+
+      <!-- 2.2 Room Info (Moved up) -->
+      <div class="section-container" formArrayName="rooms">
+        <div class="flex justify-between items-center mb-3">
+          <h2 class="section-title m-0">
+            <ion-icon name="bed-outline"></ion-icon> ข้อมูลห้องพัก
+          </h2>
+          <ion-button size="small" (click)="addRoom()"
+            ><ion-icon name="add" slot="start"></ion-icon>
+            เพิ่มแบบห้อง</ion-button
+          >
+        </div>
+
+        <div
+          *ngFor="let room of rooms.controls; let i = index"
+          [formGroupName]="i"
+          class="room-card p-3 mb-3"
+        >
+          <div class="flex justify-between items-center mb-2">
+            <span class="font-bold">แบบที่ {{ i + 1 }}</span>
+            <ion-button
+              fill="clear"
+              color="danger"
+              size="small"
+              (click)="removeRoom(i)"
+              *ngIf="rooms.length > 1"
+            >
+              <ion-icon name="trash" slot="icon-only"></ion-icon>
+            </ion-button>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 mb-3">
+            <div class="input-group">
+              <label>ประเภทห้อง</label>
+              <select formControlName="roomType" class="native-select">
+                <option [ngValue]="null" disabled selected>เลือกประเภท</option>
+                <option *ngFor="let rt of roomTypes()" [ngValue]="rt.id">
+                  {{ rt.name }}
+                </option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label>ประเภทเตียง</label>
+              <select formControlName="bedType" class="native-select">
+                <option [ngValue]="null" disabled selected>เลือกเตียง</option>
+                <option *ngFor="let bt of bedTypes()" [ngValue]="bt.id">
+                  {{ bt.name }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2">
+            <div class="input-group">
+              <label>รายวัน</label>
+              <ion-input
+                type="number"
+                formControlName="perDay"
+                class="custom-input"
+              ></ion-input>
+            </div>
+            <div class="input-group">
+              <label>รายเดือน</label>
+              <ion-input
+                type="number"
+                formControlName="perMonth"
+                class="custom-input"
+              ></ion-input>
+            </div>
+            <div class="input-group">
+              <label>รายเทอม</label>
+              <ion-input
+                type="number"
+                formControlName="perTerm"
+                class="custom-input"
+              ></ion-input>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2.3 Facilities -->
+      <div class="section-container">
+        <h2 class="section-title">
+          <ion-icon name="cube-outline"></ion-icon> สิ่งอำนวยความสะดวก
+        </h2>
+        <p class="section-hint">เลือกสิ่งอำนวยความสะดวกที่มีในหอพักของคุณ</p>
+
+        <div class="facility-selection-list mb-6">
+          <div
+            *ngFor="let fac of allFacilities()"
+            class="fac-list-item"
+            [class.selected]="facilities.value.includes(fac.FAC_TYPE_ID)"
+            (click)="toggleFacilitySelection(fac.FAC_TYPE_ID)"
+          >
+            <div class="fac-icon-circle">
+              <ion-img
+                *ngIf="fac.FAC_TYPE_ICON && !facImageErrors()[fac.FAC_TYPE_ID]"
+                [src]="fac.FAC_TYPE_ICON"
+                (ionError)="handleFacImageError(fac.FAC_TYPE_ID)"
+              ></ion-img>
+              <ion-icon
+                *ngIf="!fac.FAC_TYPE_ICON || facImageErrors()[fac.FAC_TYPE_ID]"
+                name="cube-outline"
+              ></ion-icon>
+            </div>
+            <span class="fac-label">{{ fac.FAC_TYPE_NAME }}</span>
+            <div class="check-badge">
+              <ion-icon name="checkmark-circle"></ion-icon>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="sub-title">เพิ่มสิ่งอำนวยความสะดวกใหม่</h3>
+        <div class="custom-fac-form p-3">
+          <div class="flex gap-4 items-end">
+            <div class="fac-icon-upload" (click)="selectImage('CUSTOM_FAC')">
+              <img
+                *ngIf="customFacIcon.preview"
+                [src]="customFacIcon.preview"
+              />
+              <div *ngIf="!customFacIcon.preview" class="placeholder">
+                <ion-icon name="image"></ion-icon>
+              </div>
+            </div>
+            <div class="input-group flex-1">
+              <label>ชื่อสิ่งอำนวยความสะดวก</label>
+              <ion-input
+                [(ngModel)]="customFacName"
+                [ngModelOptions]="{standalone: true}"
+                placeholder="เช่น ห้องสมุด, ตู้น้ำ..."
+                class="custom-input"
+              ></ion-input>
+            </div>
+          </div>
+          <p class="text-xs text-gray-400 mt-2">
+            *รายการนี้จะถูกส่งไปให้แอดมินตรวจสอบก่อนใช้งาน
+          </p>
+        </div>
+      </div>
+
+      <!-- Utilities -->
+      <div class="section-container">
+        <h2 class="section-title">
+          <ion-icon name="water-outline"></ion-icon> ค่าน้ำ / ค่าไฟ
+        </h2>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="input-group">
+            <label>ค่าน้ำ (บาท/หน่วย)</label>
+            <ion-input
+              type="number"
+              formControlName="water_unit"
+              class="custom-input"
+            ></ion-input>
+          </div>
+          <div class="input-group">
+            <label>ค่าไฟ (บาท/หน่วย)</label>
+            <ion-input
+              type="number"
+              formControlName="elect_unit"
+              class="custom-input"
+            ></ion-input>
+          </div>
+        </div>
+        <div class="input-group">
+          <label>ค่าน้ำเหมาจ่าย (บาท/เดือน - ถ้ามี)</label>
+          <ion-input
+            type="number"
+            formControlName="water_lump"
+            class="custom-input"
+          ></ion-input>
+        </div>
+      </div>
+
+      <!-- Images -->
+      <div class="section-container">
+        <h2 class="section-title">
+          <ion-icon name="image"></ion-icon> รูปภาพหอพัก
+        </h2>
+        <p class="section-hint">
+          กรุณาอัปโหลดรูปภาพที่จำเป็น (สูงสุด 1 รูปต่อรายการ)
+        </p>
+        <p class="text-red-500 text-sm mt-2 mb-2">
+          *** รูปใบอนุญาตประกอบการหอพัก จะถูกลบเมื่อได้รับการตรวจสอบจากทีมงาน
+          เพื่อความปลอดภัยของข้อมูลของผู้ใช้งาน ***
+        </p>
+
+        <div class="image-upload-grid">
+          <div class="image-box" (click)="selectImage('FRONT')">
+            <img
+              *ngIf="images['FRONT'].preview"
+              [src]="images['FRONT'].preview"
+            />
+            <div class="placeholder" *ngIf="!images['FRONT'].preview">
+              <ion-icon name="camera"></ion-icon>
+              <span class="!text-sm">รูปหน้าหอพัก</span>
+            </div>
+            <ion-button
+              fill="clear"
+              color="danger"
+              class="remove-img"
+              *ngIf="images['FRONT'].preview"
+              (click)="$event.stopPropagation(); removeImage('FRONT')"
+            >
+              <ion-icon name="close-circle"></ion-icon>
+            </ion-button>
+          </div>
+
+          <div class="image-box" (click)="selectImage('LICENSE')">
+            <img
+              *ngIf="images['LICENSE'].preview"
+              [src]="images['LICENSE'].preview"
+            />
+            <div class="placeholder" *ngIf="!images['LICENSE'].preview">
+              <ion-icon name="image"></ion-icon>
+              <span class="!text-sm">ใบอนุญาตประกอบการหอพัก</span>
+            </div>
+            <ion-button
+              fill="clear"
+              color="danger"
+              class="remove-img"
+              *ngIf="images['LICENSE'].preview"
+              (click)="$event.stopPropagation(); removeImage('LICENSE')"
+            >
+              <ion-icon name="close-circle"></ion-icon>
+            </ion-button>
+          </div>
+
+          <div class="image-box" (click)="selectImage('CEILING')">
+            <img
+              *ngIf="images['CEILING'].preview"
+              [src]="images['CEILING'].preview"
+            />
+            <div class="placeholder" *ngIf="!images['CEILING'].preview">
+              <span class="!text-sm">ฝ้าเพดาน</span>
+            </div>
+            <ion-button
+              fill="clear"
+              color="danger"
+              class="remove-img"
+              *ngIf="images['CEILING'].preview"
+              (click)="$event.stopPropagation(); removeImage('CEILING')"
+            >
+              <ion-icon name="close-circle"></ion-icon>
+            </ion-button>
+          </div>
+
+          <div class="image-box" (click)="selectImage('WALL')">
+            <img
+              *ngIf="images['WALL'].preview"
+              [src]="images['WALL'].preview"
+            />
+            <div class="placeholder"><span class="!text-sm">ผนังห้อง</span></div>
+            <ion-button
+              fill="clear"
+              color="danger"
+              class="remove-img"
+              *ngIf="images['WALL'].preview"
+              (click)="$event.stopPropagation(); removeImage('WALL')"
+            >
+              <ion-icon name="close-circle"></ion-icon>
+            </ion-button>
+          </div>
+
+          <div class="image-box" (click)="selectImage('FLOOR')">
+            <img
+              *ngIf="images['FLOOR'].preview"
+              [src]="images['FLOOR'].preview"
+            />
+            <div class="placeholder"><span class="!text-sm">พื้นห้อง</span></div>
+            <ion-button
+              fill="clear"
+              color="danger"
+              class="remove-img"
+              *ngIf="images['FLOOR'].preview"
+              (click)="$event.stopPropagation(); removeImage('FLOOR')"
+            >
+              <ion-icon name="close-circle"></ion-icon>
+            </ion-button>
+          </div>
+
+          <div class="image-box" (click)="selectImage('BATHROOM')">
+            <img
+              *ngIf="images['BATHROOM'].preview"
+              [src]="images['BATHROOM'].preview"
+            />
+            <div class="placeholder"><span class="!text-sm" >ห้องน้ำ</span></div>
+            <ion-button
+              fill="clear"
+              color="danger"
+              class="remove-img"
+              *ngIf="images['BATHROOM'].preview"
+              (click)="$event.stopPropagation(); removeImage('BATHROOM')"
+            >
+              <ion-icon name="close-circle"></ion-icon>
+            </ion-button>
+          </div>
+
+          <div class="image-box" (click)="selectImage('BALCONY')">
+            <img
+              *ngIf="images['BALCONY'].preview"
+              [src]="images['BALCONY'].preview"
+            />
+            <div class="placeholder"><span class="!text-sm">ระเบียง</span></div>
+            <ion-button
+              fill="clear"
+              color="danger"
+              class="remove-img"
+              *ngIf="images['BALCONY'].preview"
+              (click)="$event.stopPropagation(); removeImage('BALCONY')"
+            >
+              <ion-icon name="close-circle"></ion-icon>
+            </ion-button>
+          </div>
+        </div>
+
+        <h3 class="sub-title">รูปภาพอื่นๆ (สูงสุด 5 รูป)</h3>
+        <div class="image-upload-grid">
+          <div
+            class="image-box"
+            *ngFor="let img of otherImages(); let i = index"
+          >
+            <img [src]="img.preview" />
+            <ion-button
+              fill="clear"
+              color="danger"
+              class="remove-img"
+              (click)="removeImage('OTHER', true, i)"
+            >
+              <ion-icon name="close-circle"></ion-icon>
+            </ion-button>
+          </div>
+          <div
+            class="image-box add-btn"
+            *ngIf="otherImages().length < 5"
+            (click)="selectImage('OTHER', true)"
+          >
+            <ion-icon name="add"></ion-icon>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2.4 More Data -->
+      <div class="section-container">
+        <h2 class="section-title">
+          <ion-icon name="information-circle-outline"></ion-icon>
+          ข้อมูลเพิ่มเติม
+        </h2>
+        <ion-textarea
+          rows="5"
+          placeholder="ระบุรายละเอียดเพิ่มเติมที่คุณต้องการบอกลูกค้า..."
+          formControlName="additionalData"
+          class="custom-input"
+        ></ion-textarea>
+      </div>
+
+      <div class="p-4">
+        <ion-button
+          expand="block"
+          (click)="confirmAndRegister()"
+          class="confirm-btn"
+          [disabled]="dormForm.invalid"
+        >
+          ลงทะเบียนหอพัก
+        </ion-button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Map Modal -->
+  <ion-modal
+    [isOpen]="isMapModalOpen()"
+    (ionModalDidPresent)="onMapModalPresented($event)"
+    (didDismiss)="onMapModalDismissed()"
+    class="map-modal"
+  >
+    <ng-template>
+      <ion-header class="ion-no-border">
+        <ion-toolbar>
+          <ion-title>ปักหมุดตำแหน่งหอพัก</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="closeMapModal()">ปิด</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content>
+        <div id="map-canvas" class="map-container"></div>
+      </ion-content>
+      <ion-footer class="ion-no-border">
+        <div class="map-actions p-4 bg-white">
+          <p class="text-center text-sm mb-3">
+            <ion-icon name="information-circle-outline"></ion-icon>
+            แตะบนแผนที่เพื่อเลือกตำแหน่งที่ตั้ง
+          </p>
+          <ion-button
+            expand="block"
+            color="dark"
+            (click)="confirmLocation()"
+            [disabled]="!tempLocation()"
+            >ยืนยันตำแหน่งนี้</ion-button
+          >
+        </div>
+      </ion-footer>
+    </ng-template>
+  </ion-modal>
+
+  <app-loading-ui *ngIf="isLoading()"></app-loading-ui>
 </ion-content>
