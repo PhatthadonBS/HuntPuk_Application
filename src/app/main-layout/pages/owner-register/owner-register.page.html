@@ -1,32 +1,43 @@
-<ion-header class="ion-no-border premium-header">
+<ion-header class="ion-no-border">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/" color="light"></ion-back-button>
+      <ion-back-button defaultHref="/" color="dark"></ion-back-button>
     </ion-buttons>
-    <ion-title class="font-bold text-white">Owner Registration</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" class="premium-content">
-  <div class="px-5 pt-10 pb-32">
+<ion-content [fullscreen]="true" class="minimal-style">
+  <div class="background-decor"></div>
+
+  <div class="content-wrapper">
+    <div class="premium-header-minimal">
+      <h1 class="page-title">Registration</h1>
+      <p class="page-subtitle">Apply as a dormitory owner</p>
+    </div>
+
     <!-- Profile Image Uploader -->
-    <div class="flex flex-col items-center mb-10">
+    <div class="flex flex-col items-center mb-8">
       <div class="profile-upload-wrapper" (click)="presentPhotoOptions()">
-        <div class="preview-container shadow-2xl">
-          <img [src]="imagePreview() || 'assets/icon.png'" class="profile-preview" *ngIf="imagePreview()" />
+        <div class="preview-container">
+          <img 
+            [src]="imagePreview() || 'assets/icon.png'" 
+            class="profile-preview" 
+            *ngIf="imagePreview()" 
+            (error)="handleImageError()"
+          />
           <div class="placeholder-preview" *ngIf="!imagePreview()">
-            <ion-icon name="person-outline" class="text-5xl text-gray-300"></ion-icon>
+            <ion-icon name="person-outline"></ion-icon>
           </div>
           <div class="upload-badge">
             <ion-icon name="camera-outline"></ion-icon>
           </div>
         </div>
       </div>
-      <p class="text-sm font-bold text-gray-500 mt-4 uppercase tracking-widest">Upload Profile Photo</p>
+      <p class="text-xs font-bold text-gray-400 mt-2 uppercase tracking-widest text-center">Upload Profile Photo</p>
     </div>
 
     <!-- Identity Section -->
-    <div class="premium-section-title">
+    <div class="minimal-section-title">
       <ion-icon name="person-outline"></ion-icon>
       <span>Personal Identity</span>
     </div>
@@ -35,7 +46,7 @@
         <ion-label position="floating">First Name</ion-label>
         <ion-input [(ngModel)]="firstName" placeholder="Enter your first name"></ion-input>
       </ion-item>
-      <div class="h-px bg-gray-50 mx-4"></div>
+      <div class="h-px bg-gray-100 mx-4"></div>
       <ion-item class="premium-input-item" lines="none">
         <ion-label position="floating">Last Name</ion-label>
         <ion-input [(ngModel)]="lastName" placeholder="Enter your last name"></ion-input>
@@ -43,7 +54,7 @@
     </div>
 
     <!-- Contact Section -->
-    <div class="premium-section-title mt-8">
+    <div class="minimal-section-title">
       <ion-icon name="mail-outline"></ion-icon>
       <span>Contact Information</span>
     </div>
@@ -53,7 +64,7 @@
         <ion-input [(ngModel)]="email" readonly></ion-input>
         <ion-icon name="checkmark-circle-outline" slot="end" color="success"></ion-icon>
       </ion-item>
-      <div class="h-px bg-gray-50 mx-4"></div>
+      <div class="h-px bg-gray-100 mx-4"></div>
       <ion-item class="premium-input-item" lines="none">
         <ion-label position="floating">Telephone Number</ion-label>
         <ion-input [(ngModel)]="phone" type="tel" placeholder="0XXXXXXXXX"></ion-input>
@@ -61,37 +72,37 @@
     </div>
 
     <!-- Social Media Section -->
-    <div class="premium-section-title mt-8">
-      <ion-icon name="logo-facebook"></ion-icon>
+    <div class="minimal-section-title">
+      <ion-icon src="assets/icon/facebook.svg"></ion-icon>
       <span>Social Connections</span>
     </div>
-    <div class="premium-form-card">
+    <div class="premium-form-card mb-4">
       <ion-item class="premium-input-item social" lines="none">
-        <ion-icon name="logo-facebook" slot="start" class="text-blue-600"></ion-icon>
+        <ion-icon src="assets/icon/facebook.svg" slot="start" class="text-blue-600"></ion-icon>
         <ion-label position="floating">Facebook Profile</ion-label>
         <ion-input [(ngModel)]="facebook" placeholder="facebook.com/yourprofile"></ion-input>
       </ion-item>
-      <div class="h-px bg-gray-50 mx-4"></div>
+      <div class="h-px bg-gray-100 mx-4"></div>
       <ion-item class="premium-input-item social" lines="none">
-        <ion-icon name="logo-instagram" slot="start" class="text-pink-600"></ion-icon>
+        <ion-icon src="assets/icon/instagram.svg" slot="start" class="text-pink-600"></ion-icon>
         <ion-label position="floating">Instagram Handle</ion-label>
         <ion-input [(ngModel)]="instagram" placeholder="@username"></ion-input>
       </ion-item>
-      <div class="h-px bg-gray-50 mx-4"></div>
+      <div class="h-px bg-gray-100 mx-4"></div>
       <ion-item class="premium-input-item social" lines="none">
-        <ion-icon name="paper-plane-outline" slot="start" class="text-sky-500"></ion-icon>
+        <ion-icon src="assets/icon/telegram.svg" slot="start" class="text-sky-500"></ion-icon>
         <ion-label position="floating">Telegram Username</ion-label>
         <ion-input [(ngModel)]="telegram" placeholder="@username"></ion-input>
       </ion-item>
-      <div class="h-px bg-gray-50 mx-4"></div>
+      <div class="h-px bg-gray-100 mx-4"></div>
       <ion-item class="premium-input-item social" lines="none">
-        <ion-icon name="chatbubble-outline" slot="start" class="text-green-500"></ion-icon>
+        <ion-icon src="assets/icon/line.svg" slot="start" class="text-green-500"></ion-icon>
         <ion-label position="floating">Line ID</ion-label>
         <ion-input [(ngModel)]="line" placeholder="Your Line ID"></ion-input>
       </ion-item>
-      <div class="h-px bg-gray-50 mx-4"></div>
+      <div class="h-px bg-gray-100 mx-4"></div>
       <ion-item class="premium-input-item social" lines="none">
-        <ion-icon name="logo-twitter" slot="start" class="text-black"></ion-icon>
+        <ion-icon src="assets/icon/x.svg" slot="start" class="text-black"></ion-icon>
         <ion-label position="floating">X (Twitter)</ion-label>
         <ion-input [(ngModel)]="twitter" placeholder="@username"></ion-input>
       </ion-item>
@@ -99,9 +110,9 @@
   </div>
 </ion-content>
 
-<ion-footer class="ion-no-border premium-footer">
+<ion-footer class="ion-no-border minimal-footer">
   <div class="footer-blur-bg"></div>
-  <div class="p-5">
+  <div class="p-5 relative z-10">
     <ion-button expand="block" (click)="onSubmit()" class="premium-submit-btn">
       Confirm Registration
     </ion-button>

@@ -120,7 +120,7 @@
               <label>ประเภทห้อง</label>
               <select formControlName="roomType" class="native-select">
                 <option [ngValue]="null" disabled selected>เลือกประเภท</option>
-                <option *ngFor="let rt of roomTypes()" [ngValue]="rt.id">
+                <option *ngFor="let rt of roomTypes()" [ngValue]="rt.name">
                   {{ rt.name }}
                 </option>
               </select>

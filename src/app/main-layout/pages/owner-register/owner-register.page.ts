@@ -27,11 +27,6 @@ import {
   personOutline, 
   mailOutline, 
   callOutline, 
-  logoFacebook, 
-  logoInstagram, 
-  paperPlaneOutline, 
-  chatbubbleOutline, 
-  logoTwitter, 
   cameraOutline,
   checkmarkCircleOutline,
   alertCircleOutline,
@@ -102,11 +97,6 @@ export class OwnerRegisterPage implements OnInit {
       personOutline,
       mailOutline,
       callOutline,
-      logoFacebook,
-      logoInstagram,
-      paperPlaneOutline,
-      chatbubbleOutline,
-      logoTwitter,
       cameraOutline,
       checkmarkCircleOutline,
       alertCircleOutline,
@@ -124,10 +114,15 @@ export class OwnerRegisterPage implements OnInit {
     if (user) {
       this.isLoading.set(true);
       this.userSv.getUserByID(user.id).subscribe({
-        next: (data) => {
+        next: (data: any) => {
           this.currentUser.set(data);
           this.email.set(data.EMAIL);
           this.phone.set(data.PHONE_NUMBER);
+          
+          if (data.FIRST_NAME) this.firstName.set(data.FIRST_NAME);
+          if (data.LAST_NAME) this.lastName.set(data.LAST_NAME);
+          if (data.PROFILE_IMAGE) this.imagePreview.set(data.PROFILE_IMAGE);
+          
           this.isLoading.set(false);
         },
         error: (err) => {
@@ -139,6 +134,10 @@ export class OwnerRegisterPage implements OnInit {
     } else {
       this.navCtrl.navigateRoot('/login');
     }
+  }
+
+  handleImageError() {
+    this.imagePreview.set(null);
   }
 
   async presentPhotoOptions() {

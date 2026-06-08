@@ -128,6 +128,10 @@ export class OwnerProfileUpdatePage {
     this.navCtrl.back();
   }
 
+  handleImageError() {
+    this.imagePreview.set(null);
+  }
+
   async presentPhotoOptions() {
     const actionSheet = await this.actionSheetCtrl.create({
       header: 'Select Profile Photo',

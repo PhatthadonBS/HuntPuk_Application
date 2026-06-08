@@ -40,7 +40,7 @@ export class UserServices {
     });
   }
 
-  profileUpdate(user_id: number, formData: UserUpdatePostReq): Observable<any>{
+  profileUpdate(user_id: number, formData: UserUpdatePostReq | FormData): Observable<any>{
     const url = `${this.endPoint}/spec/user/${user_id}`
     return this.http.put(url, formData)
   }

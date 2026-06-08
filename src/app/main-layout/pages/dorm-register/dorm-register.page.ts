@@ -166,7 +166,7 @@ export class DormRegisterPage implements OnInit, OnDestroy {
             if (d.rooms && d.rooms.length > 0) {
               d.rooms.forEach((r: any) => {
                 const group = this.fb.group({
-                  roomType: [r.ROOM_TYPE_ID, Validators.required],
+                  roomType: [r.ROOM_TYPE_NAME, Validators.required],
                   bedType: [r.BED_TYPE_ID || 1, Validators.required],
                   perDay: [r.perDay || 0, [Validators.required, Validators.min(0)]],
                   perMonth: [r.PRICE || 0, [Validators.required, Validators.min(0)]],
@@ -442,8 +442,9 @@ export class DormRegisterPage implements OnInit, OnDestroy {
     const textData = { ...formVal };
     // Backend expects strings for these in createDorm_api
     textData.facilities = JSON.stringify(formVal.facilities);
-    textData.rooms = JSON.stringify(formVal.rooms);
+    textData.roomTypes = JSON.stringify(formVal.rooms);
     textData.new_fac_name = this.customFacName;
+    delete (textData as any).rooms;
 
     if (this.isEditMode()) {
       this.dormSv.updateDorm(this.dormId!, textData)

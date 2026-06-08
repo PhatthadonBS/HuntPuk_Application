@@ -6,7 +6,7 @@ import {
 } from '@angular/router';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { NavController } from '@ionic/angular';
+import { NavController, AlertController } from '@ionic/angular/standalone';
 import { jwtDecode } from 'jwt-decode';
 import { DecodedToken, UserOtpVerifyPostRes } from '../model/user.model';
 
@@ -14,7 +14,12 @@ import { DecodedToken, UserOtpVerifyPostRes } from '../model/user.model';
   providedIn: 'root',
 })
 export class AuthenService implements CanActivate {
-  constructor(private router: Router, private http: HttpClient, private navCtrl: NavController) {}
+  constructor(
+    private router: Router, 
+    private http: HttpClient, 
+    private navCtrl: NavController,
+    private alertCtrl: AlertController
+  ) {}
   endPoint = environment.ENDPOINT;
   
   // State holds only the decoded token information
@@ -42,7 +47,7 @@ export class AuthenService implements CanActivate {
         const currentTime = Math.floor(Date.now() / 1000);
         if (decodedToken.exp < currentTime) {
           console.warn('Token expired!');
-          this.logoutUser();
+          this.handleSessionExpired();
           return null;
         }
 
@@ -63,6 +68,27 @@ export class AuthenService implements CanActivate {
 
   get currentUserValue(): DecodedToken | null {
     return this.userState.getValue();
+  }
+
+  async handleSessionExpired() {
+    const topAlert = await this.alertCtrl.getTop();
+    if (topAlert) return;
+
+    localStorage.clear();
+    this.userState.next(null);
+
+    const alert = await this.alertCtrl.create({
+      header: 'เซสชั่นหมดอายุ',
+      message: 'กรุณาเข้าสู่ระบบใหม่อีกครั้งเพื่อใช้งานต่อ',
+      buttons: [{
+        text: 'ตกลง',
+        handler: () => {
+          this.navCtrl.navigateRoot('/login');
+        }
+      }],
+      backdropDismiss: false
+    });
+    await alert.present();
   }
 
   logoutUser() {

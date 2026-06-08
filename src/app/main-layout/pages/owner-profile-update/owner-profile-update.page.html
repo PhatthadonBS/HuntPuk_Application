@@ -9,7 +9,12 @@
     <div class="profile-header">
       <div class="profile-upload-wrapper" (click)="presentPhotoOptions()">
         <div class="preview-container shadow-2xl">
-          <img [src]="imagePreview() || 'assets/icon.png'" class="profile-preview" *ngIf="imagePreview()" />
+          <img 
+            [src]="imagePreview() || 'assets/icon.png'" 
+            class="profile-preview" 
+            *ngIf="imagePreview()" 
+            (error)="handleImageError()"
+          />
           <div class="placeholder-preview" *ngIf="!imagePreview()">
             <ion-icon name="person-outline" class="text-5xl text-gray-300"></ion-icon>
           </div>

@@ -16,7 +16,13 @@
   <div class="content-wrapper">
     <div class="profile-header">
       <div class="avatar-placeholder">
-        <img [src]="user()?.PROFILE_IMAGE" alt="Profile" *ngIf="user()?.PROFILE_IMAGE" class="w-full h-full object-cover rounded-[32px]">
+        <img 
+          [src]="user()?.PROFILE_IMAGE" 
+          alt="Profile" 
+          *ngIf="user()?.PROFILE_IMAGE" 
+          (error)="handleImageError()"
+          class="w-full h-full object-cover rounded-[32px]"
+        >
         <ion-icon name="business-outline" color="medium" *ngIf="!user()?.PROFILE_IMAGE"></ion-icon>
       </div>
       <h1 class="page-title">โปรไฟล์เจ้าของหอพัก</h1>

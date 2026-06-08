@@ -128,6 +128,16 @@ export class UserDetailPage{
     }
   }
 
+  handleImageError() {
+    if (this.user()) {
+       const u: any = this.user();
+       if (u.PROFILE_IMAGE) {
+         const updatedUser = { ...u, PROFILE_IMAGE: undefined };
+         this.user.set(updatedUser);
+       }
+    }
+  }
+
   async logout() {
     const alert = await this.alertController.create({
       header: 'ยืนยันการออกจากระบบ',

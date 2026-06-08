@@ -297,108 +297,58 @@
         ข้อมูลติดต่อผู้ดูแลหอพัก
       </h2>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div class="flex flex-wrap gap-4 items-center justify-start mt-4">
         <a
           *ngIf="d.phone && d.phone !== '-'"
           [href]="'tel:' + d.phone"
-          class="contact-card flex items-center p-3 rounded-xl border border-gray-100 shadow-sm active:bg-gray-50"
+          class="w-12 h-12 rounded-full bg-blue-50 hover:bg-blue-100 flex items-center justify-center text-blue-600 transition-colors shadow-sm"
         >
-          <div
-            class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center mr-3 text-blue-600"
-          >
-            <ion-icon name="call-outline" class="text-xl"></ion-icon>
-          </div>
-          <div>
-            <p class="text-xs text-gray-500 mb-0">เบอร์โทรศัพท์</p>
-            <p class="font-semibold text-gray-800 m-0">{{ d.phone }}</p>
-          </div>
+          <ion-icon name="call-outline" class="text-2xl"></ion-icon>
         </a>
 
         <a
           *ngIf="d.line && d.line !== '-'"
           [href]="'https://line.me/ti/p/~' + d.line"
           target="_blank"
-          class="contact-card flex items-center p-3 rounded-xl border border-gray-100 shadow-sm active:bg-gray-50"
+          class="w-12 h-12 rounded-full bg-green-50 hover:bg-green-100 flex items-center justify-center text-green-600 transition-colors shadow-sm"
         >
-          <div
-            class="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center mr-3 text-green-600"
-          >
-            <ion-icon name="chatbubble-outline" class="text-xl"></ion-icon>
-          </div>
-          <div>
-            <p class="text-xs text-gray-500 mb-0">LINE ID</p>
-            <p class="font-semibold text-gray-800 m-0">{{ d.line }}</p>
-          </div>
+          <ion-icon src="assets/icon/line.svg" class="text-2xl"></ion-icon>
         </a>
 
         <a
           *ngIf="d.facebook && d.facebook !== '-'"
           [href]="d.facebook.includes('http') ? d.facebook : 'https://facebook.com/' + d.facebook"
           target="_blank"
-          class="contact-card flex items-center p-3 rounded-xl border border-gray-100 shadow-sm active:bg-gray-50"
+          class="w-12 h-12 rounded-full bg-blue-50 hover:bg-blue-100 flex items-center justify-center text-blue-600 transition-colors shadow-sm"
         >
-          <div
-            class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center mr-3 text-blue-600"
-          >
-            <ion-icon name="logo-facebook" class="text-xl"></ion-icon>
-          </div>
-          <div>
-            <p class="text-xs text-gray-500 mb-0">Facebook</p>
-            <p class="font-semibold text-gray-800 m-0 truncate w-32">
-              {{ d.facebook }}
-            </p>
-          </div>
+          <ion-icon src="assets/icon/facebook.svg" class="text-2xl"></ion-icon>
         </a>
 
         <a
           *ngIf="d.instagram && d.instagram !== '-'"
           [href]="'https://instagram.com/' + d.instagram"
           target="_blank"
-          class="contact-card flex items-center p-3 rounded-xl border border-gray-100 shadow-sm active:bg-gray-50"
+          class="w-12 h-12 rounded-full bg-pink-50 hover:bg-pink-100 flex items-center justify-center text-pink-600 transition-colors shadow-sm"
         >
-          <div
-            class="w-10 h-10 rounded-full bg-pink-50 flex items-center justify-center mr-3 text-pink-600"
-          >
-            <ion-icon name="logo-instagram" class="text-xl"></ion-icon>
-          </div>
-          <div>
-            <p class="text-xs text-gray-500 mb-0">Instagram</p>
-            <p class="font-semibold text-gray-800 m-0">{{ d.instagram }}</p>
-          </div>
+          <ion-icon src="assets/icon/instagram.svg" class="text-2xl"></ion-icon>
         </a>
 
         <a
           *ngIf="d.telegram && d.telegram !== '-'"
           [href]="'https://t.me/' + d.telegram"
           target="_blank"
-          class="contact-card flex items-center p-3 rounded-xl border border-gray-100 shadow-sm active:bg-gray-50"
+          class="w-12 h-12 rounded-full bg-blue-50 hover:bg-blue-100 flex items-center justify-center text-blue-500 transition-colors shadow-sm"
         >
-          <div
-            class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center mr-3 text-blue-500"
-          >
-            <ion-icon name="paper-plane-outline" class="text-xl"></ion-icon>
-          </div>
-          <div>
-            <p class="text-xs text-gray-500 mb-0">Telegram</p>
-            <p class="font-semibold text-gray-800 m-0">{{ d.telegram }}</p>
-          </div>
+          <ion-icon src="assets/icon/telegram.svg" class="text-2xl"></ion-icon>
         </a>
 
         <a
           *ngIf="d.x && d.x !== '-'"
           [href]="'https://x.com/' + d.x"
           target="_blank"
-          class="contact-card flex items-center p-3 rounded-xl border border-gray-100 shadow-sm active:bg-gray-50"
+          class="w-12 h-12 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-800 transition-colors shadow-sm"
         >
-          <div
-            class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mr-3 text-gray-800"
-          >
-            <ion-icon name="logo-twitter" class="text-xl"></ion-icon>
-          </div>
-          <div>
-            <p class="text-xs text-gray-500 mb-0">X (Twitter)</p>
-            <p class="font-semibold text-gray-800 m-0">{{ d.x }}</p>
-          </div>
+          <ion-icon src="assets/icon/x.svg" class="text-2xl"></ion-icon>
         </a>
       </div>
     </div>

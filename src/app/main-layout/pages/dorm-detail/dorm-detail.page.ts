@@ -39,11 +39,6 @@ import {
   bookmark,
   locationOutline,
   callOutline,
-  logoFacebook,
-  logoInstagram,
-  logoTwitter,
-  paperPlaneOutline, // for telegram icon fallback
-  chatbubbleOutline, // for line icon fallback
   waterOutline,
   flashOutline,
   bedOutline,
@@ -121,11 +116,6 @@ export class DormDetailPage implements OnInit, OnDestroy {
       bookmark,
       locationOutline,
       callOutline,
-      logoFacebook,
-      logoInstagram,
-      logoTwitter,
-      paperPlaneOutline,
-      chatbubbleOutline,
       waterOutline,
       flashOutline,
       bedOutline,

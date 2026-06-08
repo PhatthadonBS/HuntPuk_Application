@@ -152,6 +152,13 @@ export class OwnerProfilePage {
     });
   }
 
+  handleImageError() {
+    if (this.user()) {
+      const updatedUser = { ...this.user()!, PROFILE_IMAGE: undefined };
+      this.user.set(updatedUser as any);
+    }
+  }
+
   async logout() {
     const alert = await this.alertController.create({
       header: 'ยืนยันการออกจากระบบ',

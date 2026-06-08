@@ -65,15 +65,6 @@
   border-bottom: 1px solid #eee;
 }
 
-.contact-card {
-  text-decoration: none;
-  transition: background-color 0.2s;
-
-  &:active {
-    background-color: #f9fafb;
-  }
-}
-
 /* Watermark */
 .preview-watermark {
   position: fixed;
