@@ -430,3 +430,56 @@
     }
   }
 }
+
+/* Tab Navigation */
+.register-tabs {
+  background: #fff;
+  border-radius: 16px;
+  padding: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+  ion-segment-button {
+    --color: #6b7280;
+    --color-checked: #1f2937;
+    --indicator-color: #ffcc00;
+    min-height: 48px;
+    
+    ion-icon {
+      font-size: 1.4rem;
+    }
+    
+    &::part(indicator-background) {
+      border-radius: 12px;
+    }
+  }
+}
+
+/* Wizard Navigation */
+.wizard-navigation {
+  margin-top: 1rem;
+  
+  ion-button {
+    margin: 0;
+    height: 52px;
+    font-weight: 800;
+    --border-radius: 14px;
+  }
+  
+  .prev-btn {
+    --border-color: #d1d5db;
+    --color: #4b5563;
+  }
+  
+  .next-btn {
+    --background: #1f2937;
+    --color: #fff;
+    --box-shadow: 0 4px 10px rgba(31, 41, 55, 0.2);
+  }
+  
+  .confirm-btn {
+    --background: #ffcc00;
+    --color: #1f2937;
+    --box-shadow: 0 4px 10px rgba(251, 191, 36, 0.3);
+  }
+}
+

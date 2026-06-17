@@ -14,9 +14,28 @@
 
 <ion-content [fullscreen]="true" class="dorm-register-content">
   <div class="content-wrapper">
+    <!-- Tab Navigation -->
+    <ion-segment [value]="currentStep().toString()" (ionChange)="segmentChanged($event)" mode="md" class="mb-4 register-tabs" scrollable="true">
+      <ion-segment-button value="1">
+        <ion-icon name="location-outline"></ion-icon>
+      </ion-segment-button>
+      <ion-segment-button value="2">
+        <ion-icon name="bed-outline"></ion-icon>
+      </ion-segment-button>
+      <ion-segment-button value="3">
+        <ion-icon name="cube-outline"></ion-icon>
+      </ion-segment-button>
+      <ion-segment-button value="4">
+        <ion-icon name="image"></ion-icon>
+      </ion-segment-button>
+      <ion-segment-button value="5">
+        <ion-icon name="information-circle-outline"></ion-icon>
+      </ion-segment-button>
+    </ion-segment>
+
     <form [formGroup]="dormForm" class="register-form">
       <!-- 2.1 Dorm Info -->
-      <div class="section-container">
+      <div class="section-container" *ngIf="currentStep() === 1">
         <h2 class="section-title">
           <ion-icon name="business-outline"></ion-icon> ข้อมูลหอพัก
         </h2>
@@ -86,7 +105,7 @@
       </div>
 
       <!-- 2.2 Room Info -->
-      <div class="section-container" formArrayName="rooms">
+      <div class="section-container" formArrayName="rooms" *ngIf="currentStep() === 2">
         <div class="flex justify-between items-center mb-3">
           <h2 class="section-title m-0">
             <ion-icon name="bed-outline"></ion-icon> ข้อมูลห้องพัก
@@ -166,7 +185,7 @@
       </div>
 
       <!-- Utilities (Cost related) -->
-      <div class="section-container">
+      <div class="section-container" *ngIf="currentStep() === 3">
         <h2 class="section-title">
           <ion-icon name="water-outline"></ion-icon> ค่าน้ำ / ค่าไฟ
         </h2>
@@ -199,7 +218,7 @@
       </div>
 
       <!-- 2.3 Facilities -->
-      <div class="section-container">
+      <div class="section-container" *ngIf="currentStep() === 3">
         <h2 class="section-title">
           <ion-icon name="cube-outline"></ion-icon> สิ่งอำนวยความสะดวก
         </h2>
@@ -259,7 +278,7 @@
       </div>
 
       <!-- Images -->
-      <div class="section-container">
+      <div class="section-container" *ngIf="currentStep() === 4">
         <h2 class="section-title">
           <ion-icon name="image"></ion-icon> รูปภาพหอพัก
         </h2>
@@ -435,7 +454,7 @@
       </div>
 
       <!-- 2.4 More Data -->
-      <div class="section-container">
+      <div class="section-container" *ngIf="currentStep() === 5">
         <h2 class="section-title">
           <ion-icon name="information-circle-outline"></ion-icon>
           ข้อมูลเพิ่มเติม
@@ -448,11 +467,31 @@
         ></ion-textarea>
       </div>
 
-      <div class="p-4">
+      <div class="wizard-navigation p-4 flex gap-3">
         <ion-button
+          *ngIf="currentStep() > 1"
+          expand="block"
+          fill="outline"
+          (click)="prevStep()"
+          class="prev-btn flex-1"
+        >
+          ย้อนกลับ
+        </ion-button>
+        
+        <ion-button
+          *ngIf="currentStep() < 5"
+          expand="block"
+          (click)="nextStep()"
+          class="next-btn flex-1"
+        >
+          ถัดไป
+        </ion-button>
+
+        <ion-button
+          *ngIf="currentStep() === 5"
           expand="block"
           (click)="confirmAndRegister()"
-          class="confirm-btn"
+          class="confirm-btn flex-1"
           [disabled]="dormForm.invalid"
         >
           {{ isEditMode() ? 'บันทึกการแก้ไข' : 'ลงทะเบียนหอพัก' }}

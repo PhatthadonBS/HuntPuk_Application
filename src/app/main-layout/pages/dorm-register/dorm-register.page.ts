@@ -6,7 +6,7 @@ import {
   IonItem, IonLabel, IonInput, IonSelect, IonSelectOption, IonButton,
   IonIcon, IonGrid, IonRow, IonCol, IonCheckbox, IonTextarea, IonModal,
   IonFooter, IonAvatar, IonFab, IonFabButton, ToastController, NavController,
-  IonImg, AlertController
+  IonImg, AlertController, IonSegment, IonSegmentButton
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -40,7 +40,7 @@ interface ImageState {
     IonItem, IonLabel, IonInput, IonSelect, IonSelectOption, IonButton,
     IonIcon, IonGrid, IonRow, IonCol, IonCheckbox, IonTextarea, IonModal,
     IonFooter, IonAvatar, IonFab, IonFabButton, CommonModule, ReactiveFormsModule,
-    FormsModule, LoadingUIComponent, IonImg
+    FormsModule, LoadingUIComponent, IonImg, IonSegment, IonSegmentButton
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
@@ -52,6 +52,9 @@ export class DormRegisterPage implements OnInit, OnDestroy {
   isEditMode = signal<boolean>(false);
   dormId: number | null = null;
   userId: number | null = null;
+  
+  // Wizard State
+  currentStep = signal<number>(1);
   
   // Master Data
   dormTypes = signal<MasterType[]>([]);
@@ -137,6 +140,38 @@ export class DormRegisterPage implements OnInit, OnDestroy {
     this.loadMasterData();
     if (!this.isEditMode()) {
       this.addRoom(); // Default 1 room for new reg
+    }
+  }
+
+  // --- Wizard Navigation ---
+  setStep(step: number) {
+    this.currentStep.set(step);
+  }
+
+  nextStep() {
+    const current = this.currentStep();
+    if (current < 5) {
+      this.currentStep.set(current + 1);
+      this.scrollToTop();
+    }
+  }
+
+  prevStep() {
+    const current = this.currentStep();
+    if (current > 1) {
+      this.currentStep.set(current - 1);
+      this.scrollToTop();
+    }
+  }
+
+  segmentChanged(event: any) {
+    this.setStep(Number(event.detail.value));
+  }
+
+  private scrollToTop() {
+    const content = document.querySelector('ion-content');
+    if (content) {
+      (content as any).scrollToTop(300);
     }
   }
 
