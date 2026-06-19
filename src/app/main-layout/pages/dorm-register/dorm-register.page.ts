@@ -1,19 +1,76 @@
-import { Component, OnInit, OnDestroy, signal, computed, ViewChild, ElementRef, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import {
-  IonContent, IonHeader, IonTitle, IonToolbar, IonButtons, IonBackButton,
-  IonItem, IonLabel, IonInput, IonSelect, IonSelectOption, IonButton,
-  IonIcon, IonGrid, IonRow, IonCol, IonCheckbox, IonTextarea, IonModal,
-  IonFooter, IonAvatar, IonFab, IonFabButton, ToastController, NavController,
-  IonImg, AlertController, IonSegment, IonSegmentButton
+  Component,
+  OnInit,
+  OnDestroy,
+  signal,
+  computed,
+  ViewChild,
+  ElementRef,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ChangeDetectorRef,
+} from '@angular/core';
+import { CommonModule } from '@angular/common';
+import {
+  FormBuilder,
+  FormGroup,
+  FormArray,
+  Validators,
+  ReactiveFormsModule,
+  FormsModule,
+} from '@angular/forms';
+import {
+  IonContent,
+  IonHeader,
+  IonTitle,
+  IonToolbar,
+  IonButtons,
+  IonBackButton,
+  IonItem,
+  IonLabel,
+  IonInput,
+  IonSelect,
+  IonSelectOption,
+  IonButton,
+  IonIcon,
+  IonGrid,
+  IonRow,
+  IonCol,
+  IonCheckbox,
+  IonTextarea,
+  IonModal,
+  IonFooter,
+  IonAvatar,
+  IonFab,
+  IonFabButton,
+  ToastController,
+  NavController,
+  IonImg,
+  AlertController,
+  IonSegment,
+  IonSegmentButton,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
-  camera, image, pin, map, closeCircle, add, trash, arrowBackCircleOutline,
-  checkmarkCircleOutline, alertCircleOutline, locationOutline, businessOutline,
-  bedOutline, waterOutline, flashOutline, cubeOutline, informationCircleOutline,
-  chevronForwardOutline, sendOutline, star
+  camera,
+  image,
+  pin,
+  map,
+  closeCircle,
+  add,
+  trash,
+  arrowBackCircleOutline,
+  checkmarkCircleOutline,
+  alertCircleOutline,
+  locationOutline,
+  businessOutline,
+  bedOutline,
+  waterOutline,
+  flashOutline,
+  cubeOutline,
+  informationCircleOutline,
+  chevronForwardOutline,
+  sendOutline,
+  star,
 } from 'ionicons/icons';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { DormServices } from 'src/app/services/dormServices';
@@ -36,13 +93,38 @@ interface ImageState {
   styleUrls: ['./dorm-register.page.scss'],
   standalone: true,
   imports: [
-    IonContent, IonHeader, IonTitle, IonToolbar, IonButtons, IonBackButton,
-    IonItem, IonLabel, IonInput, IonSelect, IonSelectOption, IonButton,
-    IonIcon, IonGrid, IonRow, IonCol, IonCheckbox, IonTextarea, IonModal,
-    IonFooter, IonAvatar, IonFab, IonFabButton, CommonModule, ReactiveFormsModule,
-    FormsModule, LoadingUIComponent, IonImg, IonSegment, IonSegmentButton
+    IonContent,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    IonButtons,
+    IonBackButton,
+    IonItem,
+    IonLabel,
+    IonInput,
+    IonSelect,
+    IonSelectOption,
+    IonButton,
+    IonIcon,
+    IonGrid,
+    IonRow,
+    IonCol,
+    IonCheckbox,
+    IonTextarea,
+    IonModal,
+    IonFooter,
+    IonAvatar,
+    IonFab,
+    IonFabButton,
+    CommonModule,
+    ReactiveFormsModule,
+    FormsModule,
+    LoadingUIComponent,
+    IonImg,
+    IonSegment,
+    IonSegmentButton,
   ],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class DormRegisterPage implements OnInit, OnDestroy {
   @ViewChild('mapEl', { static: false }) mapEl!: ElementRef;
@@ -52,10 +134,10 @@ export class DormRegisterPage implements OnInit, OnDestroy {
   isEditMode = signal<boolean>(false);
   dormId: number | null = null;
   userId: number | null = null;
-  
+
   // Wizard State
   currentStep = signal<number>(1);
-  
+
   // Master Data
   dormTypes = signal<MasterType[]>([]);
   zones = signal<DormZone[]>([]);
@@ -89,21 +171,38 @@ export class DormRegisterPage implements OnInit, OnDestroy {
   constructor(
     private fb: FormBuilder,
     private dormSv: DormServices,
-    private gMapSv: GoogleMapService,
     private route: ActivatedRoute,
     private toastCtrl: ToastController,
     private navCtrl: NavController,
-    private alertCtrl: AlertController
+    private alertCtrl: AlertController,
+    private gMapSv: GoogleMapService,
+    private cdr: ChangeDetectorRef
   ) {
     addIcons({
-      camera, image, pin, map, closeCircle, add, trash, arrowBackCircleOutline,
-      checkmarkCircleOutline, alertCircleOutline, locationOutline, businessOutline,
-      bedOutline, waterOutline, flashOutline, cubeOutline, informationCircleOutline,
-      chevronForwardOutline, sendOutline, star
+      camera,
+      image,
+      pin,
+      map,
+      closeCircle,
+      add,
+      trash,
+      arrowBackCircleOutline,
+      checkmarkCircleOutline,
+      alertCircleOutline,
+      locationOutline,
+      businessOutline,
+      bedOutline,
+      waterOutline,
+      flashOutline,
+      cubeOutline,
+      informationCircleOutline,
+      chevronForwardOutline,
+      sendOutline,
+      star,
     });
 
     this.dormForm = this.fb.group({
-      user_id: [null, Validators.required],
+      user_id: [null],
       name: ['', Validators.required],
       type_id: [null, Validators.required],
       zone_id: [null, Validators.required],
@@ -115,12 +214,16 @@ export class DormRegisterPage implements OnInit, OnDestroy {
       water_lump: [0, [Validators.required, Validators.min(0)]],
       detail: [''],
       rooms: this.fb.array([]),
-      facilities: this.fb.array([])
+      facilities: this.fb.array([]),
     });
   }
 
-  get rooms() { return this.dormForm.get('rooms') as FormArray; }
-  get facilities() { return this.dormForm.get('facilities') as FormArray; }
+  get rooms() {
+    return this.dormForm.get('rooms') as FormArray;
+  }
+  get facilities() {
+    return this.dormForm.get('facilities') as FormArray;
+  }
 
   ngOnInit() {
     const uId = this.route.snapshot.paramMap.get('user_id');
@@ -177,7 +280,8 @@ export class DormRegisterPage implements OnInit, OnDestroy {
 
   loadDormData(id: number) {
     this.isLoading.set(true);
-    this.dormSv.getDormById(id)
+    this.dormSv
+      .getDormById(id)
       .pipe(finalize(() => this.isLoading.set(false)))
       .subscribe({
         next: (res) => {
@@ -193,8 +297,12 @@ export class DormRegisterPage implements OnInit, OnDestroy {
               water_unit: d.WATER_UNIT,
               elect_unit: d.ELECT_UNIT,
               water_lump: d.WATER_LUMP,
-              detail: d.ADD_DORM_DATA
+              detail: d.ADD_DORM_DATA,
             });
+
+            if (d.lat && d.lng) {
+              this.tempLocation.set({ lat: Number(d.lat), lng: Number(d.lng) });
+            }
 
             // Rebuild Rooms
             this.rooms.clear();
@@ -203,9 +311,18 @@ export class DormRegisterPage implements OnInit, OnDestroy {
                 const group = this.fb.group({
                   roomType: [r.ROOM_TYPE_NAME, Validators.required],
                   bedType: [r.BED_TYPE_ID || 1, Validators.required],
-                  perDay: [r.perDay || 0, [Validators.required, Validators.min(0)]],
-                  perMonth: [r.PRICE || 0, [Validators.required, Validators.min(0)]],
-                  perTerm: [r.perTerm || 0, [Validators.required, Validators.min(0)]],
+                  perDay: [
+                    r.perDay || 0,
+                    [Validators.required, Validators.min(0)],
+                  ],
+                  perMonth: [
+                    r.PRICE || 0,
+                    [Validators.required, Validators.min(0)],
+                  ],
+                  perTerm: [
+                    r.perTerm || 0,
+                    [Validators.required, Validators.min(0)],
+                  ],
                 });
                 this.rooms.push(group);
               });
@@ -214,34 +331,45 @@ export class DormRegisterPage implements OnInit, OnDestroy {
             }
 
             // Patch Facilities
-            this.dormSv.getFacilitiesOfDorm(id.toString()).subscribe(facRes => {
-              if (Array.isArray(facRes)) {
-                this.facilities.clear();
-                facRes.forEach(f => {
-                  this.facilities.push(this.fb.control(f.FAC_TYPE_ID));
-                });
-              }
-            });
+            this.dormSv
+              .getFacilitiesOfDorm(id.toString())
+              .subscribe((facRes) => {
+                if (Array.isArray(facRes)) {
+                  this.facilities.clear();
+                  facRes.forEach((f) => {
+                    this.facilities.push(this.fb.control(f.FAC_TYPE_ID));
+                  });
+                }
+              });
 
             // Map Images (Previews only)
             if (d.image) this.images['FRONT'].preview = d.image;
-            
+
             // Map Room Component Images
             if (d.ceiling_img) this.images['CEILING'].preview = d.ceiling_img;
             if (d.wall_img) this.images['WALL'].preview = d.wall_img;
             if (d.floor_img) this.images['FLOOR'].preview = d.floor_img;
-            if (d.bathroom_img) this.images['BATHROOM'].preview = d.bathroom_img;
+            if (d.bathroom_img)
+              this.images['BATHROOM'].preview = d.bathroom_img;
             if (d.balcony_img) this.images['BALCONY'].preview = d.balcony_img;
 
             if (d.gallery && d.gallery.length > 0) {
-              this.otherImages.set(d.gallery.map(url => ({ file: null, preview: url })));
+              const validGallery = d.gallery.filter(
+                (url: string) => url && url.trim() !== ''
+              );
+              this.otherImages.set(
+                validGallery.map((url: string) => ({
+                  file: null,
+                  preview: url,
+                }))
+              );
             }
           }
         },
         error: (err) => {
           console.error(err);
           this.showToast('ไม่สามารถดึงข้อมูลหอพักได้', 'danger');
-        }
+        },
       });
   }
 
@@ -250,13 +378,15 @@ export class DormRegisterPage implements OnInit, OnDestroy {
   }
 
   loadMasterData() {
-    this.dormSv.getDormTypes().subscribe(data => this.dormTypes.set(data));
-    this.dormSv.getZones().subscribe(res => { if (res.success) this.zones.set(res.data); });
-    this.dormSv.getRoomTypes().subscribe(data => this.roomTypes.set(data));
-    this.dormSv.getBedTypes().subscribe(data => this.bedTypes.set(data));
-    this.dormSv.getFacilities().subscribe(res => { 
+    this.dormSv.getDormTypes().subscribe((data) => this.dormTypes.set(data));
+    this.dormSv.getZones().subscribe((res) => {
+      if (res.success) this.zones.set(res.data);
+    });
+    this.dormSv.getRoomTypes().subscribe((data) => this.roomTypes.set(data));
+    this.dormSv.getBedTypes().subscribe((data) => this.bedTypes.set(data));
+    this.dormSv.getFacilities().subscribe((res) => {
       if (res && res.success) {
-        this.allFacilities.set(res.data); 
+        this.allFacilities.set(res.data);
       } else if (Array.isArray(res)) {
         // Fallback for old API structure if any
         this.allFacilities.set(res);
@@ -284,7 +414,7 @@ export class DormRegisterPage implements OnInit, OnDestroy {
   toggleFacilitySelection(facId: number) {
     const currentFacs = this.facilities.value as number[];
     const index = currentFacs.indexOf(facId);
-    
+
     if (index === -1) {
       this.facilities.push(this.fb.control(facId));
     } else {
@@ -293,10 +423,10 @@ export class DormRegisterPage implements OnInit, OnDestroy {
   }
 
   handleFacImageError(facId: number) {
-    this.facImageErrors.update(prev => ({ ...prev, [facId]: true }));
+    this.facImageErrors.update((prev) => ({ ...prev, [facId]: true }));
   }
 
-  async selectImage(key: string, isOther: boolean = false, index: number = -1) {
+  async selectImage(key: string, isOther = false, index: number = -1) {
     try {
       if (isOther && index === -1) {
         // Multi-select for "Other" images
@@ -308,16 +438,23 @@ export class DormRegisterPage implements OnInit, OnDestroy {
 
         const result = await Camera.pickImages({
           quality: 90,
-          limit: 5 - currentCount
+          limit: 5 - currentCount,
         });
 
         if (result.photos.length > 0) {
           for (const photo of result.photos) {
             const dataUrl = await this.getBase64FromPath(photo.webPath);
-            const file = await this.dataUrlToFile(dataUrl, `other_${Date.now()}.webp`);
-            this.otherImages.update(imgs => [...imgs, { file, preview: dataUrl }]);
+            const file = await this.dataUrlToFile(
+              dataUrl,
+              `other_${Date.now()}.webp`
+            );
+            this.otherImages.update((imgs) => [
+              ...imgs,
+              { file, preview: dataUrl },
+            ]);
           }
         }
+        this.cdr.detectChanges();
         return;
       }
 
@@ -326,15 +463,18 @@ export class DormRegisterPage implements OnInit, OnDestroy {
         quality: 90,
         allowEditing: false,
         resultType: CameraResultType.DataUrl,
-        source: CameraSource.Prompt
+        source: CameraSource.Prompt,
       });
 
       if (image.dataUrl) {
-        const file = await this.dataUrlToFile(image.dataUrl, `${key}_${Date.now()}.webp`);
+        const file = await this.dataUrlToFile(
+          image.dataUrl,
+          `${key}_${Date.now()}.webp`
+        );
         const state: ImageState = { file, preview: image.dataUrl };
 
         if (isOther) {
-          this.otherImages.update(imgs => {
+          this.otherImages.update((imgs) => {
             const newImgs = [...imgs];
             newImgs[index] = state;
             return newImgs;
@@ -344,13 +484,15 @@ export class DormRegisterPage implements OnInit, OnDestroy {
         } else {
           this.images[key] = state;
         }
+        this.cdr.detectChanges();
       }
     } catch (e) {
       console.error('Image selection canceled or failed', e);
     }
   }
 
-  private async getBase64FromPath(path: string): Promise<string> {
+  private async getBase64FromPath(path: string | undefined): Promise<string> {
+    if (!path) return '';
     const response = await fetch(path);
     const blob = await response.blob();
     return new Promise((resolve, reject) => {
@@ -363,21 +505,27 @@ export class DormRegisterPage implements OnInit, OnDestroy {
     });
   }
 
-  removeImage(key: string, isOther: boolean = false, index: number = -1) {
-    if (isOther) {
-      this.otherImages.update(imgs => {
-        const newImgs = [...imgs];
-        newImgs.splice(index, 1);
-        return newImgs;
-      });
-    } else if (key === 'CUSTOM_FAC') {
+  removeImage(type: string, isOther = false, index?: number) {
+    if (isOther && index !== undefined) {
+      const current = [...this.otherImages()];
+      current.splice(index, 1);
+      this.otherImages.set(current);
+    } else if (type === 'CUSTOM_FAC') {
       this.customFacIcon = { file: null, preview: null };
     } else {
-      this.images[key] = { file: null, preview: null };
+      this.images[type] = { file: null, preview: null };
     }
+    this.cdr.detectChanges();
   }
 
-  private async dataUrlToFile(dataUrl: string, fileName: string): Promise<File> {
+  handleImageError(event: any) {
+    event.target.src = 'https://placehold.co/400x300?text=error';
+  }
+
+  private async dataUrlToFile(
+    dataUrl: string,
+    fileName: string
+  ): Promise<File> {
     const res: Response = await fetch(dataUrl);
     const blob: Blob = await res.blob();
     return new File([blob], fileName, { type: 'image/webp' });
@@ -407,8 +555,11 @@ export class DormRegisterPage implements OnInit, OnDestroy {
 
     try {
       await this.gMapSv.load();
-      const center = this.tempLocation() || { lat: 16.2458428, lng: 103.2492193 };
-      
+      const center = this.tempLocation() || {
+        lat: 16.2458428,
+        lng: 103.2492193,
+      };
+
       this.map = new google.maps.Map(el, {
         center,
         zoom: 15,
@@ -435,7 +586,7 @@ export class DormRegisterPage implements OnInit, OnDestroy {
     this.marker = new google.maps.Marker({
       position: pos,
       map: this.map,
-      animation: google.maps.Animation.DROP
+      animation: google.maps.Animation.DROP,
     });
   }
 
@@ -455,16 +606,16 @@ export class DormRegisterPage implements OnInit, OnDestroy {
   async confirmAndRegister() {
     const alert = await this.alertCtrl.create({
       header: this.isEditMode() ? 'ยืนยันการแก้ไข?' : 'ยืนยันการลงทะเบียน?',
-      message: this.isEditMode() 
-        ? 'คุณต้องการบันทึกการเปลี่ยนแปลงข้อมูลหอพักใช่หรือไม่?' 
+      message: this.isEditMode()
+        ? 'คุณต้องการบันทึกการเปลี่ยนแปลงข้อมูลหอพักใช่หรือไม่?'
         : 'คุณต้องการส่งข้อมูลลงทะเบียนหอพักใช่หรือไม่?',
       buttons: [
         { text: 'ยกเลิก', role: 'cancel' },
         {
           text: 'ยืนยัน',
-          handler: () => this.executeSubmission()
-        }
-      ]
+          handler: () => this.executeSubmission(),
+        },
+      ],
     });
     await alert.present();
   }
@@ -482,40 +633,38 @@ export class DormRegisterPage implements OnInit, OnDestroy {
     delete (textData as any).rooms;
 
     if (this.isEditMode()) {
-      this.dormSv.updateDorm(this.dormId!, textData)
-        .subscribe({
-          next: (res) => {
-            if (res.success) {
-              this.performImageUpload(this.dormId!);
-            } else {
-              this.isLoading.set(false);
-              this.showToast('อัปเดตข้อมูลล้มเหลว', 'danger');
-            }
-          },
-          error: (err) => {
+      this.dormSv.updateDorm(this.dormId!, textData).subscribe({
+        next: (res) => {
+          if (res.success) {
+            this.performImageUpload(this.dormId!);
+          } else {
             this.isLoading.set(false);
-            console.error(err);
-            this.showToast('เกิดข้อผิดพลาดในการอัปเดต', 'danger');
+            this.showToast('อัปเดตข้อมูลล้มเหลว', 'danger');
           }
-        });
+        },
+        error: (err) => {
+          this.isLoading.set(false);
+          console.error(err);
+          this.showToast('เกิดข้อผิดพลาดในการอัปเดต', 'danger');
+        },
+      });
     } else {
-      this.dormSv.registerDorm(textData)
-        .subscribe({
-          next: (res) => {
-            if (res.success && res.dormId) {
-              // Step 2: Upload Images
-              this.performImageUpload(res.dormId);
-            } else {
-              this.isLoading.set(false);
-              this.showToast('ลงทะเบียนล้มเหลว กรุณาลองใหม่อีกครั้ง', 'danger');
-            }
-          },
-          error: (err) => {
+      this.dormSv.registerDorm(textData).subscribe({
+        next: (res) => {
+          if (res.success && res.dormId) {
+            // Step 2: Upload Images
+            this.performImageUpload(res.dormId);
+          } else {
             this.isLoading.set(false);
-            console.error(err);
-            this.showToast('เกิดข้อผิดพลาดในการลงทะเบียน', 'danger');
+            this.showToast('ลงทะเบียนล้มเหลว กรุณาลองใหม่อีกครั้ง', 'danger');
           }
-        });
+        },
+        error: (err) => {
+          this.isLoading.set(false);
+          console.error(err);
+          this.showToast('เกิดข้อผิดพลาดในการลงทะเบียน', 'danger');
+        },
+      });
     }
   }
 
@@ -523,14 +672,21 @@ export class DormRegisterPage implements OnInit, OnDestroy {
     const formData = new FormData();
 
     // Only append if file is newly selected
-    if (this.images['FRONT'].file) formData.append('FRONT_DORM_IMG', this.images['FRONT'].file);
-    if (!this.isEditMode() && this.images['LICENSE'].file) formData.append('LICENSE_IMG', this.images['LICENSE'].file);
-    
-    if (this.images['CEILING'].file) formData.append('CEILING_IMG', this.images['CEILING'].file);
-    if (this.images['WALL'].file) formData.append('WALL_IMG', this.images['WALL'].file);
-    if (this.images['FLOOR'].file) formData.append('FLOOR_IMG', this.images['FLOOR'].file);
-    if (this.images['BATHROOM'].file) formData.append('BATHROOM_IMG', this.images['BATHROOM'].file);
-    if (this.images['BALCONY'].file) formData.append('BALCONY_IMG', this.images['BALCONY'].file);
+    if (this.images['FRONT'].file)
+      formData.append('FRONT_DORM_IMG', this.images['FRONT'].file);
+    if (!this.isEditMode() && this.images['LICENSE'].file)
+      formData.append('LICENSE_IMG', this.images['LICENSE'].file);
+
+    if (this.images['CEILING'].file)
+      formData.append('CEILING_IMG', this.images['CEILING'].file);
+    if (this.images['WALL'].file)
+      formData.append('WALL_IMG', this.images['WALL'].file);
+    if (this.images['FLOOR'].file)
+      formData.append('FLOOR_IMG', this.images['FLOOR'].file);
+    if (this.images['BATHROOM'].file)
+      formData.append('BATHROOM_IMG', this.images['BATHROOM'].file);
+    if (this.images['BALCONY'].file)
+      formData.append('BALCONY_IMG', this.images['BALCONY'].file);
 
     this.otherImages().forEach((img) => {
       if (img.file) formData.append('OTHER_IMG', img.file);
@@ -542,39 +698,52 @@ export class DormRegisterPage implements OnInit, OnDestroy {
 
     // Check if anything to upload
     let hasFiles = false;
-    formData.forEach(() => { hasFiles = true; });
+    formData.forEach(() => {
+      hasFiles = true;
+    });
 
     if (this.isEditMode() && !hasFiles) {
-       this.isLoading.set(false);
-       this.showToast('บันทึกข้อมูลเรียบร้อยแล้ว', 'success');
-       this.navCtrl.navigateRoot(`/my-dorm/${this.userId}`);
-       return;
+      this.isLoading.set(false);
+      this.showToast('บันทึกข้อมูลเรียบร้อยแล้ว', 'success');
+      this.navCtrl.navigateRoot(`/my-dorm/${this.userId}`);
+      return;
     }
 
-    this.dormSv.uploadDormImages(dormId, formData)
+    this.dormSv
+      .uploadDormImages(dormId, formData)
       .pipe(finalize(() => this.isLoading.set(false)))
       .subscribe({
         next: () => {
-          this.showToast(this.isEditMode() ? 'อัปเดตข้อมูลสำเร็จ' : 'ลงทะเบียนสำเร็จ', 'success');
+          this.showToast(
+            this.isEditMode() ? 'อัปเดตข้อมูลสำเร็จ' : 'ลงทะเบียนสำเร็จ',
+            'success'
+          );
           if (this.isEditMode()) {
             this.navCtrl.navigateRoot(`/my-dorm/${this.userId}`);
           } else {
             this.navCtrl.navigateForward(`/dorm-detail/${dormId}`, {
-              queryParams: { preview: 'true' }
+              queryParams: { preview: 'true' },
             });
           }
         },
         error: (err) => {
           console.error(err);
-          const msg = this.isEditMode() ? 'อัปเดตข้อมูลสำเร็จ แต่รูปภาพบางส่วนไม่สามารถอัปโหลดได้' : 'อัปโหลดรูปภาพไม่สำเร็จ กรุณาอัปโหลดใหม่ในหน้าแก้ไข';
+          const msg = this.isEditMode()
+            ? 'อัปเดตข้อมูลสำเร็จ แต่รูปภาพบางส่วนไม่สามารถอัปโหลดได้'
+            : 'อัปโหลดรูปภาพไม่สำเร็จ กรุณาอัปโหลดใหม่ในหน้าแก้ไข';
           this.showToast(msg, 'warning');
           this.navCtrl.navigateRoot(`/my-dorm/${this.userId}`);
-        }
+        },
       });
   }
 
   async showToast(message: string, color: string) {
-    const toast = await this.toastCtrl.create({ message, duration: 2000, color, position: 'bottom' });
+    const toast = await this.toastCtrl.create({
+      message,
+      duration: 2000,
+      color,
+      position: 'bottom',
+    });
     await toast.present();
   }
 }

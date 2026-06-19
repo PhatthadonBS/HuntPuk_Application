@@ -256,6 +256,7 @@
               <img
                 *ngIf="customFacIcon.preview"
                 [src]="customFacIcon.preview"
+                (error)="handleImageError($event)"
               />
               <div *ngIf="!customFacIcon.preview" class="placeholder">
                 <ion-icon name="image"></ion-icon>
@@ -295,6 +296,7 @@
             <img
               *ngIf="images['FRONT'].preview"
               [src]="images['FRONT'].preview"
+              (error)="handleImageError($event)"
             />
             <div class="placeholder" *ngIf="!images['FRONT'].preview">
               <ion-icon name="camera"></ion-icon>
@@ -315,6 +317,7 @@
             <img
               *ngIf="images['LICENSE'].preview"
               [src]="images['LICENSE'].preview"
+              (error)="handleImageError($event)"
             />
             <div class="placeholder" *ngIf="!images['LICENSE'].preview">
               <ion-icon name="image"></ion-icon>
@@ -335,6 +338,7 @@
             <img
               *ngIf="images['CEILING'].preview"
               [src]="images['CEILING'].preview"
+              (error)="handleImageError($event)"
             />
             <div class="placeholder" *ngIf="!images['CEILING'].preview">
               <span class="!text-sm">ฝ้าเพดาน</span>
@@ -354,6 +358,7 @@
             <img
               *ngIf="images['WALL'].preview"
               [src]="images['WALL'].preview"
+              (error)="handleImageError($event)"
             />
             <div class="placeholder" *ngIf="!images['WALL'].preview">
               <span class="!text-sm">ผนังห้อง</span>
@@ -373,6 +378,7 @@
             <img
               *ngIf="images['FLOOR'].preview"
               [src]="images['FLOOR'].preview"
+              (error)="handleImageError($event)"
             />
             <div class="placeholder" *ngIf="!images['FLOOR'].preview">
               <span class="!text-sm">พื้นห้อง</span>
@@ -392,6 +398,7 @@
             <img
               *ngIf="images['BATHROOM'].preview"
               [src]="images['BATHROOM'].preview"
+              (error)="handleImageError($event)"
             />
             <div class="placeholder" *ngIf="!images['BATHROOM'].preview">
               <span class="!text-sm">ห้องน้ำ</span>
@@ -411,6 +418,7 @@
             <img
               *ngIf="images['BALCONY'].preview"
               [src]="images['BALCONY'].preview"
+              (error)="handleImageError($event)"
             />
             <div class="placeholder" *ngIf="!images['BALCONY'].preview">
               <span class="!text-sm">ระเบียง</span>
@@ -433,7 +441,7 @@
             class="image-box"
             *ngFor="let img of otherImages(); let i = index"
           >
-            <img [src]="img.preview" />
+            <img *ngIf="img.preview" [src]="img.preview" (error)="handleImageError($event)" />
             <ion-button
               fill="clear"
               color="danger"
