@@ -2,6 +2,7 @@ import { Component, NgZone, signal, OnInit, OnDestroy } from '@angular/core';
 import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
 import { CommonModule } from '@angular/common';
 import { LoadingService } from './services/loading-service';
+import { DormServices } from './services/dormServices';
 import { LoadingUIComponent } from "./main-layout/components/loading-ui/loading-ui.component";
 import { SplashScreenComponent } from "./main-layout/components/splash-screen/splash-screen.component";
 import { SplashScreen } from '@capacitor/splash-screen';
@@ -21,7 +22,11 @@ export class AppComponent implements OnInit, OnDestroy {
   private backgroundIntervalId?: any;
   public isSplashActive = signal<boolean>(true);
 
-  constructor(public loadingSv: LoadingService, private ngZone: NgZone) {
+  constructor(
+    public loadingSv: LoadingService, 
+    private ngZone: NgZone,
+    private dormSv: DormServices
+  ) {
     
   }
 
@@ -42,6 +47,9 @@ export class AppComponent implements OnInit, OnDestroy {
     // Reduced minimum delay to 2.5 seconds for a "lightweight" feel
     const loadInitialData$ = of('API Data Loaded').pipe(delay(500));
     const minimumDelay$ = timer(2500);
+
+    // Record website view on startup
+    this.dormSv.recordWebsiteView().subscribe();
 
     try {
       await firstValueFrom(forkJoin([loadInitialData$, minimumDelay$]));

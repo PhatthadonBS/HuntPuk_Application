@@ -57,8 +57,11 @@ export class MainLayoutPage implements OnInit, OnDestroy {
   }
 
   goTo({ destination, id }: { destination: string; id?: number | null }) {
-    console.log('Navigating to:', destination, 'with id:', id);
-    if (destination === 'home' || destination === '/home' || destination === '/') {
+    if (
+      destination === 'home' ||
+      destination === '/home' ||
+      destination === '/'
+    ) {
       return this.goHome();
     }
 

@@ -161,6 +161,11 @@ export class DormDetailPage implements OnInit, OnDestroy {
     if (!this.dormId) return;
     this.isLoading.set(true);
     this.hasError.set(false);
+    
+    // Record dorm view for statistics
+    if (!this.isPreview() && !this.isAdminReq()) {
+      this.dormSv.recordDormView(this.dormId).subscribe();
+    }
 
     forkJoin({
       dormDetails: this.dormSv.getDormById(this.dormId).pipe(

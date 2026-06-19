@@ -21,8 +21,41 @@ export interface DormQueryParams {
 export class DormServices {
   endPoint = environment.ENDPOINT;
   private readonly REQUEST_TIMEOUT = 10000; // 10 seconds
-
   constructor(private http: HttpClient) {}
+
+  private getDeviceId(): string {
+    let deviceId = localStorage.getItem('huntpuk_device_id');
+    if (!deviceId) {
+      // Fallback for older environments without crypto.randomUUID
+      deviceId = typeof crypto !== 'undefined' && crypto.randomUUID 
+        ? crypto.randomUUID() 
+        : 'id-' + Math.random().toString(36).substr(2, 9) + '-' + Date.now();
+      localStorage.setItem('huntpuk_device_id', deviceId);
+    }
+    return deviceId;
+  }
+
+  // ==================== Analytics ====================
+  recordWebsiteView(): Observable<any> {
+    const headers = { 'X-Device-Id': this.getDeviceId() };
+    return this.http.post(`${this.endPoint}/views/website`, {}, { headers }).pipe(
+      catchError(err => {
+        console.error('Failed to record website view', err);
+        return of(null);
+      })
+    );
+  }
+
+  recordDormView(dormId: string | number): Observable<any> {
+    const headers = { 'X-Device-Id': this.getDeviceId() };
+    return this.http.post(`${this.endPoint}/views/dorm/${dormId}`, {}, { headers }).pipe(
+      catchError(err => {
+        console.error('Failed to record dorm view', err);
+        return of(null);
+      })
+    );
+  }
+  // ===================================================
 
   getDorms(params?: DormQueryParams): Observable<DormAllGetRes> {
     const url = `${this.endPoint}/dorms`;
