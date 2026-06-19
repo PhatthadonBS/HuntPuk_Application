@@ -241,4 +241,58 @@ export class DormServices {
       })
     );
   }
+  getFacilityRequests(): Observable<FacilityGetRes> {
+    const url = `${this.endPoint}/admin/facilities/requests`;
+    return this.http.get<FacilityGetRes>(url).pipe(
+      timeout(this.REQUEST_TIMEOUT),
+      catchError(err => {
+        console.error('getFacilityRequests error:', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  approveFacility(facId: number): Observable<any> {
+    const url = `${this.endPoint}/admin/facilities/approve/${facId}`;
+    return this.http.put<any>(url, {}).pipe(
+      timeout(this.REQUEST_TIMEOUT),
+      catchError(err => {
+        console.error('approveFacility error:', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  rejectFacility(facId: number): Observable<any> {
+    const url = `${this.endPoint}/admin/facilities/reject/${facId}`;
+    return this.http.delete<any>(url).pipe(
+      timeout(this.REQUEST_TIMEOUT),
+      catchError(err => {
+        console.error('rejectFacility error:', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  deleteFacility(facId: number): Observable<any> {
+    const url = `${this.endPoint}/admin/facilities/${facId}`;
+    return this.http.delete<any>(url).pipe(
+      timeout(this.REQUEST_TIMEOUT),
+      catchError(err => {
+        console.error('deleteFacility error:', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  updateFacility(userId: number, formData: FormData): Observable<any> {
+    const url = `${this.endPoint}/dorms/facility/${userId}`;
+    return this.http.put<any>(url, formData).pipe(
+      timeout(this.REQUEST_TIMEOUT),
+      catchError(err => {
+        console.error('updateFacility error:', err);
+        return throwError(() => err);
+      })
+    );
+  }
 }

@@ -7,7 +7,7 @@ import {
   OnDestroy,
   ElementRef,
   ViewChild,
-  AfterViewInit
+  AfterViewInit,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonGrid, IonRow, IonCol, IonIcon } from '@ionic/angular/standalone';
@@ -26,6 +26,7 @@ import {
   chevronDownOutline,
   closeOutline,
   readerOutline,
+  cubeOutline,
 } from 'ionicons/icons';
 import { AuthenService } from 'src/app/services/authenService';
 import { Subscription } from 'rxjs';
@@ -53,7 +54,7 @@ export class MenuListComponent implements OnDestroy, AfterViewInit {
   user_id = signal<number | null>(null);
   isLogIn = signal<boolean>(false);
   inRole = signal<number>(0);
-  isClosing = signal<boolean>(false); 
+  isClosing = signal<boolean>(false);
 
   private authSub: Subscription;
   private gesture?: Gesture;
@@ -159,10 +160,10 @@ export class MenuListComponent implements OnDestroy, AfterViewInit {
         forRole: [3],
       },
       {
-        key: 'icon-manage',
-        label: 'จัดการไอคอน',
-        path: '/icon-management',
-        icon: 'document-text-outline',
+        key: 'facility-manage',
+        label: 'จัดการสิ่งอำนวยฯ',
+        path: '/facility-management',
+        icon: 'cube-outline',
         neddLogin: true,
         forRole: [3],
       },
@@ -195,6 +196,7 @@ export class MenuListComponent implements OnDestroy, AfterViewInit {
       chevronDownOutline,
       closeOutline,
       readerOutline,
+      cubeOutline,
     });
 
     this.authSub = this.authSv.user$.subscribe({
@@ -241,7 +243,8 @@ export class MenuListComponent implements OnDestroy, AfterViewInit {
 
   private onEnd(detail: GestureDetail) {
     // Re-enable smooth transition for the snap-back or close
-    this.menuWrapper.nativeElement.style.transition = 'transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1)';
+    this.menuWrapper.nativeElement.style.transition =
+      'transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1)';
 
     // If dragged down more than 100px OR swiped fast downwards, close it
     if (detail.deltaY > 100 || detail.velocityY > 0.5) {
@@ -258,20 +261,22 @@ export class MenuListComponent implements OnDestroy, AfterViewInit {
       finalPath = '/owner-profile';
     }
 
-    const destination = { 
-      destination: finalPath, 
-      id: needsId ? this.user_id() : null 
+    const destination = {
+      destination: finalPath,
+      id: needsId ? this.user_id() : null,
     };
-    
+
     if (this.isClosing()) return;
     this.isClosing.set(true);
 
     if (this.menuWrapper && this.menuOverlay) {
       // Close animation
-      this.menuWrapper.nativeElement.style.transition = 'transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1)';
+      this.menuWrapper.nativeElement.style.transition =
+        'transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1)';
       this.menuWrapper.nativeElement.style.transform = 'translateY(100%)';
-      this.menuOverlay.nativeElement.style.animation = 'quickFadeOut 0.25s ease-out forwards';
-      
+      this.menuOverlay.nativeElement.style.animation =
+        'quickFadeOut 0.25s ease-out forwards';
+
       setTimeout(() => {
         // Emit selection and THEN tell parent to close (destroying this component)
         this.selectMenu.emit(destination);
@@ -295,10 +300,12 @@ export class MenuListComponent implements OnDestroy, AfterViewInit {
 
     if (this.menuWrapper && this.menuOverlay) {
       // Force transition to ensure smooth exit
-      this.menuWrapper.nativeElement.style.transition = 'transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1)';
+      this.menuWrapper.nativeElement.style.transition =
+        'transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1)';
       this.menuWrapper.nativeElement.style.transform = 'translateY(100%)';
-      this.menuOverlay.nativeElement.style.animation = 'quickFadeOut 0.25s ease-out forwards';
-      
+      this.menuOverlay.nativeElement.style.animation =
+        'quickFadeOut 0.25s ease-out forwards';
+
       setTimeout(() => {
         this.close.emit();
         this.isClosing.set(false);

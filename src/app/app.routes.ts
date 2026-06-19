@@ -82,7 +82,10 @@ export const routes: Routes = [
       {
         path: 'my-dorm/:user_id',
         canActivate: [authGuard],
-        loadComponent: () => import('./main-layout/pages/my-dorm/my-dorm.page').then( m => m.MyDormPage)
+        loadComponent: () =>
+          import('./main-layout/pages/my-dorm/my-dorm.page').then(
+            (m) => m.MyDormPage
+          ),
       },
     ],
   },
@@ -145,6 +148,13 @@ export const routes: Routes = [
       import('./main-layout/pages/owner-requests/owner-requests.page').then(
         (m) => m.OwnerRequestsPage
       ),
+  },
+  {
+    path: 'facility-management',
+    loadComponent: () =>
+      import(
+        './main-layout/pages/facility-management/facility-management.page'
+      ).then((m) => m.FacilityManagementPage),
   },
 
   {
