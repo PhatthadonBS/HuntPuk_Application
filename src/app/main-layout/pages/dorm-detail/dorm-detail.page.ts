@@ -95,6 +95,7 @@ export class DormDetailPage implements OnInit, OnDestroy {
   hasError = signal<boolean>(false);
   
   isPreview = signal<boolean>(false);
+  isAdminReq = signal<boolean>(false);
   
   userSub?: Subscription;
   currentUser: any = null;
@@ -139,6 +140,7 @@ export class DormDetailPage implements OnInit, OnDestroy {
 
     this.route.queryParams.subscribe(params => {
       this.isPreview.set(params['preview'] === 'true');
+      this.isAdminReq.set(params['adminReq'] === 'true');
     });
 
     const idParam = this.route.snapshot.paramMap.get('dorm_id');

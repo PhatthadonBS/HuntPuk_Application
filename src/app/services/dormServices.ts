@@ -285,6 +285,39 @@ export class DormServices {
     );
   }
 
+  getAllDormsAdmin(): Observable<DormAllGetRes> {
+    const url = `${this.endPoint}/dorms/admin/mobile`;
+    return this.http.get<DormAllGetRes>(url).pipe(
+      timeout(this.REQUEST_TIMEOUT),
+      catchError(err => {
+        console.error('getAllDormsAdmin error:', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  getPendingDormReq(): Observable<DormAllGetRes> {
+    const url = `${this.endPoint}/dorms/pendingReq`;
+    return this.http.get<DormAllGetRes>(url).pipe(
+      timeout(this.REQUEST_TIMEOUT),
+      catchError(err => {
+        console.error('getPendingDormReq error:', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  approveDormReq(data: { dorm_id: number; approve_status: boolean; msg?: string }): Observable<any> {
+    const url = `${this.endPoint}/dorms/approve`;
+    return this.http.post<any>(url, data).pipe(
+      timeout(this.REQUEST_TIMEOUT),
+      catchError(err => {
+        console.error('approveDormReq error:', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
   updateFacility(userId: number, formData: FormData): Observable<any> {
     const url = `${this.endPoint}/dorms/facility/${userId}`;
     return this.http.put<any>(url, formData).pipe(

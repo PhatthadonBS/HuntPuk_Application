@@ -364,7 +364,7 @@
     </div>
 
     <!-- Section 8: Reviews -->
-    <div class="reviews-section p-4 bg-white pb-10" *ngIf="!isPreview()">
+    <div class="reviews-section p-4 bg-white pb-10" *ngIf="!isPreview() && !isAdminReq()">
       <h2 class="text-lg font-bold text-gray-800 mb-1">รีวิวหอพัก</h2>
 
       <div class="flex items-center mb-6 mt-2">
@@ -467,7 +467,7 @@
       </div>
     </div>
     
-    <div class="bottom-spacer h-20" *ngIf="!isPreview()"></div>
+    <div class="bottom-spacer h-20" *ngIf="!isPreview() && !isAdminReq()"></div>
 
     <!-- Preview Actions -->
     <div class="preview-actions p-4 flex gap-4 bg-white border-t sticky bottom-0 z-20" *ngIf="isPreview()">
