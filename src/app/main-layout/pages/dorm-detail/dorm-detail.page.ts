@@ -179,9 +179,18 @@ export class DormDetailPage implements OnInit, OnDestroy {
       next: ({ dormDetails, dormReviews }) => {
         if (dormDetails && dormDetails.success) {
           const dData = dormDetails.data;
+          if (!dData.gallery) dData.gallery = [];
+          
+          // Combine room components into gallery for the album slider
+          const roomParts = [dData.ceiling_img, dData.wall_img, dData.floor_img, dData.bathroom_img, dData.balcony_img];
+          roomParts.forEach(img => {
+            if (img && !dData.gallery.includes(img)) {
+              dData.gallery.push(img);
+            }
+          });
+
           // Combine front image with gallery for the album
           if (dData.image) {
-            if (!dData.gallery) dData.gallery = [];
             if (!dData.gallery.includes(dData.image)) {
               dData.gallery.unshift(dData.image);
             }
