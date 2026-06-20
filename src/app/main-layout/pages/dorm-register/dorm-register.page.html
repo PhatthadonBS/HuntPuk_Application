@@ -471,8 +471,24 @@
           rows="5"
           placeholder="ระบุรายละเอียดเพิ่มเติมที่คุณต้องการบอกลูกค้า..."
           formControlName="detail"
-          class="custom-input"
+          class="custom-input mb-4"
         ></ion-textarea>
+
+        <ng-container *ngIf="isAdmin()">
+          <h2 class="section-title mt-4">
+            <ion-icon name="person-circle-outline"></ion-icon>
+            กำหนดเจ้าของหอพัก (สำหรับ Admin)
+          </h2>
+          <div class="input-group">
+            <label>เลือกเจ้าของหอพัก</label>
+            <select formControlName="user_id" class="native-select">
+              <option [ngValue]="null" disabled selected>เลือกเจ้าของหอพัก</option>
+              <option *ngFor="let owner of dormOwners()" [ngValue]="owner.USER_ID">
+                {{ owner.FIRST_NAME }} {{ owner.LAST_NAME }} ({{ owner.USERNAME }})
+              </option>
+            </select>
+          </div>
+        </ng-container>
       </div>
 
       <div class="wizard-navigation p-4 flex gap-3">

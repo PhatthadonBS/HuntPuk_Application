@@ -71,12 +71,16 @@ import {
   chevronForwardOutline,
   sendOutline,
   star,
+  personCircleOutline,
 } from 'ionicons/icons';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { DormServices } from 'src/app/services/dormServices';
 import { MasterType, DormZone, FacilityItem } from 'src/app/model/dorm.model';
 import { GoogleMapService } from 'src/app/services/google-map-service';
 import { ActivatedRoute } from '@angular/router';
+import { UserServices } from 'src/app/services/userServices';
+import { UserAllGetRes } from 'src/app/model/user.model';
+import { AuthenService } from 'src/app/services/authenService';
 import { LoadingUIComponent } from '../../components/loading-ui/loading-ui.component';
 import { finalize } from 'rxjs';
 
@@ -135,6 +139,8 @@ export class DormRegisterPage implements OnInit, OnDestroy {
   dormId: number | null = null;
   userId: number | null = null;
   isDraftRegistration = false;
+  isAdmin = signal<boolean>(false);
+  dormOwners = signal<UserAllGetRes[]>([]);
 
   // Wizard State
   currentStep = signal<number>(1);
@@ -177,7 +183,9 @@ export class DormRegisterPage implements OnInit, OnDestroy {
     private navCtrl: NavController,
     private alertCtrl: AlertController,
     private gMapSv: GoogleMapService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private userSv: UserServices,
+    private authSv: AuthenService
   ) {
     addIcons({
       camera,
@@ -200,6 +208,7 @@ export class DormRegisterPage implements OnInit, OnDestroy {
       chevronForwardOutline,
       sendOutline,
       star,
+      personCircleOutline,
     });
 
     this.dormForm = this.fb.group({
@@ -239,6 +248,21 @@ export class DormRegisterPage implements OnInit, OnDestroy {
       this.dormId = Number(dId);
       this.isEditMode.set(true);
       this.loadDormData(this.dormId);
+    }
+
+    const userObj = this.authSv.currentUserValue;
+    if (userObj) {
+      if (userObj.role === 1 || userObj.role === 3) {
+        this.isAdmin.set(true);
+        this.userSv.getDormOwners().subscribe({
+          next: (owners) => {
+            if (Array.isArray(owners)) {
+              this.dormOwners.set(owners);
+            }
+          },
+          error: (err) => console.error('Failed to load dorm owners', err)
+        });
+      }
     }
 
     this.loadMasterData();
