@@ -481,12 +481,18 @@
           </h2>
           <div class="input-group">
             <label>เลือกเจ้าของหอพัก</label>
-            <select formControlName="user_id" class="native-select">
-              <option [ngValue]="null" disabled selected>เลือกเจ้าของหอพัก</option>
-              <option *ngFor="let owner of dormOwners()" [ngValue]="owner.USER_ID">
-                {{ owner.FIRST_NAME }} {{ owner.LAST_NAME }} ({{ owner.USERNAME }})
-              </option>
-            </select>
+            <ion-button expand="block" fill="outline" (click)="openOwnerModal()" class="location-btn text-black">
+              <ion-icon name="person-circle-outline" slot="start"></ion-icon>
+              ค้นหาและเลือกเจ้าของหอพัก
+            </ion-button>
+            
+            <div class="mt-3 p-3 bg-gray-50 rounded-lg border border-gray-200 flex items-center gap-3">
+              <ion-icon name="person-circle-outline" class="text-3xl text-gray-500"></ion-icon>
+              <div class="flex flex-col">
+                <span class="text-xs text-gray-500">เจ้าของหอพักที่เลือก</span>
+                <span class="text-sm font-medium text-gray-800">{{ selectedOwnerName }}</span>
+              </div>
+            </div>
           </div>
         </ng-container>
       </div>
@@ -558,6 +564,41 @@
           >
         </div>
       </ion-footer>
+    </ng-template>
+  </ion-modal>
+
+  <!-- Owner Select Modal -->
+  <ion-modal [isOpen]="isOwnerModalOpen()" (didDismiss)="closeOwnerModal()">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>เลือกเจ้าของหอพัก</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="closeOwnerModal()">ปิด</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+        <ion-toolbar>
+          <ion-searchbar 
+            placeholder="ค้นหาชื่อ, นามสกุล, username..." 
+            [ngModel]="ownerSearchText()" 
+            (ngModelChange)="ownerSearchText.set($event)"
+            [ngModelOptions]="{standalone: true}"
+          ></ion-searchbar>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content>
+        <ion-list>
+          <ion-item button *ngFor="let owner of filteredOwners()" (click)="selectOwner(owner.USER_ID)">
+            <ion-avatar slot="start">
+              <img [src]="owner.PROFILE_IMAGE || 'https://ionicframework.com/docs/img/demos/avatar.svg'" (error)="handleAvatarError($event)"/>
+            </ion-avatar>
+            <ion-label>
+              <h2>{{ owner.FIRST_NAME || '' }} {{ owner.LAST_NAME || '' }}</h2>
+              <p>{{ owner.USERNAME }}</p>
+            </ion-label>
+          </ion-item>
+        </ion-list>
+      </ion-content>
     </ng-template>
   </ion-modal>
 

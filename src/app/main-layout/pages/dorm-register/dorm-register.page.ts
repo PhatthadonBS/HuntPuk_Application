@@ -48,6 +48,8 @@ import {
   AlertController,
   IonSegment,
   IonSegmentButton,
+  IonSearchbar,
+  IonList,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -127,6 +129,8 @@ interface ImageState {
     IonImg,
     IonSegment,
     IonSegmentButton,
+    IonSearchbar,
+    IonList,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
@@ -141,6 +145,18 @@ export class DormRegisterPage implements OnInit, OnDestroy {
   isDraftRegistration = false;
   isAdmin = signal<boolean>(false);
   dormOwners = signal<UserAllGetRes[]>([]);
+  ownerSearchText = signal<string>('');
+  isOwnerModalOpen = signal<boolean>(false);
+
+  filteredOwners = computed(() => {
+    const search = this.ownerSearchText().toLowerCase().trim();
+    if (!search) return this.dormOwners();
+    return this.dormOwners().filter(o => 
+      o.FIRST_NAME?.toLowerCase().includes(search) || 
+      o.LAST_NAME?.toLowerCase().includes(search) || 
+      o.USERNAME.toLowerCase().includes(search)
+    );
+  });
 
   // Wizard State
   currentStep = signal<number>(1);
@@ -257,7 +273,41 @@ export class DormRegisterPage implements OnInit, OnDestroy {
         this.userSv.getDormOwners().subscribe({
           next: (owners) => {
             if (Array.isArray(owners)) {
-              this.dormOwners.set(owners);
+              if (!owners.find(o => o.USER_ID === userObj.id)) {
+                this.userSv.getUserByID(userObj.id).subscribe({
+                  next: (res: any) => {
+                    const uData = res.data || res;
+                    owners.unshift({
+                      USER_ID: userObj.id,
+                      USERNAME: uData?.USERNAME || 'Admin',
+                      EMAIL: uData?.EMAIL || '',
+                      PHONE_NUMBER: uData?.PHONE_NUMBER || '',
+                      ROLE_TYPE_ID: userObj.role,
+                      ACCOUNT_STATUS: userObj.status,
+                      FIRST_NAME: 'ตัวเอง',
+                      LAST_NAME: '(ผู้ดูแลระบบ)',
+                      PROFILE_IMAGE: ''
+                    });
+                    this.dormOwners.set(owners);
+                  },
+                  error: () => {
+                    owners.unshift({
+                      USER_ID: userObj.id,
+                      USERNAME: 'Admin',
+                      EMAIL: '',
+                      PHONE_NUMBER: '',
+                      ROLE_TYPE_ID: userObj.role,
+                      ACCOUNT_STATUS: userObj.status,
+                      FIRST_NAME: 'ตัวเอง',
+                      LAST_NAME: '(ผู้ดูแลระบบ)',
+                      PROFILE_IMAGE: ''
+                    });
+                    this.dormOwners.set(owners);
+                  }
+                });
+              } else {
+                this.dormOwners.set(owners);
+              }
             }
           },
           error: (err) => console.error('Failed to load dorm owners', err)
@@ -323,7 +373,27 @@ export class DormRegisterPage implements OnInit, OnDestroy {
               elect_unit: d.ELECT_UNIT,
               water_lump: d.WATER_LUMP,
               detail: d.ADD_DORM_DATA,
+              user_id: d.USER_ID,
             });
+
+            // Ensure the original owner is in the dormOwners list so their name displays properly
+            if (d.USER_ID && this.isAdmin()) {
+              const currentOwners = this.dormOwners();
+              if (!currentOwners.find(o => o.USER_ID === d.USER_ID)) {
+                currentOwners.push({
+                  USER_ID: d.USER_ID,
+                  FIRST_NAME: d.FIRST_NAME || '',
+                  LAST_NAME: d.LAST_NAME || '',
+                  USERNAME: '(เจ้าของเดิม)',
+                  EMAIL: '',
+                  PHONE_NUMBER: '',
+                  ROLE_TYPE_ID: 2,
+                  ACCOUNT_STATUS: 1,
+                  PROFILE_IMAGE: ''
+                });
+                this.dormOwners.set([...currentOwners]);
+              }
+            }
 
             if (d.lat && d.lng) {
               this.tempLocation.set({ lat: Number(d.lat), lng: Number(d.lng) });
@@ -547,6 +617,10 @@ export class DormRegisterPage implements OnInit, OnDestroy {
     event.target.src = 'https://placehold.co/400x300?text=error';
   }
 
+  handleAvatarError(event: any) {
+    event.target.src = 'https://ionicframework.com/docs/img/demos/avatar.svg';
+  }
+
   private async dataUrlToFile(
     dataUrl: string,
     fileName: string
@@ -626,6 +700,27 @@ export class DormRegisterPage implements OnInit, OnDestroy {
   destroyMap() {
     this.map = null;
     this.marker = null;
+  }
+
+  openOwnerModal() {
+    this.isOwnerModalOpen.set(true);
+  }
+
+  closeOwnerModal() {
+    this.isOwnerModalOpen.set(false);
+  }
+
+  selectOwner(userId: number) {
+    this.dormForm.patchValue({ user_id: userId });
+    this.closeOwnerModal();
+  }
+
+  get selectedOwnerName() {
+    const uId = this.dormForm.get('user_id')?.value;
+    if (!uId) return 'เลือกเจ้าของหอพัก';
+    const owner = this.dormOwners().find(o => o.USER_ID === uId);
+    if (owner) return `${owner.FIRST_NAME || ''} ${owner.LAST_NAME || ''} (${owner.USERNAME})`;
+    return 'เลือกเจ้าของหอพัก';
   }
 
   async confirmAndRegister() {
