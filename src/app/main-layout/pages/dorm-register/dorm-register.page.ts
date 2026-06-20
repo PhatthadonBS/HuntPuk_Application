@@ -134,6 +134,7 @@ export class DormRegisterPage implements OnInit, OnDestroy {
   isEditMode = signal<boolean>(false);
   dormId: number | null = null;
   userId: number | null = null;
+  isDraftRegistration = false;
 
   // Wizard State
   currentStep = signal<number>(1);
@@ -670,11 +671,12 @@ export class DormRegisterPage implements OnInit, OnDestroy {
 
   async performImageUpload(dormId: number) {
     const formData = new FormData();
+    const wasInitial = !this.isEditMode();
 
     // Only append if file is newly selected
     if (this.images['FRONT'].file)
       formData.append('FRONT_DORM_IMG', this.images['FRONT'].file);
-    if (!this.isEditMode() && this.images['LICENSE'].file)
+    if (wasInitial && this.images['LICENSE'].file)
       formData.append('LICENSE_IMG', this.images['LICENSE'].file);
 
     if (this.images['CEILING'].file)
@@ -702,10 +704,17 @@ export class DormRegisterPage implements OnInit, OnDestroy {
       hasFiles = true;
     });
 
-    if (this.isEditMode() && !hasFiles) {
+    if (!wasInitial && !hasFiles) {
       this.isLoading.set(false);
       this.showToast('บันทึกข้อมูลเรียบร้อยแล้ว', 'success');
-      this.navCtrl.navigateRoot(`/my-dorm/${this.userId}`);
+      
+      if (this.isDraftRegistration) {
+        this.navCtrl.navigateForward(`/dorm-detail/${dormId}`, {
+          queryParams: { preview: 'true' },
+        });
+      } else {
+        this.navCtrl.navigateRoot(`/my-dorm/${this.userId}`);
+      }
       return;
     }
 
@@ -714,25 +723,46 @@ export class DormRegisterPage implements OnInit, OnDestroy {
       .pipe(finalize(() => this.isLoading.set(false)))
       .subscribe({
         next: () => {
+          if (wasInitial) {
+            this.dormId = dormId;
+            this.isDraftRegistration = true;
+            this.isEditMode.set(true);
+          }
+
           this.showToast(
-            this.isEditMode() ? 'อัปเดตข้อมูลสำเร็จ' : 'ลงทะเบียนสำเร็จ',
+            wasInitial ? 'ลงทะเบียนสำเร็จ' : 'อัปเดตข้อมูลสำเร็จ',
             'success'
           );
-          if (this.isEditMode()) {
-            this.navCtrl.navigateRoot(`/my-dorm/${this.userId}`);
-          } else {
+
+          if (wasInitial || this.isDraftRegistration) {
             this.navCtrl.navigateForward(`/dorm-detail/${dormId}`, {
               queryParams: { preview: 'true' },
             });
+          } else {
+            this.navCtrl.navigateRoot(`/my-dorm/${this.userId}`);
           }
         },
         error: (err) => {
           console.error(err);
-          const msg = this.isEditMode()
-            ? 'อัปเดตข้อมูลสำเร็จ แต่รูปภาพบางส่วนไม่สามารถอัปโหลดได้'
-            : 'อัปโหลดรูปภาพไม่สำเร็จ กรุณาอัปโหลดใหม่ในหน้าแก้ไข';
+          const msg = wasInitial
+            ? 'ลงทะเบียนสำเร็จ แต่รูปภาพบางส่วนไม่สามารถอัปโหลดได้'
+            : 'อัปเดตข้อมูลสำเร็จ แต่รูปภาพบางส่วนไม่สามารถอัปโหลดได้';
           this.showToast(msg, 'warning');
-          this.navCtrl.navigateRoot(`/my-dorm/${this.userId}`);
+          
+          if (wasInitial) {
+            this.dormId = dormId;
+            this.isDraftRegistration = true;
+            this.isEditMode.set(true);
+            this.navCtrl.navigateForward(`/dorm-detail/${dormId}`, {
+              queryParams: { preview: 'true' },
+            });
+          } else if (this.isDraftRegistration) {
+            this.navCtrl.navigateForward(`/dorm-detail/${dormId}`, {
+              queryParams: { preview: 'true' },
+            });
+          } else {
+            this.navCtrl.navigateRoot(`/my-dorm/${this.userId}`);
+          }
         },
       });
   }

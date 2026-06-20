@@ -129,6 +129,17 @@
       </div>
     </div>
 
+    <!-- Section 4: License Picture (Admin Only) -->
+    <div class="license-section p-4 bg-white mb-2" *ngIf="isAdminReq() && d.DORM_LICENSE">
+      <h2 class="text-lg font-bold text-gray-800 mb-3 flex items-center">
+        <ion-icon name="document-text-outline" class="mr-2 text-primary"></ion-icon>
+        ใบอนุญาตประกอบการ
+      </h2>
+      <div class="rounded-lg overflow-hidden border border-gray-200">
+        <img [src]="d.DORM_LICENSE" class="w-full h-auto object-contain max-h-96" />
+      </div>
+    </div>
+
     <!-- Section 5: Pricing Table -->
     <div
       class="pricing-section p-4 bg-white mb-2"
