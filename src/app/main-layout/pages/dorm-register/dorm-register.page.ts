@@ -563,8 +563,7 @@ export class DormRegisterPage implements OnInit, OnDestroy {
       this.map = new google.maps.Map(el, {
         center,
         zoom: 15,
-        disableDefaultUI: false,
-        zoomControl: true,
+        disableDefaultUI: true,
       });
 
       if (this.tempLocation()) {
@@ -587,6 +586,7 @@ export class DormRegisterPage implements OnInit, OnDestroy {
       position: pos,
       map: this.map,
       animation: google.maps.Animation.DROP,
+      clickable: false,
     });
   }
 
