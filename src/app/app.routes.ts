@@ -172,6 +172,7 @@ export const routes: Routes = [
         (m) => m.TypeManagementPage
       ),
   },
+
   {
     path: '**',
     loadComponent: () =>
