@@ -151,10 +151,11 @@ export class DormRegisterPage implements OnInit, OnDestroy {
   filteredOwners = computed(() => {
     const search = this.ownerSearchText().toLowerCase().trim();
     if (!search) return this.dormOwners();
-    return this.dormOwners().filter(o => 
-      o.FIRST_NAME?.toLowerCase().includes(search) || 
-      o.LAST_NAME?.toLowerCase().includes(search) || 
-      o.USERNAME.toLowerCase().includes(search)
+    return this.dormOwners().filter(
+      (o) =>
+        o.FIRST_NAME?.toLowerCase().includes(search) ||
+        o.LAST_NAME?.toLowerCase().includes(search) ||
+        o.USERNAME.toLowerCase().includes(search)
     );
   });
 
@@ -273,7 +274,7 @@ export class DormRegisterPage implements OnInit, OnDestroy {
         this.userSv.getDormOwners().subscribe({
           next: (owners) => {
             if (Array.isArray(owners)) {
-              if (!owners.find(o => o.USER_ID === userObj.id)) {
+              if (!owners.find((o) => o.USER_ID === userObj.id)) {
                 this.userSv.getUserByID(userObj.id).subscribe({
                   next: (res: any) => {
                     const uData = res.data || res;
@@ -286,7 +287,7 @@ export class DormRegisterPage implements OnInit, OnDestroy {
                       ACCOUNT_STATUS: userObj.status,
                       FIRST_NAME: 'ตัวเอง',
                       LAST_NAME: '(ผู้ดูแลระบบ)',
-                      PROFILE_IMAGE: ''
+                      PROFILE_IMAGE: '',
                     });
                     this.dormOwners.set(owners);
                   },
@@ -300,17 +301,17 @@ export class DormRegisterPage implements OnInit, OnDestroy {
                       ACCOUNT_STATUS: userObj.status,
                       FIRST_NAME: 'ตัวเอง',
                       LAST_NAME: '(ผู้ดูแลระบบ)',
-                      PROFILE_IMAGE: ''
+                      PROFILE_IMAGE: '',
                     });
                     this.dormOwners.set(owners);
-                  }
+                  },
                 });
               } else {
                 this.dormOwners.set(owners);
               }
             }
           },
-          error: (err) => console.error('Failed to load dorm owners', err)
+          error: (err) => console.error('Failed to load dorm owners', err),
         });
       }
     }
@@ -379,7 +380,7 @@ export class DormRegisterPage implements OnInit, OnDestroy {
             // Ensure the original owner is in the dormOwners list so their name displays properly
             if (d.USER_ID && this.isAdmin()) {
               const currentOwners = this.dormOwners();
-              if (!currentOwners.find(o => o.USER_ID === d.USER_ID)) {
+              if (!currentOwners.find((o) => o.USER_ID === d.USER_ID)) {
                 currentOwners.push({
                   USER_ID: d.USER_ID,
                   FIRST_NAME: d.FIRST_NAME || '',
@@ -389,7 +390,7 @@ export class DormRegisterPage implements OnInit, OnDestroy {
                   PHONE_NUMBER: '',
                   ROLE_TYPE_ID: 2,
                   ACCOUNT_STATUS: 1,
-                  PROFILE_IMAGE: ''
+                  PROFILE_IMAGE: '',
                 });
                 this.dormOwners.set([...currentOwners]);
               }
@@ -663,6 +664,7 @@ export class DormRegisterPage implements OnInit, OnDestroy {
         center,
         zoom: 15,
         disableDefaultUI: true,
+        clickableIcons: false,
       });
 
       if (this.tempLocation()) {
@@ -718,8 +720,11 @@ export class DormRegisterPage implements OnInit, OnDestroy {
   get selectedOwnerName() {
     const uId = this.dormForm.get('user_id')?.value;
     if (!uId) return 'เลือกเจ้าของหอพัก';
-    const owner = this.dormOwners().find(o => o.USER_ID === uId);
-    if (owner) return `${owner.FIRST_NAME || ''} ${owner.LAST_NAME || ''} (${owner.USERNAME})`;
+    const owner = this.dormOwners().find((o) => o.USER_ID === uId);
+    if (owner)
+      return `${owner.FIRST_NAME || ''} ${owner.LAST_NAME || ''} (${
+        owner.USERNAME
+      })`;
     return 'เลือกเจ้าของหอพัก';
   }
 
@@ -826,7 +831,7 @@ export class DormRegisterPage implements OnInit, OnDestroy {
     if (!wasInitial && !hasFiles) {
       this.isLoading.set(false);
       this.showToast('บันทึกข้อมูลเรียบร้อยแล้ว', 'success');
-      
+
       if (this.isDraftRegistration) {
         this.navCtrl.navigateForward(`/dorm-detail/${dormId}`, {
           queryParams: { preview: 'true' },
@@ -867,7 +872,7 @@ export class DormRegisterPage implements OnInit, OnDestroy {
             ? 'ลงทะเบียนสำเร็จ แต่รูปภาพบางส่วนไม่สามารถอัปโหลดได้'
             : 'อัปเดตข้อมูลสำเร็จ แต่รูปภาพบางส่วนไม่สามารถอัปโหลดได้';
           this.showToast(msg, 'warning');
-          
+
           if (wasInitial) {
             this.dormId = dormId;
             this.isDraftRegistration = true;
