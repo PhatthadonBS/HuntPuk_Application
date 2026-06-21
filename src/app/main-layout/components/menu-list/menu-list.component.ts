@@ -145,7 +145,7 @@ export class MenuListComponent implements OnDestroy, AfterViewInit {
       },
       {
         key: 'owner-manage',
-        label: 'จัดการเจ้าของหอ',
+        label: 'คำร้องขอเป็นเจ้าของหอ',
         path: '/owner-requests',
         icon: 'people-outline',
         neddLogin: true,
