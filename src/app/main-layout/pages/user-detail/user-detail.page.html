@@ -38,7 +38,7 @@
       </ion-list>
     </div>
 
-    <div class="action-section">
+    <div class="action-section" *ngIf="isOwnProfile() || isAdmin()">
       <ion-list lines="none" class="minimal-list action-list">
         <ion-item button (click)="profileUpdate()" detail="true">
           <ion-icon name="create-outline" slot="start" color="medium"></ion-icon>
@@ -51,6 +51,7 @@
         </ion-item>
 
         <ion-item
+          *ngIf="isOwnProfile()"
           button
           (click)="deleteAccount()"
           detail="true"
@@ -60,7 +61,7 @@
           <ion-label>ลบบัญชี</ion-label>
         </ion-item>
 
-        <div class="logout-container">
+        <div class="logout-container" *ngIf="isOwnProfile()">
           <ion-button
             expand="block"
             fill="solid"

@@ -35,7 +35,8 @@ import {
   arrowUpOutline,
   personCircleOutline,
   businessOutline,
-  shieldCheckmarkOutline
+  shieldCheckmarkOutline,
+  trashOutline
 } from 'ionicons/icons';
 import { UserServices } from 'src/app/services/userServices';
 import { UserAllGetRes } from 'src/app/model/user.model';
@@ -112,7 +113,8 @@ export class MemberManagementPage implements OnInit {
       personCircleOutline,
       businessOutline,
       checkmarkCircleOutline,
-      shieldCheckmarkOutline
+      shieldCheckmarkOutline,
+      trashOutline
     });
   }
 
@@ -151,14 +153,17 @@ export class MemberManagementPage implements OnInit {
     if (user.ROLE_TYPE_ID === 1) {
       this.router.navigate(['/profile', user.USER_ID]);
     } else {
-      // Per instruction: if owner go to owner-profile
-      this.router.navigate(['/owner-profile'], { queryParams: { user_id: user.USER_ID } });
+      this.router.navigate(['/owner-profile', user.USER_ID]);
     }
   }
 
   editUser(event: Event, user: UserAllGetRes) {
     event.stopPropagation();
-    this.router.navigate(['/profile-update', user.USER_ID]);
+    if (user.ROLE_TYPE_ID === 1) {
+      this.router.navigate(['/profile-update', user.USER_ID]);
+    } else {
+      this.router.navigate(['/owner-profile-update', user.USER_ID]);
+    }
   }
 
   async banUser(event: Event, user: UserAllGetRes) {
@@ -204,6 +209,35 @@ export class MemberManagementPage implements OnInit {
                 this.fetchData();
               },
               error: (err) => this.showToast('Failed to unban user: ' + err.message)
+            });
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
+
+  async hardDeleteUser(event: Event, user: UserAllGetRes) {
+    event.stopPropagation();
+    
+    const alert = await this.alertCtrl.create({
+      header: 'Confirm Hard Delete',
+      message: `Are you absolutely sure you want to PERMANENTLY delete ${this.selectedTab() === 'member' ? user.USERNAME : user.FIRST_NAME + ' ' + user.LAST_NAME}? This action cannot be undone and will erase all associated data.`,
+      buttons: [
+        { text: 'Cancel', role: 'cancel' },
+        {
+          text: 'Delete Permanently',
+          role: 'destructive',
+          handler: () => {
+            this.userSv.hardDeleteAccount(user.USER_ID).subscribe({
+              next: () => {
+                this.showToast('User has been permanently deleted');
+                this.fetchData();
+              },
+              error: (err) => {
+                const msg = err.error?.message || err.message;
+                this.showToast('Failed to delete: ' + msg);
+              }
             });
           }
         }

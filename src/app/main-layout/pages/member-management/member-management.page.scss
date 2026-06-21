@@ -1,78 +1,72 @@
-.premium-header {
-  --background: linear-gradient(135deg, var(--ion-color-primary) 0%, #1e40af 100%);
-  background: linear-gradient(135deg, var(--ion-color-primary) 0%, #1e40af 100%);
-  border-bottom-left-radius: 30px;
-  border-bottom-right-radius: 30px;
-  overflow: hidden;
-  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.2);
+.main-toolbar {
+  --background: #fff;
+  --border-width: 0;
+  border-bottom: 1px solid #f3f4f6;
 }
 
-ion-toolbar {
+.toolbar-title {
+  font-weight: 800;
+  color: #1f2937;
+}
+
+.minimal-search-container {
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 0px;
+  border: 1px solid #e5e7eb;
+  margin-top: 10px;
+}
+
+.minimal-searchbar {
   --background: transparent;
-  --color: #fff;
-}
-
-.premium-search-container {
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  border-radius: 18px;
-  padding: 2px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.premium-searchbar {
-  --background: transparent;
-  --color: white;
-  --placeholder-color: rgba(255, 255, 255, 0.7);
-  --icon-color: white;
-  --clear-button-color: white;
+  --color: #374151;
+  --placeholder-color: #9ca3af;
+  --icon-color: #6b7280;
+  --clear-button-color: #6b7280;
   padding: 0;
 }
 
-.premium-segment {
-  --background: rgba(0, 0, 0, 0.1);
-  border-radius: 14px;
+.minimal-segment {
+  --background: #f3f4f6;
+  border-radius: 10px;
   padding: 4px;
 
   ion-segment-button {
     --indicator-color: #fff;
-    --color: rgba(255, 255, 255, 0.6);
-    --color-checked: var(--ion-color-primary);
-    --border-radius: 10px;
+    --color: #6b7280;
+    --color-checked: #111827;
+    --border-radius: 8px;
     margin: 0;
-    min-height: 40px;
+    min-height: 36px;
     font-weight: 700;
   }
 }
 
-.premium-content {
-  --background: #fdfdfd;
+.minimal-content {
+  --background: #f8fafc;
 }
 
-.premium-card {
-  background: white;
-  border-radius: 22px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
-  border: 1px solid #f0f0f0;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+.minimal-card {
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
   cursor: pointer;
 
   &:active {
-    transform: scale(0.97);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+    background: #f9fafb;
   }
 }
 
-.premium-card-inner {
-  padding: 20px;
+.minimal-card-inner {
+  padding: 16px;
 }
 
 .avatar-container {
   position: relative;
-  width: 56px;
-  height: 56px;
-  background: #f8fafc;
-  border-radius: 18px;
+  width: 50px;
+  height: 50px;
+  background: #f3f4f6;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -82,51 +76,40 @@ ion-toolbar {
   position: absolute;
   bottom: -2px;
   right: -2px;
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   border: 2px solid white;
-  background: #cbd5e1;
+  background: #9ca3af;
 
   &.is-owner {
     background: #fbbf24;
   }
 }
 
-.premium-badge {
-  --padding-start: 10px;
-  --padding-end: 10px;
-  --padding-top: 5px;
-  --padding-bottom: 5px;
+.minimal-badge {
+  --padding-start: 8px;
+  --padding-end: 8px;
+  --padding-top: 4px;
+  --padding-bottom: 4px;
   font-size: 0.7rem;
-  font-weight: 800;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  border-radius: 8px;
+  font-weight: 700;
+  border-radius: 6px;
 }
 
 .action-btn {
-  --border-radius: 10px;
-  font-weight: 700;
+  --border-radius: 8px;
+  font-weight: 600;
   margin: 0;
+  text-transform: none;
 
-  &.edit {
-    --color: #64748b;
-  }
-
-  &.unban {
-    --background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    --box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
-  }
-
-  &.ban {
-    --background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-    --box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+  &.hard-delete {
+    --color: #dc2626;
   }
 }
 
-.premium-fab {
-  --background: var(--ion-color-primary);
-  --color: white;
-  --box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
+.minimal-fab {
+  --border-radius: 16px;
+  margin-bottom: 10px;
 }
+

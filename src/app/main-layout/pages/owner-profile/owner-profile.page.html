@@ -16,20 +16,30 @@
   <div class="content-wrapper">
     <div class="profile-header">
       <div class="avatar-placeholder">
-        <img 
-          [src]="user()?.PROFILE_IMAGE" 
-          alt="Profile" 
-          *ngIf="user()?.PROFILE_IMAGE" 
+        <img
+          [src]="user()?.PROFILE_IMAGE"
+          alt="Profile"
+          *ngIf="user()?.PROFILE_IMAGE"
           (error)="handleImageError()"
           class="w-full h-full object-cover rounded-[32px]"
-        >
-        <ion-icon name="business-outline" color="medium" *ngIf="!user()?.PROFILE_IMAGE"></ion-icon>
+        />
+        <ion-icon
+          name="business-outline"
+          color="medium"
+          *ngIf="!user()?.PROFILE_IMAGE"
+        ></ion-icon>
       </div>
       <h1 class="page-title">โปรไฟล์เจ้าของหอพัก</h1>
-      <div class="username-badge" [class.banned-badge]="user()?.ACCOUNT_STATUS === 2">
+      <div
+        class="username-badge"
+        [class.banned-badge]="user()?.ACCOUNT_STATUS === 2"
+      >
         <p class="user-handle">{{ user()?.USERNAME || 'กำลังโหลด...' }}</p>
       </div>
-      <p class="status-text text-danger font-bold mt-2" *ngIf="user()?.ACCOUNT_STATUS === 2">
+      <p
+        class="status-text text-danger font-bold mt-2"
+        *ngIf="user()?.ACCOUNT_STATUS === 2"
+      >
         บัญชีนี้ถูกระงับการใช้งาน
       </p>
     </div>
@@ -37,21 +47,45 @@
     <div class="info-section">
       <ion-list lines="none" class="minimal-list">
         <ion-item class="highlight-item">
-          <ion-icon name="person-outline" slot="start" color="medium"></ion-icon>
+          <ion-icon
+            name="person-outline"
+            slot="start"
+            color="medium"
+          ></ion-icon>
           <ion-label position="stacked">ชื่อผู้ใช้</ion-label>
-          <ion-input type="text" [value]="user()?.USERNAME" readonly></ion-input>
+          <ion-input
+            type="text"
+            [value]="user()?.USERNAME"
+            readonly
+          ></ion-input>
         </ion-item>
 
         <ion-item *ngIf="user()?.FIRST_NAME">
-          <ion-icon name="person-circle-outline" slot="start" color="medium"></ion-icon>
+          <ion-icon
+            name="person-circle-outline"
+            slot="start"
+            color="medium"
+          ></ion-icon>
           <ion-label position="stacked">ชื่อจริง</ion-label>
-          <ion-input type="text" [value]="user()?.FIRST_NAME" readonly></ion-input>
+          <ion-input
+            type="text"
+            [value]="user()?.FIRST_NAME"
+            readonly
+          ></ion-input>
         </ion-item>
 
         <ion-item *ngIf="user()?.LAST_NAME">
-          <ion-icon name="person-circle-outline" slot="start" color="medium"></ion-icon>
+          <ion-icon
+            name="person-circle-outline"
+            slot="start"
+            color="medium"
+          ></ion-icon>
           <ion-label position="stacked">นามสกุล</ion-label>
-          <ion-input type="text" [value]="user()?.LAST_NAME" readonly></ion-input>
+          <ion-input
+            type="text"
+            [value]="user()?.LAST_NAME"
+            readonly
+          ></ion-input>
         </ion-item>
 
         <ion-item>
@@ -63,47 +97,62 @@
         <ion-item>
           <ion-icon name="call-outline" slot="start" color="medium"></ion-icon>
           <ion-label position="stacked">เบอร์โทรศัพท์</ion-label>
-          <ion-input type="tel" [value]="user()?.PHONE_NUMBER" readonly></ion-input>
+          <ion-input
+            type="tel"
+            [value]="user()?.PHONE_NUMBER"
+            readonly
+          ></ion-input>
         </ion-item>
       </ion-list>
     </div>
 
     <div class="action-section" *ngIf="isOwnProfile() || isAdmin()">
       <ion-list lines="none" class="minimal-list action-list">
-        
-        <!-- Own Profile Actions -->
-        <ng-container *ngIf="isOwnProfile()">
+        <!-- Actions for Owner OR Admin -->
+        <ng-container *ngIf="isOwnProfile() || isAdmin()">
           <ion-item button (click)="profileUpdate()" detail="true">
-            <ion-icon name="create-outline" slot="start" color="medium"></ion-icon>
+            <ion-icon
+              name="create-outline"
+              slot="start"
+              color="medium"
+            ></ion-icon>
             <ion-label>แก้ไขข้อมูลส่วนตัว</ion-label>
           </ion-item>
 
           <ion-item button (click)="resetPasswd()" detail="true">
-            <ion-icon name="lock-closed-outline" slot="start" color="medium"></ion-icon>
+            <ion-icon
+              name="lock-closed-outline"
+              slot="start"
+              color="medium"
+            ></ion-icon>
             <ion-label>เปลี่ยนรหัสผ่าน</ion-label>
           </ion-item>
+        </ng-container>
 
-          <ion-item button (click)="deleteAccount()" detail="true" class="delete-item">
-            <ion-icon name="trash-outline" slot="start" color="danger"></ion-icon>
+        <!-- Actions ONLY for Owner -->
+        <ng-container *ngIf="isOwnProfile()">
+          <ion-item
+            button
+            (click)="deleteAccount()"
+            detail="true"
+            class="delete-item"
+          >
+            <ion-icon
+              name="trash-outline"
+              slot="start"
+              color="danger"
+            ></ion-icon>
             <ion-label>ลบบัญชี</ion-label>
           </ion-item>
         </ng-container>
 
-        <!-- Admin Actions -->
-        <ng-container *ngIf="isAdmin() && !isOwnProfile()">
-          <ion-item button (click)="banUser()" detail="true" class="delete-item" *ngIf="user()?.ACCOUNT_STATUS !== 2">
-            <ion-icon name="ban-outline" slot="start" color="danger"></ion-icon>
-            <ion-label color="danger">ระงับบัญชี (Ban)</ion-label>
-          </ion-item>
-
-          <ion-item button (click)="unbanUser()" detail="true" *ngIf="user()?.ACCOUNT_STATUS === 2">
-            <ion-icon name="checkmark-circle-outline" slot="start" color="success"></ion-icon>
-            <ion-label color="success">ยกเลิกการระงับ (Unban)</ion-label>
-          </ion-item>
-        </ng-container>
-
         <div class="logout-container" *ngIf="isOwnProfile()">
-          <ion-button expand="block" fill="solid" class="logout-btn" (click)="logout()">
+          <ion-button
+            expand="block"
+            fill="solid"
+            class="logout-btn"
+            (click)="logout()"
+          >
             ออกจากระบบ
           </ion-button>
         </div>
