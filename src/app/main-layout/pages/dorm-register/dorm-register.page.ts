@@ -9,7 +9,7 @@ import {
   CUSTOM_ELEMENTS_SCHEMA,
   ChangeDetectorRef,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Location, CommonModule } from '@angular/common';
 import {
   FormBuilder,
   FormGroup,
@@ -136,6 +136,7 @@ interface ImageState {
 })
 export class DormRegisterPage implements OnInit, OnDestroy {
   @ViewChild('mapEl', { static: false }) mapEl!: ElementRef;
+  @ViewChild(IonContent, { static: false }) content!: IonContent;
 
   dormForm: FormGroup;
   isLoading = signal<boolean>(false);
@@ -202,7 +203,8 @@ export class DormRegisterPage implements OnInit, OnDestroy {
     private gMapSv: GoogleMapService,
     private cdr: ChangeDetectorRef,
     private userSv: UserServices,
-    private authSv: AuthenService
+    private authSv: AuthenService,
+    private location: Location
   ) {
     addIcons({
       camera,
@@ -236,9 +238,9 @@ export class DormRegisterPage implements OnInit, OnDestroy {
       address: ['', Validators.required],
       lat: [null, Validators.required],
       lng: [null, Validators.required],
-      water_unit: [0, [Validators.required, Validators.min(0)]],
-      elect_unit: [0, [Validators.required, Validators.min(0)]],
-      water_lump: [0, [Validators.required, Validators.min(0)]],
+      water_unit: [null, [Validators.required, Validators.min(0)]],
+      elect_unit: [null, [Validators.required, Validators.min(0)]],
+      water_lump: [null, [Validators.required, Validators.min(0)]],
       detail: [''],
       rooms: this.fb.array([]),
       facilities: this.fb.array([]),
@@ -345,12 +347,25 @@ export class DormRegisterPage implements OnInit, OnDestroy {
 
   segmentChanged(event: any) {
     this.setStep(Number(event.detail.value));
+    this.scrollToTop();
+  }
+
+  handleBack() {
+    if (this.currentStep() > 1) {
+      this.prevStep();
+    } else {
+      this.navCtrl.back();
+    }
   }
 
   private scrollToTop() {
-    const content = document.querySelector('ion-content');
-    if (content) {
-      (content as any).scrollToTop(300);
+    if (this.content) {
+      this.content.scrollToTop(300);
+    } else {
+      const content = document.querySelector('ion-content.dorm-register-content');
+      if (content) {
+        (content as any).scrollToTop(300);
+      }
     }
   }
 
@@ -494,9 +509,9 @@ export class DormRegisterPage implements OnInit, OnDestroy {
     const roomGroup = this.fb.group({
       roomType: [null, Validators.required],
       bedType: [null, Validators.required],
-      perDay: [0, [Validators.required, Validators.min(0)]],
-      perMonth: [0, [Validators.required, Validators.min(0)]],
-      perTerm: [0, [Validators.required, Validators.min(0)]],
+      perDay: [null, [Validators.required, Validators.min(0)]],
+      perMonth: [null, [Validators.required, Validators.min(0)]],
+      perTerm: [null, [Validators.required, Validators.min(0)]],
     });
     this.rooms.push(roomGroup);
   }
@@ -686,7 +701,6 @@ export class DormRegisterPage implements OnInit, OnDestroy {
     this.marker = new google.maps.Marker({
       position: pos,
       map: this.map,
-      animation: google.maps.Animation.DROP,
       clickable: false,
     });
   }
@@ -728,7 +742,47 @@ export class DormRegisterPage implements OnInit, OnDestroy {
     return 'เลือกเจ้าของหอพัก';
   }
 
+  getInvalidStep(): number | null {
+    const controls = this.dormForm.controls;
+    
+    if (
+      controls['name'].invalid ||
+      controls['type_id'].invalid ||
+      controls['zone_id'].invalid ||
+      controls['address'].invalid ||
+      controls['lat'].invalid ||
+      controls['lng'].invalid
+    ) {
+      return 1;
+    }
+
+    if (controls['rooms'].invalid) {
+      return 2;
+    }
+
+    if (
+      controls['water_unit'].invalid ||
+      controls['elect_unit'].invalid ||
+      controls['water_lump'].invalid
+    ) {
+      return 3;
+    }
+
+    return null;
+  }
+
   async confirmAndRegister() {
+    if (this.dormForm.invalid) {
+      this.dormForm.markAllAsTouched();
+      const invalidStep = this.getInvalidStep();
+      if (invalidStep) {
+        this.setStep(invalidStep);
+        this.scrollToTop();
+      }
+      this.showToast('กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน', 'warning');
+      return;
+    }
+
     const alert = await this.alertCtrl.create({
       header: this.isEditMode() ? 'ยืนยันการแก้ไข?' : 'ยืนยันการลงทะเบียน?',
       message: this.isEditMode()
@@ -754,7 +808,9 @@ export class DormRegisterPage implements OnInit, OnDestroy {
     // Backend expects strings for these in createDorm_api
     textData.facilities = JSON.stringify(formVal.facilities);
     textData.roomTypes = JSON.stringify(formVal.rooms);
-    textData.new_fac_name = this.customFacName;
+    if (this.customFacName && this.customFacName.trim() !== '') {
+      textData.new_facilities = JSON.stringify([{ name: this.customFacName.trim(), icon: '' }]);
+    }
     delete (textData as any).rooms;
 
     if (this.isEditMode()) {
@@ -832,13 +888,9 @@ export class DormRegisterPage implements OnInit, OnDestroy {
       this.isLoading.set(false);
       this.showToast('บันทึกข้อมูลเรียบร้อยแล้ว', 'success');
 
-      if (this.isDraftRegistration) {
-        this.navCtrl.navigateForward(`/dorm-detail/${dormId}`, {
-          queryParams: { preview: 'true' },
-        });
-      } else {
-        this.navCtrl.navigateRoot(`/my-dorm/${this.userId}`);
-      }
+      this.navCtrl.navigateForward(`/dorm-detail/${dormId}`, {
+        queryParams: { preview: 'true' },
+      });
       return;
     }
 
@@ -851,6 +903,7 @@ export class DormRegisterPage implements OnInit, OnDestroy {
             this.dormId = dormId;
             this.isDraftRegistration = true;
             this.isEditMode.set(true);
+            this.location.replaceState(`/dorm-register/edit/${dormId}`);
           }
 
           this.showToast(
@@ -858,13 +911,9 @@ export class DormRegisterPage implements OnInit, OnDestroy {
             'success'
           );
 
-          if (wasInitial || this.isDraftRegistration) {
-            this.navCtrl.navigateForward(`/dorm-detail/${dormId}`, {
-              queryParams: { preview: 'true' },
-            });
-          } else {
-            this.navCtrl.navigateRoot(`/my-dorm/${this.userId}`);
-          }
+          this.navCtrl.navigateForward(`/dorm-detail/${dormId}`, {
+            queryParams: { preview: 'true' },
+          });
         },
         error: (err) => {
           console.error(err);
@@ -877,16 +926,10 @@ export class DormRegisterPage implements OnInit, OnDestroy {
             this.dormId = dormId;
             this.isDraftRegistration = true;
             this.isEditMode.set(true);
-            this.navCtrl.navigateForward(`/dorm-detail/${dormId}`, {
-              queryParams: { preview: 'true' },
-            });
-          } else if (this.isDraftRegistration) {
-            this.navCtrl.navigateForward(`/dorm-detail/${dormId}`, {
-              queryParams: { preview: 'true' },
-            });
-          } else {
-            this.navCtrl.navigateRoot(`/my-dorm/${this.userId}`);
           }
+          this.navCtrl.navigateForward(`/dorm-detail/${dormId}`, {
+            queryParams: { preview: 'true' },
+          });
         },
       });
   }

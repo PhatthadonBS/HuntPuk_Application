@@ -1,10 +1,9 @@
 <ion-header class="ion-no-border">
   <ion-toolbar class="main-toolbar">
     <ion-buttons slot="start">
-      <ion-back-button
-        defaultHref="/"
-        [icon]="'arrow-back-circle-outline'"
-      ></ion-back-button>
+      <ion-button (click)="handleBack()" color="dark">
+        <ion-icon name="arrow-back-circle-outline" style="font-size: 28px;"></ion-icon>
+      </ion-button>
     </ion-buttons>
     <ion-title class="toolbar-title"
       >{{ isEditMode() ? 'แก้ไขข้อมูลหอพัก' : 'ลงทะเบียนหอพัก' }}</ion-title
@@ -41,7 +40,7 @@
         </h2>
 
         <div class="input-group">
-          <label>ชื่อหอพัก</label>
+          <label>ชื่อหอพัก <span class="text-red-500">*</span></label>
           <ion-input
             mode="md"
             placeholder="ชื่อหอพักของคุณ"
@@ -52,7 +51,7 @@
 
         <div class="grid grid-cols-2 gap-3">
           <div class="input-group">
-            <label>ประเภทหอพัก</label>
+            <label>ประเภทหอพัก <span class="text-red-500">*</span></label>
             <select formControlName="type_id" class="native-select">
               <option [ngValue]="null" disabled selected>เลือกประเภท</option>
               <option *ngFor="let t of dormTypes()" [ngValue]="t.id">
@@ -61,7 +60,7 @@
             </select>
           </div>
           <div class="input-group">
-            <label>โซน</label>
+            <label>โซน <span class="text-red-500">*</span></label>
             <select formControlName="zone_id" class="native-select">
               <option [ngValue]="null" disabled selected>เลือกโซน</option>
               <option *ngFor="let z of zones()" [ngValue]="z.ZONE_ID">
@@ -72,7 +71,7 @@
         </div>
 
         <div class="input-group">
-          <label>ที่อยู่</label>
+          <label>ที่อยู่ <span class="text-red-500">*</span></label>
           <ion-textarea
             rows="3"
             placeholder="ระบุเลขที่บ้าน ถนน ตำบล..."
@@ -82,7 +81,7 @@
         </div>
 
         <div class="input-group">
-          <label>ตำแหน่งที่ตั้ง</label>
+          <label>ตำแหน่งที่ตั้ง <span class="text-red-500">*</span></label>
           <ion-button
             expand="block"
             fill="outline"
@@ -136,7 +135,7 @@
 
           <div class="grid grid-cols-2 gap-3 mb-3">
             <div class="input-group">
-              <label>ประเภทห้อง</label>
+              <label>ประเภทห้อง <span class="text-red-500">*</span></label>
               <select formControlName="roomType" class="native-select">
                 <option [ngValue]="null" disabled selected>เลือกประเภท</option>
                 <option *ngFor="let rt of roomTypes()" [ngValue]="rt.name">
@@ -145,7 +144,7 @@
               </select>
             </div>
             <div class="input-group">
-              <label>ประเภทเตียง</label>
+              <label>ประเภทเตียง <span class="text-red-500">*</span></label>
               <select formControlName="bedType" class="native-select">
                 <option [ngValue]="null" disabled selected>เลือกเตียง</option>
                 <option *ngFor="let bt of bedTypes()" [ngValue]="bt.id">
@@ -157,7 +156,7 @@
 
           <div class="grid grid-cols-3 gap-2">
             <div class="input-group">
-              <label>รายวัน</label>
+              <label>รายวัน <span class="text-red-500">*</span></label>
               <ion-input
                 type="number"
                 formControlName="perDay"
@@ -165,7 +164,7 @@
               ></ion-input>
             </div>
             <div class="input-group">
-              <label>รายเดือน</label>
+              <label>รายเดือน <span class="text-red-500">*</span></label>
               <ion-input
                 type="number"
                 formControlName="perMonth"
@@ -173,7 +172,7 @@
               ></ion-input>
             </div>
             <div class="input-group">
-              <label>รายเทอม</label>
+              <label>รายเทอม <span class="text-red-500">*</span></label>
               <ion-input
                 type="number"
                 formControlName="perTerm"
@@ -191,26 +190,29 @@
         </h2>
         <div class="grid grid-cols-2 gap-3">
           <div class="input-group">
-            <label>ค่าน้ำ (บาท/หน่วย)</label>
+            <label>ค่าน้ำ (บาท/หน่วย) <span class="text-red-500">*</span></label>
             <ion-input
               type="number"
+              inputmode="numeric"
               formControlName="water_unit"
               class="custom-input"
             ></ion-input>
           </div>
           <div class="input-group">
-            <label>ค่าไฟ (บาท/หน่วย)</label>
+            <label>ค่าไฟ (บาท/หน่วย) <span class="text-red-500">*</span></label>
             <ion-input
               type="number"
+              inputmode="numeric"
               formControlName="elect_unit"
               class="custom-input"
             ></ion-input>
           </div>
         </div>
         <div class="input-group">
-          <label>ค่าน้ำเหมาจ่าย (บาท/เดือน - ถ้ามี)</label>
+          <label>ค่าน้ำเหมาจ่าย (บาท/เดือน - ถ้ามี) <span class="text-red-500">*</span></label>
           <ion-input
             type="number"
+            inputmode="numeric"
             formControlName="water_lump"
             class="custom-input"
           ></ion-input>

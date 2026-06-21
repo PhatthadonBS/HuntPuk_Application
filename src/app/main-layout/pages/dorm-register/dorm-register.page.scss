@@ -104,6 +104,10 @@
   background-repeat: no-repeat;
   background-position: right 1.25rem center;
   background-size: 1em;
+
+  &.ng-invalid.ng-touched {
+    border-color: #ef4444;
+  }
 }
 
 .location-btn {
@@ -345,8 +349,7 @@
   img {
     width: 100%;
     height: 100%;
-    object-fit: contain;
-    padding: 10px;
+    object-fit: cover;
   }
 
   .placeholder {
