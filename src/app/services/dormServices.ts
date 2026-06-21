@@ -174,6 +174,28 @@ export class DormServices {
     );
   }
 
+  addDormType(name: string): Observable<any> {
+    const url = `${this.endPoint}/dorms/dormTypes`;
+    return this.http.post<any>(url, { name }).pipe(
+      timeout(this.REQUEST_TIMEOUT),
+      catchError(err => {
+        console.error('addDormType error:', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  deleteDormType(id: number): Observable<any> {
+    const url = `${this.endPoint}/dorms/dormTypes/${id}`;
+    return this.http.delete<any>(url).pipe(
+      timeout(this.REQUEST_TIMEOUT),
+      catchError(err => {
+        console.error('deleteDormType error:', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
   getRoomTypes(): Observable<MasterType[]> {
     const url = `${this.endPoint}/dorms/roomTypes`;
     return this.http.get<{ success: boolean; data: MasterType[] }>(url).pipe(
@@ -181,6 +203,28 @@ export class DormServices {
       map(res => res.data),
       catchError(err => {
         console.error('getRoomTypes error:', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  addRoomType(name: string): Observable<any> {
+    const url = `${this.endPoint}/dorms/roomTypes`;
+    return this.http.post<any>(url, { name }).pipe(
+      timeout(this.REQUEST_TIMEOUT),
+      catchError(err => {
+        console.error('addRoomType error:', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  deleteRoomType(id: number): Observable<any> {
+    const url = `${this.endPoint}/dorms/roomTypes/${id}`;
+    return this.http.delete<any>(url).pipe(
+      timeout(this.REQUEST_TIMEOUT),
+      catchError(err => {
+        console.error('deleteRoomType error:', err);
         return throwError(() => err);
       })
     );
