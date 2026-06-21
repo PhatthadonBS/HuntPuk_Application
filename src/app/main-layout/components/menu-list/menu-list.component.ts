@@ -167,6 +167,14 @@ export class MenuListComponent implements OnDestroy, AfterViewInit {
         neddLogin: true,
         forRole: [3],
       },
+            {
+        key: 'types-manage',
+        label: 'จัดการประเภทหอพัก',
+        path: '/types-management',
+        icon: 'document-text-outline',
+        neddLogin: true,
+        forRole: [3],
+      },
     ];
 
     return menus.filter((menu) => {
