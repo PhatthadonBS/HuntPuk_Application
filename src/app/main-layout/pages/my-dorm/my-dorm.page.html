@@ -90,14 +90,14 @@
                 <div
                   class="status"
                   [class.verified]="d.REQ_STATUS == 1"
-                  [class.wait]="d.REQ_STATUS == 0"
+                  [class.wait]="d.REQ_STATUS == 0 || d.REQ_STATUS == 3"
                   [class.rejected]="d.REQ_STATUS == 2"
                 >
                   <ion-icon
-                    [name]="d.REQ_STATUS == 1 ? 'checkmark-circle' : (d.REQ_STATUS == 2 ? 'close-circle-outline' : 'time-outline')"
+                    [name]="d.REQ_STATUS == 1 ? 'checkmark-circle' : (d.REQ_STATUS == 2 ? 'close-circle-outline' : (d.REQ_STATUS == 3 ? 'refresh-circle-outline' : 'time-outline'))"
                   ></ion-icon>
                   {{ d.REQ_STATUS == 1 ? 'ผ่านการตรวจสอบ' : (d.REQ_STATUS == 2 ?
-                  'ไม่ผ่านการตรวจสอบ' : 'รอการตรวจสอบ') }}
+                  'ไม่ผ่านการตรวจสอบ' : (d.REQ_STATUS == 3 ? 'ยื่นตรวจสอบใหม่' : 'รอการตรวจสอบ')) }}
                 </div>
               </div>
             </div>
@@ -106,8 +106,8 @@
           <!-- Action Buttons -->
           <div class="actions-grid">
             <ion-button fill="clear" class="edit-btn" (click)="editDorm(d)">
-              <ion-icon name="create-outline"></ion-icon>
-              แก้ไข
+              <ion-icon [name]="d.REQ_STATUS == 2 ? 'refresh-circle-outline' : 'create-outline'"></ion-icon>
+              {{ d.REQ_STATUS == 2 ? 'ยื่นตรวจสอบใหม่' : 'แก้ไข' }}
             </ion-button>
 
             <ion-button
@@ -161,10 +161,10 @@
                 </ion-thumbnail>
                 <div
                   class="status-badge"
-                  [class.pending]="d.REQ_STATUS == 0"
+                  [class.pending]="d.REQ_STATUS == 0 || d.REQ_STATUS == 3"
                   [class.rejected]="d.REQ_STATUS == 2"
                 >
-                  {{ d.REQ_STATUS == 0 ? 'รออนุมัติ' : 'ไม่อนุมัติ' }}
+                  {{ d.REQ_STATUS == 0 ? 'รออนุมัติ' : (d.REQ_STATUS == 2 ? 'ไม่อนุมัติ' : 'ยื่นตรวจสอบใหม่') }}
                 </div>
               </div>
 
@@ -200,7 +200,7 @@
           </div>
 
           <!-- Action Buttons -->
-          <div class="actions-grid two-cols" *ngIf="d.REQ_STATUS == 0">
+          <div class="actions-grid two-cols" *ngIf="d.REQ_STATUS == 0 || d.REQ_STATUS == 3">
             <ion-button
               fill="clear"
               class="approve-btn"
