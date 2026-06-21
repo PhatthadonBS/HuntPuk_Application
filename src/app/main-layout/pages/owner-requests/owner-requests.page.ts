@@ -1,35 +1,35 @@
 import { Component, OnInit, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { 
-  IonContent, 
-  IonHeader, 
-  IonTitle, 
-  IonToolbar, 
-  IonButtons, 
-  IonBackButton, 
-  IonList, 
-  IonItem, 
-  IonLabel, 
-  IonButton, 
-  IonIcon, 
-  IonAvatar, 
-  IonModal, 
-  IonTextarea, 
+import {
+  IonContent,
+  IonHeader,
+  IonTitle,
+  IonToolbar,
+  IonButtons,
+  IonBackButton,
+  IonList,
+  IonItem,
+  IonLabel,
+  IonButton,
+  IonIcon,
+  IonAvatar,
+  IonModal,
+  IonTextarea,
   IonBadge,
-  ToastController, 
-  AlertController 
+  ToastController,
+  AlertController,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { 
-  closeOutline, 
-  checkmarkCircleOutline, 
-  closeCircleOutline, 
-  personOutline, 
-  mailOutline, 
+import {
+  closeOutline,
+  checkmarkCircleOutline,
+  closeCircleOutline,
+  personOutline,
+  mailOutline,
   timeOutline,
   chevronForwardOutline,
-  alertCircleOutline
+  alertCircleOutline,
 } from 'ionicons/icons';
 import { UserServices } from 'src/app/services/userServices';
 import { UserDormOwnerGetRes } from 'src/app/model/user.model';
@@ -42,32 +42,32 @@ import { finalize } from 'rxjs';
   styleUrls: ['./owner-requests.page.scss'],
   standalone: true,
   imports: [
-    IonContent, 
-    IonHeader, 
-    IonTitle, 
-    IonToolbar, 
-    IonButtons, 
-    IonBackButton, 
-    IonList, 
-    IonItem, 
-    IonLabel, 
-    IonButton, 
-    IonIcon, 
-    IonAvatar, 
-    IonModal, 
-    IonTextarea, 
+    IonContent,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    IonButtons,
+    IonBackButton,
+    IonList,
+    IonItem,
+    IonLabel,
+    IonButton,
+    IonIcon,
+    IonAvatar,
+    IonModal,
+    IonTextarea,
     IonBadge,
-    CommonModule, 
+    CommonModule,
     FormsModule,
-    LoadingUIComponent
-  ]
+    LoadingUIComponent,
+  ],
 })
 export class OwnerRequestsPage implements OnInit {
   requests = signal<UserDormOwnerGetRes[]>([]);
   isLoading = signal<boolean>(false);
   selectedRequest = signal<UserDormOwnerGetRes | null>(null);
   isModalOpen = signal<boolean>(false);
-  
+
   // Management State
   rejectReason = signal<string>('');
   showRejectInput = signal<boolean>(false);
@@ -85,7 +85,7 @@ export class OwnerRequestsPage implements OnInit {
       mailOutline,
       timeOutline,
       chevronForwardOutline,
-      alertCircleOutline
+      alertCircleOutline,
     });
   }
 
@@ -95,19 +95,20 @@ export class OwnerRequestsPage implements OnInit {
 
   fetchRequests() {
     this.isLoading.set(true);
-    this.userSv.getPendingOwnerRequests().pipe(
-      finalize(() => this.isLoading.set(false))
-    ).subscribe({
-      next: (res) => {
-        if (res.success) {
-          this.requests.set(res.data);
-        }
-      },
-      error: (err) => {
-        console.error('Error fetching owner requests', err);
-        this.showToast('Failed to load requests', 'danger');
-      }
-    });
+    this.userSv
+      .getPendingOwnerRequests()
+      .pipe(finalize(() => this.isLoading.set(false)))
+      .subscribe({
+        next: (res) => {
+          if (res.success) {
+            this.requests.set(res.data);
+          }
+        },
+        error: (err) => {
+          console.error('Error fetching owner requests', err);
+          this.showToast('Failed to load requests', 'danger');
+        },
+      });
   }
 
   openRequest(req: UserDormOwnerGetRes) {
@@ -135,9 +136,9 @@ export class OwnerRequestsPage implements OnInit {
           text: 'Approve',
           handler: () => {
             this.submitApproval(req.USER_ID, true, 'Approved');
-          }
-        }
-      ]
+          },
+        },
+      ],
     });
     await alert.present();
   }
@@ -166,9 +167,9 @@ export class OwnerRequestsPage implements OnInit {
           role: 'destructive',
           handler: () => {
             this.submitApproval(req.USER_ID, false, this.rejectReason());
-          }
-        }
-      ]
+          },
+        },
+      ],
     });
     await alert.present();
   }
@@ -178,7 +179,10 @@ export class OwnerRequestsPage implements OnInit {
     this.userSv.approveDormOwnerRequest(userId, status, msg).subscribe({
       next: () => {
         this.isLoading.set(false);
-        this.showToast(status ? 'Request approved!' : 'Request rejected', 'success');
+        this.showToast(
+          status ? 'Request approved!' : 'Request rejected',
+          'success'
+        );
         this.closeModal();
         this.fetchRequests();
       },
@@ -186,8 +190,35 @@ export class OwnerRequestsPage implements OnInit {
         this.isLoading.set(false);
         console.error('Error handling request', err);
         this.showToast('Action failed: ' + err.message, 'danger');
-      }
+      },
     });
+  }
+
+  openSocial(handle: string | undefined | null, platform: string) {
+    if (!handle) return;
+
+    let url = '';
+    switch (platform) {
+      case 'facebook':
+        url = handle.includes('http') ? handle : `https://${handle}`;
+        break;
+      case 'instagram':
+        url = handle.includes('http') ? handle : `https://${handle}`;
+        break;
+      case 'telegram':
+        url = handle.includes('http') ? handle : `https://t.me/+${handle.replace(/[^0-9]/g, '')}`;
+        break;
+      case 'line':
+        url = handle.includes('http') ? handle : `https://line.me/ti/p/~${handle}`;
+        break;
+      case 'x':
+        url = handle.includes('http') ? handle : `https://${handle}`;
+        break;
+    }
+
+    if (url) {
+      window.open(url, '_blank');
+    }
   }
 
   async showToast(message: string, color: 'success' | 'danger' | 'warning') {
@@ -196,7 +227,7 @@ export class OwnerRequestsPage implements OnInit {
       duration: 3000,
       color,
       position: 'bottom',
-      mode: 'ios'
+      mode: 'ios',
     });
     await toast.present();
   }

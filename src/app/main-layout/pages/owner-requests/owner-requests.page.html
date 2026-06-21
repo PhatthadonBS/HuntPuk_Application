@@ -97,26 +97,46 @@
             <ion-icon name="link-outline"></ion-icon>
             <span>Social & Contact</span>
           </div>
-          <div class="social-grid">
-            <div class="social-item" [class.disabled]="!req.FACEBOOK">
+          <div class="social-list">
+            <div class="social-item" [class.disabled]="!req.FACEBOOK" (click)="openSocial(req.FACEBOOK, 'facebook')">
               <ion-icon src="assets/icon/facebook.svg" class="text-gray-800"></ion-icon>
-              <span>Facebook</span>
+              <div class="social-text">
+                <span class="platform-name">Facebook</span>
+                <span class="link-val" *ngIf="req.FACEBOOK">{{ req.FACEBOOK }}</span>
+                <span class="link-val" *ngIf="!req.FACEBOOK">Not provided</span>
+              </div>
             </div>
-            <div class="social-item" [class.disabled]="!req.INSTAGRAM">
+            <div class="social-item" [class.disabled]="!req.INSTAGRAM" (click)="openSocial(req.INSTAGRAM, 'instagram')">
               <ion-icon src="assets/icon/instagram.svg" class="text-gray-800"></ion-icon>
-              <span>Instagram</span>
+              <div class="social-text">
+                <span class="platform-name">Instagram</span>
+                <span class="link-val" *ngIf="req.INSTAGRAM">{{ req.INSTAGRAM }}</span>
+                <span class="link-val" *ngIf="!req.INSTAGRAM">Not provided</span>
+              </div>
             </div>
-            <div class="social-item" [class.disabled]="!req.TELEGRAM">
+            <div class="social-item" [class.disabled]="!req.TELEGRAM" (click)="openSocial(req.TELEGRAM, 'telegram')">
               <ion-icon src="assets/icon/telegram.svg" class="text-gray-800"></ion-icon>
-              <span>Telegram</span>
+              <div class="social-text">
+                <span class="platform-name">Telegram</span>
+                <span class="link-val" *ngIf="req.TELEGRAM">{{ req.TELEGRAM }}</span>
+                <span class="link-val" *ngIf="!req.TELEGRAM">Not provided</span>
+              </div>
             </div>
-            <div class="social-item" [class.disabled]="!req.LINE">
+            <div class="social-item" [class.disabled]="!req.LINE" (click)="openSocial(req.LINE, 'line')">
               <ion-icon src="assets/icon/line.svg" class="text-gray-800"></ion-icon>
-              <span>Line</span>
+              <div class="social-text">
+                <span class="platform-name">Line</span>
+                <span class="link-val" *ngIf="req.LINE">{{ req.LINE }}</span>
+                <span class="link-val" *ngIf="!req.LINE">Not provided</span>
+              </div>
             </div>
-            <div class="social-item" style="grid-column: span 2;" [class.disabled]="!req.X">
+            <div class="social-item" [class.disabled]="!req.X" (click)="openSocial(req.X, 'x')">
               <ion-icon src="assets/icon/x.svg" class="text-gray-800"></ion-icon>
-              <span>X (Twitter)</span>
+              <div class="social-text">
+                <span class="platform-name">X (Twitter)</span>
+                <span class="link-val" *ngIf="req.X">{{ req.X }}</span>
+                <span class="link-val" *ngIf="!req.X">Not provided</span>
+              </div>
             </div>
           </div>
 
