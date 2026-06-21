@@ -19,6 +19,8 @@ import {
   IonBadge,
   ToastController,
   AlertController,
+  IonRefresher,
+  IonRefresherContent
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -60,6 +62,8 @@ import { finalize } from 'rxjs';
     CommonModule,
     FormsModule,
     LoadingUIComponent,
+    IonRefresher,
+    IonRefresherContent
   ],
 })
 export class OwnerRequestsPage implements OnInit {
@@ -91,6 +95,13 @@ export class OwnerRequestsPage implements OnInit {
 
   ngOnInit() {
     this.fetchRequests();
+  }
+
+  handleRefresh(event: any) {
+    this.fetchRequests();
+    setTimeout(() => {
+      event.target.complete();
+    }, 500);
   }
 
   fetchRequests() {

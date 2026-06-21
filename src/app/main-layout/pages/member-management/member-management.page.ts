@@ -24,7 +24,9 @@ import {
   IonFab, 
   IonFabButton, 
   AlertController, 
-  ToastController 
+  ToastController,
+  IonRefresher,
+  IonRefresherContent
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { 
@@ -71,7 +73,9 @@ import { finalize } from 'rxjs';
     IonFab, 
     IonFabButton, 
     CommonModule, 
-    FormsModule
+    FormsModule,
+    IonRefresher,
+    IonRefresherContent
   ]
 })
 export class MemberManagementPage implements OnInit {
@@ -120,6 +124,13 @@ export class MemberManagementPage implements OnInit {
 
   ngOnInit() {
     this.fetchData();
+  }
+
+  handleRefresh(event: any) {
+    this.fetchData();
+    setTimeout(() => {
+      event.target.complete();
+    }, 500);
   }
 
   fetchData() {

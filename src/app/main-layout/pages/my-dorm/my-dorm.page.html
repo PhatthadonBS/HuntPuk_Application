@@ -8,6 +8,9 @@
 </ion-header>
 
 <ion-content [fullscreen]="true" class="my-dorm-content">
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
   <div class="content-wrapper">
     <!-- Admin Segment -->
     <ion-segment

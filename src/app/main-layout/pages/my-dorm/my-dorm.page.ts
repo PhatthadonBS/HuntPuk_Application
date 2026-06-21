@@ -5,7 +5,8 @@ import { RouterModule } from '@angular/router';
 import { 
   IonContent, IonHeader, IonTitle, IonToolbar, IonButtons, IonBackButton,
   IonList, IonItem, IonThumbnail, IonLabel, IonButton, IonIcon, IonBadge,
-  AlertController, ToastController, NavController, IonText, IonSegment, IonSegmentButton
+  AlertController, ToastController, NavController, IonText, IonSegment, IonSegmentButton,
+  IonRefresher, IonRefresherContent
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { createOutline, trashOutline, powerOutline, arrowBackCircleOutline,
@@ -27,7 +28,8 @@ import { LoadingUIComponent } from '../../components/loading-ui/loading-ui.compo
   imports: [
     IonContent, IonHeader, IonTitle, IonToolbar, IonButtons, IonBackButton,
     IonList, IonItem, IonThumbnail, IonLabel, IonButton, IonIcon, IonBadge,
-    IonSegment, IonSegmentButton, CommonModule, FormsModule, LoadingUIComponent, IonText, RouterModule
+    IonSegment, IonSegmentButton, CommonModule, FormsModule, LoadingUIComponent, IonText, RouterModule,
+    IonRefresher, IonRefresherContent
   ]
 })
 export class MyDormPage implements OnInit {
@@ -81,6 +83,13 @@ export class MyDormPage implements OnInit {
 
   segmentChanged(event: any) {
     this.currentSegment.set(event.detail.value);
+  }
+
+  handleRefresh(event: any) {
+    this.loadData();
+    setTimeout(() => {
+      event.target.complete();
+    }, 500);
   }
 
   loadMyDorms() {

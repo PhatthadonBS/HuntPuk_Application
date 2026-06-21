@@ -8,6 +8,9 @@
 </ion-header>
 
 <ion-content [fullscreen]="true" class="minimal-content">
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
   <div class="px-5 py-4 bg-white border-b border-gray-100">
     <div class="minimal-search-container mt-0">
       <ion-searchbar 

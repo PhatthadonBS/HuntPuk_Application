@@ -8,6 +8,9 @@
 </ion-header>
 
 <ion-content class="ion-padding custom-bg">
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
   <div class="dashboard-container">
     <!-- Loading Skeleton -->
     <ng-container *ngIf="isLoading">

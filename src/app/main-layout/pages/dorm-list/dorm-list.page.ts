@@ -29,7 +29,9 @@ import {
   IonBackButton,
   IonFab,
   IonFabButton,
-  ToastController
+  ToastController,
+  IonRefresher,
+  IonRefresherContent
 } from '@ionic/angular/standalone';
 import { DormServices } from 'src/app/services/dormServices';
 import { UserServices } from 'src/app/services/userServices';
@@ -94,7 +96,9 @@ import { finalize, Subscription, forkJoin, of } from 'rxjs';
     IonFab,
     IonFabButton,
     FilterGroupComponent,
-    LoadingUIComponent
+    LoadingUIComponent,
+    IonRefresher,
+    IonRefresherContent
   ],
 })
 export class DormListPage implements OnInit, OnDestroy {
@@ -246,6 +250,14 @@ export class DormListPage implements OnInit, OnDestroy {
       },
       error: (err) => console.error('Error fetching dorms', err),
     });
+  }
+
+  handleRefresh(event: any) {
+    this.loadDorms();
+    this.loadZones();
+    setTimeout(() => {
+      event.target.complete();
+    }, 500);
   }
 
   loadZones() {

@@ -5,7 +5,8 @@ import {
   IonContent, IonHeader, IonTitle, IonToolbar, IonButtons, IonBackButton,
   IonSegment, IonSegmentButton, IonLabel, IonList, IonItem, IonAvatar, IonImg,
   IonIcon, IonButton, IonAlert, ToastController, AlertController, IonItemSliding,
-  IonItemOptions, IonItemOption, IonModal, IonInput
+  IonItemOptions, IonItemOption, IonModal, IonInput,
+  IonRefresher, IonRefresherContent
 } from '@ionic/angular/standalone';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { addIcons } from 'ionicons';
@@ -22,7 +23,7 @@ import { FacilityItem } from 'src/app/model/dorm.model';
     IonContent, IonHeader, IonTitle, IonToolbar, IonButtons, IonBackButton,
     IonSegment, IonSegmentButton, IonLabel, IonList, IonItem, IonAvatar, IonImg,
     IonIcon, IonButton, IonItemSliding, IonItemOptions, IonItemOption, IonModal, IonInput,
-    CommonModule, FormsModule
+    CommonModule, FormsModule, IonRefresher, IonRefresherContent
   ]
 })
 export class FacilityManagementPage implements OnInit {
@@ -53,6 +54,13 @@ export class FacilityManagementPage implements OnInit {
   loadData() {
     this.loadAllFacilities();
     this.loadFacilityRequests();
+  }
+
+  handleRefresh(event: any) {
+    this.loadData();
+    setTimeout(() => {
+      event.target.complete();
+    }, 500);
   }
 
   loadAllFacilities() {

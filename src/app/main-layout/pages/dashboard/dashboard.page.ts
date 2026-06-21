@@ -17,8 +17,9 @@ import {
   IonRow,
   IonCol,
   IonSkeletonText,
-  IonModal,
   IonButton,
+  IonRefresher,
+  IonRefresherContent
 } from '@ionic/angular/standalone';
 import { HttpClient } from '@angular/common/http';
 import { addIcons } from 'ionicons';
@@ -116,6 +117,8 @@ interface DashboardStats {
     IonSkeletonText,
     CommonModule,
     FormsModule,
+    IonRefresher,
+    IonRefresherContent
   ],
 })
 export class DashboardPage implements OnInit {
@@ -157,6 +160,13 @@ export class DashboardPage implements OnInit {
 
   ngOnInit() {
     this.fetchStats();
+  }
+
+  handleRefresh(event: any) {
+    this.fetchStats();
+    setTimeout(() => {
+      event.target.complete();
+    }, 500);
   }
 
   // --- Modal Controls ---
