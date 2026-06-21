@@ -63,13 +63,38 @@ export class AppComponent implements OnInit, OnDestroy {
     }
   }
 
+  private sleepTimeoutId?: any;
+  private isAsleep: boolean = false;
+
   private async setupAppStateListener() {
     this.appStateListener = await App.addListener('appStateChange', ({ isActive }) => {
       this.ngZone.run(() => {
         if (!isActive) {
-          this.stopBackgroundOperations();
+          // Do NOT stop background operations yet. Let it run for 2 minutes.
+          
+          // Start 2-minute sleep timer (120000 ms)
+          this.sleepTimeoutId = setTimeout(() => {
+            this.stopBackgroundOperations(); // Stop background work after 2 minutes
+            this.isAsleep = true;
+            this.isSplashActive.set(true);
+          }, 120000);
+
         } else {
-          this.startBackgroundOperations();
+          // Clear the timer if user returns before 2 minutes
+          if (this.sleepTimeoutId) {
+            clearTimeout(this.sleepTimeoutId);
+            this.sleepTimeoutId = undefined;
+          }
+
+          if (this.isAsleep) {
+            // App was asleep. Wake it up and restart background ops.
+            this.isAsleep = false;
+            this.startBackgroundOperations();
+            this.initializeApp();
+          } else {
+            // App wasn't asleep yet, just ensure background ops are running
+            this.startBackgroundOperations();
+          }
         }
       });
     });

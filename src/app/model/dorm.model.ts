@@ -118,6 +118,7 @@ export interface DormDetail {
   FIRST_NAME: string;
   LAST_NAME: string;
   DORM_STATUS_ID: number;
+  DORM_LICENSE?: string;
 }
 
 export interface DormDetailGetRes {

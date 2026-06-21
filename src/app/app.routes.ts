@@ -158,6 +158,22 @@ export const routes: Routes = [
   },
 
   {
+    path: 'dashboard',
+    loadComponent: () =>
+      import('./main-layout/pages/dashboard/dashboard.page').then(
+        (m) => m.DashboardPage
+      ),
+  },
+
+  {
+    path: 'type-management',
+    loadComponent: () =>
+      import('./main-layout/pages/type-management/type-management.page').then(
+        (m) => m.TypeManagementPage
+      ),
+  },
+
+  {
     path: '**',
     loadComponent: () =>
       import('./not-found/not-found.page').then((m) => m.NotFoundPage),

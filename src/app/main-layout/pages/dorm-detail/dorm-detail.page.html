@@ -6,7 +6,9 @@
         icon="arrow-back-circle-outline"
       ></ion-back-button>
     </ion-buttons>
-    <ion-title class="toolbar-title">{{ isPreview() ? 'ตรวจสอบข้อมูล' : 'ข้อมูลหอพัก' }}</ion-title>
+    <ion-title class="toolbar-title"
+      >{{ isPreview() ? 'ตรวจสอบข้อมูล' : 'ข้อมูลหอพัก' }}</ion-title
+    >
   </ion-toolbar>
 </ion-header>
 
@@ -38,8 +40,8 @@
     <!-- Section 2: Album Display -->
     <div class="gallery-section relative group">
       <!-- Full Dorm Banner Overlay -->
-      <div 
-        *ngIf="d.DORM_STATUS_ID === 3" 
+      <div
+        *ngIf="d.DORM_STATUS_ID === 3"
         class="absolute bottom-0 left-0 w-full bg-red-600/90 text-white text-center py-2 z-20 backdrop-blur-sm flex items-center justify-center gap-2"
       >
         <ion-icon name="alert-circle" class="text-xl"></ion-icon>
@@ -94,7 +96,9 @@
     <!-- Section 3: Dorm Name & Address -->
     <div class="info-section p-4 bg-white mb-2">
       <div class="flex justify-between items-start mb-1">
-        <h1 class="text-2xl font-bold text-gray-800 m-0 pr-2">{{ d.DORM_NAME }}</h1>
+        <h1 class="text-2xl font-bold text-gray-800 m-0 pr-2">
+          {{ d.DORM_NAME }}
+        </h1>
         <!-- Favorite Button -->
         <ion-button
           class="favorite-btn-inline m-0"
@@ -117,7 +121,6 @@
         >
           โซน: {{ d.ZONE_NAME }}
         </span>
-
       </div>
 
       <div class="flex items-start text-gray-600">
@@ -126,6 +129,26 @@
           class="mt-1 mr-2 text-xl text-primary"
         ></ion-icon>
         <p class="text-sm m-0 leading-relaxed">{{ d.ADDRESS }}</p>
+      </div>
+    </div>
+
+    <!-- Section 4: License Picture (Admin Only) -->
+    <div
+      class="license-section p-4 bg-white mb-2"
+      *ngIf="isAdminReq() && d.DORM_LICENSE"
+    >
+      <h2 class="text-lg font-bold text-gray-800 mb-3 flex items-center">
+        <ion-icon
+          name="document-text-outline"
+          class="mr-2 text-primary"
+        ></ion-icon>
+        ใบอนุญาตประกอบการ
+      </h2>
+      <div class="rounded-lg overflow-hidden border border-gray-200">
+        <img
+          [src]="d.DORM_LICENSE"
+          class="w-full h-auto object-contain max-h-96"
+        />
       </div>
     </div>
 
@@ -140,11 +163,14 @@
           ราคาห้องพัก
         </h2>
         <span class="text-xs text-gray-400 flex items-center animate-pulse">
-          <ion-icon name="swap-horizontal-outline" class="mr-1"></ion-icon> เลื่อนดูได้
+          <ion-icon name="swap-horizontal-outline" class="mr-1"></ion-icon>
+          เลื่อนดูได้
         </span>
       </div>
 
-      <div class="overflow-x-auto rounded-xl border border-gray-100 shadow-sm relative">
+      <div
+        class="overflow-x-auto rounded-xl border border-gray-100 shadow-sm relative"
+      >
         <table class="w-full text-sm text-left text-gray-500">
           <thead class="text-xs text-gray-700 bg-gray-50 uppercase">
             <tr>
@@ -205,7 +231,9 @@
           *ngFor="let fac of d.facilities; let i = index"
           class="flex items-center text-gray-700"
         >
-          <div class="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center mr-3 shrink-0">
+          <div
+            class="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center mr-3 shrink-0"
+          >
             <!-- Show icon, if error show fallback ion-icon -->
             <ng-container
               *ngIf="fac.icon && !facImageErrors[i]; else fallbackIcon"
@@ -225,7 +253,7 @@
             </ng-template>
           </div>
 
-          <span class="text-sm truncate">{{ fac.name }}</span>
+          <span class="text-sm truncate text-wrap">{{ fac.name }}</span>
         </div>
       </div>
     </div>
@@ -296,18 +324,32 @@
       </p>
     </div>
 
-
     <!-- Section 4: Owner Contact -->
-    <div
-      class="contact-section p-4 bg-white mb-2"
-      *ngIf="(d.phone || d.line || d.facebook || d.instagram || d.telegram || d.x) && !isPreview()"
-    >
+    <div class="contact-section p-4 bg-white mb-2" *ngIf="!isPreview()">
       <h2 class="text-lg font-bold text-gray-800 mb-3 flex items-center">
-        <ion-icon name="call-outline" class="mr-2 text-primary"></ion-icon>
-        ข้อมูลติดต่อผู้ดูแลหอพัก
+        <ion-icon
+          name="person-circle-outline"
+          class="mr-2 text-primary"
+        ></ion-icon>
+        ผู้ดูแลหอพัก
       </h2>
 
-      <div class="flex flex-wrap gap-4 items-center justify-start mt-4">
+      <!-- Owner Name Display -->
+      <div
+        class="flex items-center justify-center gap-3 bg-gray-50 p-3 rounded-lg border border-gray-100 mb-4"
+        *ngIf="d.FIRST_NAME && d.FIRST_NAME !== '(ไม่ระบุชื่อ)'"
+      >
+        <ion-avatar class="w-10 h-10 border border-gray-200">
+          <img src="https://ionicframework.com/docs/img/demos/avatar.svg" />
+        </ion-avatar>
+        <div class="flex flex-col">
+          <span class="text-sm font-bold text-gray-800"
+            >คุณ{{ d.FIRST_NAME }} {{ d.LAST_NAME }}</span
+          >
+        </div>
+      </div>
+
+      <div class="flex flex-wrap gap-4 items-center justify-start mt-2">
         <a
           *ngIf="d.phone && d.phone !== '-'"
           [href]="'tel:' + d.phone"
@@ -364,7 +406,10 @@
     </div>
 
     <!-- Section 8: Reviews -->
-    <div class="reviews-section p-4 bg-white pb-10" *ngIf="!isPreview() && !isAdminReq()">
+    <div
+      class="reviews-section p-4 bg-white pb-10"
+      *ngIf="!isPreview() && !isAdminReq()"
+    >
       <h2 class="text-lg font-bold text-gray-800 mb-1">รีวิวหอพัก</h2>
 
       <div class="flex items-center mb-6 mt-2">
@@ -466,13 +511,27 @@
         </div>
       </div>
     </div>
-    
+
     <div class="bottom-spacer h-20" *ngIf="!isPreview() && !isAdminReq()"></div>
 
     <!-- Preview Actions -->
-    <div class="preview-actions p-4 flex gap-4 bg-white border-t sticky bottom-0 z-20" *ngIf="isPreview()">
-      <ion-button expand="block" fill="outline" class="flex-1" (click)="goBackToEdit()">แก้ไขข้อมูล</ion-button>
-      <ion-button expand="block" class="flex-1 confirm-btn" (click)="finalConfirm()">ยืนยันข้อมูล</ion-button>
+    <div
+      class="preview-actions p-4 flex gap-4 bg-white border-t sticky bottom-0 z-20"
+      *ngIf="isPreview()"
+    >
+      <ion-button
+        expand="block"
+        fill="outline"
+        class="flex-1"
+        (click)="goBackToEdit()"
+        >แก้ไขข้อมูล</ion-button
+      >
+      <ion-button
+        expand="block"
+        class="flex-1 confirm-btn"
+        (click)="finalConfirm()"
+        >ยืนยันข้อมูล</ion-button
+      >
     </div>
     <div class="h-10" *ngIf="isPreview()"></div>
   </ng-container>

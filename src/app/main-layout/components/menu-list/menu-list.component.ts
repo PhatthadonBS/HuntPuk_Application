@@ -145,7 +145,7 @@ export class MenuListComponent implements OnDestroy, AfterViewInit {
       },
       {
         key: 'owner-manage',
-        label: 'จัดการเจ้าของหอ',
+        label: 'คำร้องขอเป็นเจ้าของหอ',
         path: '/owner-requests',
         icon: 'people-outline',
         neddLogin: true,
@@ -167,11 +167,11 @@ export class MenuListComponent implements OnDestroy, AfterViewInit {
         neddLogin: true,
         forRole: [3],
       },
-            {
-        key: 'types-manage',
-        label: 'จัดการประเภทหอพัก',
-        path: '/types-management',
-        icon: 'document-text-outline',
+      {
+        key: 'type-manage',
+        label: 'จัดการประเภท',
+        path: '/type-management',
+        icon: 'cube-outline',
         neddLogin: true,
         forRole: [3],
       },

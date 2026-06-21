@@ -52,6 +52,7 @@ import {
   alertCircleOutline,
   swapHorizontalOutline,
   checkmarkCircleOutline,
+  personCircleOutline,
 } from 'ionicons/icons';
 
 @Component({
@@ -130,6 +131,7 @@ export class DormDetailPage implements OnInit, OnDestroy {
       alertCircleOutline,
       swapHorizontalOutline,
       checkmarkCircleOutline,
+      personCircleOutline,
     });
   }
 

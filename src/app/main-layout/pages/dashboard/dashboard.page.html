@@ -1,0 +1,448 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Dashboard Overview</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding custom-bg">
+  <div class="dashboard-container">
+    <!-- Loading Skeleton -->
+    <ng-container *ngIf="isLoading">
+      <ion-grid>
+        <ion-row>
+          <ion-col size="6" *ngFor="let i of [1,2,3,4]">
+            <ion-card class="stat-card skeleton-card">
+              <ion-card-content>
+                <ion-skeleton-text
+                  animated
+                  style="width: 40px; height: 40px; border-radius: 50%"
+                ></ion-skeleton-text>
+                <ion-skeleton-text
+                  animated
+                  style="width: 50%; margin-top: 10px"
+                ></ion-skeleton-text>
+                <ion-skeleton-text
+                  animated
+                  style="width: 80%; height: 24px; margin-top: 5px"
+                ></ion-skeleton-text>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ng-container>
+
+    <!-- Error State -->
+    <div class="error-container" *ngIf="!isLoading && error">
+      <ion-icon name="warning-outline" color="danger"></ion-icon>
+      <h3>Failed to load statistics</h3>
+      <p>Please try again later.</p>
+    </div>
+
+    <!-- Data State -->
+    <ng-container *ngIf="!isLoading && !error && stats">
+      <h2 class="section-title">System Statistics</h2>
+      <ion-grid>
+        <ion-row>
+          <!-- Dorm Count -->
+          <ion-col size="12" size-md="4">
+            <ion-card
+              class="stat-card gradient-primary clickable-card"
+              (click)="openDormModal()"
+            >
+              <ion-card-content>
+                <div class="icon-wrapper">
+                  <ion-icon name="business-outline"></ion-icon>
+                </div>
+                <div class="stat-info">
+                  <span class="stat-label">Total Dorms</span>
+                  <h3 class="stat-value">{{ stats.dormCount | number }}</h3>
+                </div>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+
+          <!-- Total Users -->
+          <ion-col size="12" size-md="4">
+            <ion-card
+              class="stat-card gradient-secondary clickable-card"
+              (click)="openUserModal()"
+            >
+              <ion-card-content>
+                <div class="icon-wrapper">
+                  <ion-icon name="people-outline"></ion-icon>
+                </div>
+                <div class="stat-info">
+                  <span class="stat-label">Total Users</span>
+                  <h3 class="stat-value">
+                    {{ (stats.memberCount + stats.ownerCount) | number }}
+                  </h3>
+                </div>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+
+          <!-- Zone Count -->
+          <ion-col size="12" size-md="4">
+            <ion-card
+              class="stat-card gradient-quaternary clickable-card"
+              (click)="openZoneModal()"
+            >
+              <ion-card-content>
+                <div class="icon-wrapper">
+                  <ion-icon name="location-outline"></ion-icon>
+                </div>
+                <div class="stat-info">
+                  <span class="stat-label">Total Zones</span>
+                  <h3 class="stat-value">{{ stats.zoneCount | number }}</h3>
+                </div>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+        </ion-row>
+
+        <!-- Second Row for Global Stats -->
+        <ion-row class="mt-4">
+          <!-- Total Website Views -->
+          <ion-col size="12">
+            <ion-card
+              class="stat-card gradient-quinary clickable-card"
+              (click)="openViewModal()"
+            >
+              <ion-card-content class="horizontal-card-content">
+                <div class="icon-wrapper">
+                  <ion-icon name="globe-outline"></ion-icon>
+                </div>
+                <div class="stat-info">
+                  <span class="stat-label">Total Live Website Views</span>
+                  <h3 class="stat-value" style="font-size: 2.5rem">
+                    {{ stats.totalWebsiteViews | number }}
+                  </h3>
+                </div>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+
+      <h2 class="section-title mt-4">Top Performing</h2>
+      <ion-grid class="mb-[1rem]">
+        <ion-row>
+          <!-- Popular Dorm Name -->
+          <ion-col size="12" size-md="12">
+            <ion-card class="stat-card pop-card clickable-card" (click)="openPopularModal()">
+              <ion-card-content class="horizontal-card-content">
+                <div class="icon-wrapper star-wrapper">
+                  <ion-icon name="star-outline"></ion-icon>
+                </div>
+                <div class="stat-info">
+                  <span class="stat-label">Most Popular Dorm (Tap for Top 5)</span>
+                  <h3 class="stat-value text-ellipsis">
+                    {{ stats.popularDormName }}
+                  </h3>
+                </div>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ng-container>
+
+    <!-- Dorm Custom Modal -->
+    <div class="custom-modal-backdrop" *ngIf="isDormModalOpen">
+      <div class="custom-modal-dialog">
+        <div class="modal-header">
+          <h2>Dorm Statistics</h2>
+          <button class="close-btn" (click)="closeDormModal()">
+            <ion-icon name="close"></ion-icon>
+          </button>
+        </div>
+        <div class="modal-content">
+          <ion-grid>
+            <ion-row>
+              <ion-col size="12" size-md="6">
+                <ion-card>
+                  <ion-card-header>
+                    <ion-card-title class="ion-text-center"
+                      >Dorms by Status</ion-card-title
+                    >
+                  </ion-card-header>
+                  <ion-card-content>
+                    <canvas #dormStatusCanvas></canvas>
+                  </ion-card-content>
+                </ion-card>
+              </ion-col>
+              <ion-col size="12" size-md="6">
+                <ion-card>
+                  <ion-card-header>
+                    <ion-card-title class="ion-text-center"
+                      >Dorms by Type</ion-card-title
+                    >
+                  </ion-card-header>
+                  <ion-card-content>
+                    <canvas #dormTypeCanvas></canvas>
+                  </ion-card-content>
+                </ion-card>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </div>
+      </div>
+    </div>
+
+    <!-- User Custom Modal -->
+    <div class="custom-modal-backdrop" *ngIf="isUserModalOpen">
+      <div class="custom-modal-dialog">
+        <div class="modal-header">
+          <h2>User Statistics</h2>
+          <button class="close-btn" (click)="closeUserModal()">
+            <ion-icon name="close"></ion-icon>
+          </button>
+        </div>
+        <div class="modal-content">
+          <ion-grid>
+            <ion-row>
+              <ion-col size="12" size-md="6">
+                <ion-card class="stat-card">
+                  <ion-card-content class="horizontal-card-content">
+                    <div
+                      class="icon-wrapper"
+                      style="
+                        background: rgba(59, 130, 246, 0.1);
+                        color: #3b82f6;
+                      "
+                    >
+                      <ion-icon name="people-outline"></ion-icon>
+                    </div>
+                    <div class="stat-info">
+                      <span class="stat-label">Members</span>
+                      <h3 class="stat-value">
+                        {{ stats?.memberCount | number }}
+                      </h3>
+                    </div>
+                  </ion-card-content>
+                </ion-card>
+              </ion-col>
+              <ion-col size="12" size-md="6">
+                <ion-card class="stat-card">
+                  <ion-card-content class="horizontal-card-content">
+                    <div
+                      class="icon-wrapper"
+                      style="
+                        background: rgba(139, 92, 246, 0.1);
+                        color: #8b5cf6;
+                      "
+                    >
+                      <ion-icon name="person-outline"></ion-icon>
+                    </div>
+                    <div class="stat-info">
+                      <span class="stat-label">Owners</span>
+                      <h3 class="stat-value">
+                        {{ stats?.ownerCount | number }}
+                      </h3>
+                    </div>
+                  </ion-card-content>
+                </ion-card>
+              </ion-col>
+              <ion-col size="12">
+                <ion-card class="stat-card">
+                  <ion-card-content class="horizontal-card-content">
+                    <div
+                      class="icon-wrapper"
+                      style="
+                        background: rgba(16, 185, 129, 0.1);
+                        color: #10b981;
+                      "
+                    >
+                      <ion-icon name="checkmark-circle-outline"></ion-icon>
+                    </div>
+                    <div class="stat-info">
+                      <span class="stat-label">Active Users</span>
+                      <h3 class="stat-value">
+                        {{ stats?.userStatusBreakdown?.activeUsers | number }}
+                      </h3>
+                    </div>
+                  </ion-card-content>
+                </ion-card>
+              </ion-col>
+              <ion-col size="12" size-md="6">
+                <ion-card class="stat-card">
+                  <ion-card-content class="horizontal-card-content">
+                    <div
+                      class="icon-wrapper"
+                      style="
+                        background: rgba(100, 116, 139, 0.1);
+                        color: #64748b;
+                      "
+                    >
+                      <ion-icon name="power-outline"></ion-icon>
+                    </div>
+                    <div class="stat-info">
+                      <span class="stat-label">Deactivated</span>
+                      <h3 class="stat-value">
+                        {{ stats?.userStatusBreakdown?.deactiveUsers | number }}
+                      </h3>
+                    </div>
+                  </ion-card-content>
+                </ion-card>
+              </ion-col>
+              <ion-col size="12" size-md="6">
+                <ion-card class="stat-card">
+                  <ion-card-content class="horizontal-card-content">
+                    <div
+                      class="icon-wrapper"
+                      style="background: rgba(239, 68, 68, 0.1); color: #ef4444"
+                    >
+                      <ion-icon name="ban-outline"></ion-icon>
+                    </div>
+                    <div class="stat-info">
+                      <span class="stat-label">Banned</span>
+                      <h3 class="stat-value">
+                        {{ stats?.userStatusBreakdown?.bannedUsers | number }}
+                      </h3>
+                    </div>
+                  </ion-card-content>
+                </ion-card>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </div>
+      </div>
+    </div>
+
+    <!-- Zone Custom Modal -->
+    <div class="custom-modal-backdrop" *ngIf="isZoneModalOpen">
+      <div class="custom-modal-dialog">
+        <div class="modal-header">
+          <h2>Dorms by Zone</h2>
+          <button class="close-btn" (click)="closeZoneModal()">
+            <ion-icon name="close"></ion-icon>
+          </button>
+        </div>
+        <div class="modal-content">
+          <ion-grid>
+            <ion-row>
+              <ion-col size="12" *ngFor="let zone of stats?.zoneBreakdown">
+                <ion-card
+                  class="stat-card zone-breakdown-card clickable-card"
+                  (click)="goToFilteredDorms(zone.zoneId)"
+                >
+                  <ion-card-content class="horizontal-card-content">
+                    <div class="icon-wrapper">
+                      <ion-icon name="location-outline"></ion-icon>
+                    </div>
+                    <div class="stat-info">
+                      <span class="stat-label">{{ zone.zoneName }}</span>
+                      <h3 class="stat-value">
+                        {{ zone.dormCount | number }} Dorms
+                      </h3>
+                    </div>
+                  </ion-card-content>
+                </ion-card>
+              </ion-col>
+              <ion-col size="12" *ngIf="!stats?.zoneBreakdown?.length">
+                <div class="ion-text-center ion-padding">
+                  <p>No zone data available.</p>
+                </div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </div>
+      </div>
+    </div>
+
+    <!-- Popular Dorm Custom Modal -->
+    <div class="custom-modal-backdrop" *ngIf="isPopularModalOpen">
+      <div class="custom-modal-dialog">
+        <div class="modal-header">
+          <h2>Top 5 Popular Dorms</h2>
+          <button class="close-btn" (click)="closePopularModal()">
+            <ion-icon name="close"></ion-icon>
+          </button>
+        </div>
+        <div class="modal-content">
+          <ion-grid>
+            <ion-row>
+              <ion-col size="12" *ngFor="let dorm of stats?.topPopularDorms; let i = index">
+                <ion-card class="stat-card clickable-card" (click)="goToDormDetail(dorm.dormId)" style="border-left: 4px solid #f59e0b;">
+                  <ion-card-content class="horizontal-card-content">
+                    <div class="icon-wrapper star-wrapper" style="width: 40px; height: 40px;">
+                      <span style="font-weight: bold; color: #f59e0b;">#{{ i + 1 }}</span>
+                    </div>
+                    <div class="stat-info">
+                      <span class="stat-label">{{ dorm.views | number }} Views</span>
+                      <h3 class="stat-value" style="font-size: 1.25rem;">{{ dorm.dormName }}</h3>
+                    </div>
+                  </ion-card-content>
+                </ion-card>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </div>
+      </div>
+    </div>
+
+    <!-- View Custom Modal -->
+    <div class="custom-modal-backdrop" *ngIf="isViewModalOpen">
+      <div class="custom-modal-dialog">
+        <div class="modal-header">
+          <h2>Website Views</h2>
+          <button class="close-btn" (click)="closeViewModal()">
+            <ion-icon name="close"></ion-icon>
+          </button>
+        </div>
+        <div class="modal-content">
+          <p
+            class="ion-text-center"
+            style="color: #64748b; margin-bottom: 1rem"
+          >
+            Click on a Year slice to view the monthly breakdown table.
+          </p>
+          <ion-card style="position: relative">
+            <ion-card-content>
+              <div class="chart-center-text" *ngIf="selectedYearForTable">
+                <span class="year-label">Year</span>
+                <span class="year-value">{{ selectedYearForTable }}</span>
+              </div>
+              <div class="chart-center-text" *ngIf="!selectedYearForTable">
+                <span class="year-label">Views</span>
+                <span class="year-value">All Time</span>
+              </div>
+              <canvas #viewCanvas></canvas>
+            </ion-card-content>
+          </ion-card>
+
+          <div class="table-wrapper" *ngIf="selectedYearForTable">
+            <h3
+              style="
+                margin-left: 1rem;
+                color: #0f172a;
+                margin-top: 1rem;
+                margin-bottom: 0.5rem;
+              "
+            >
+              Monthly Views for {{ selectedYearForTable }}
+            </h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Month</th>
+                  <th>Viewers</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let row of getMonthlyTableData()">
+                  <td>{{ getMonthName(row.month) }}</td>
+                  <td>{{ row.count | number }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-content>
