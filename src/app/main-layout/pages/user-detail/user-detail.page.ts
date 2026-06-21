@@ -77,6 +77,8 @@ export class UserDetailPage{
   errMsg = signal<string | null>(null);
   succMsg = signal<string | null>(null);
   isLoading = signal<boolean>(false);
+  isAdmin = signal<boolean>(false);
+  isOwnProfile = signal<boolean>(false);
 
   constructor(
     private userSv: UserServices,
@@ -111,6 +113,7 @@ export class UserDetailPage{
       this.userSv.getUserByID(Number(user_id)).pipe(finalize(() => this.isLoading.set(false))).subscribe({
         next: (u) => {
           this.user.set(u);
+          this.checkRoles(Number(user_id));
         },
         error: (err: any) => {
           this.errMsg.set(extractErrorMessage(err));
@@ -125,6 +128,14 @@ export class UserDetailPage{
       timer(3000).subscribe(() => {
         return this.router.navigateByUrl('/', { replaceUrl: true });
       });
+    }
+  }
+
+  checkRoles(uid: number) {
+    const currentUser = this.authSv.currentUserValue;
+    if (currentUser) {
+      this.isAdmin.set(currentUser.role === 3);
+      this.isOwnProfile.set(currentUser.id === uid);
     }
   }
 

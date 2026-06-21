@@ -50,6 +50,11 @@ export class UserServices {
     return this.http.delete(url)
   }
 
+  hardDeleteAccount(user_id: number): Observable<any>{
+    const url = `${this.endPoint}/admin/users/hardDelete/${user_id}`;
+    return this.http.delete(url);
+  }
+
   resetPassword(data: { email: string; password: string; verify: boolean }): Observable<any> {
     const url = `${this.endPoint}/user/resetPassword`;
     return this.http.put(url, data);

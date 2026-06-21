@@ -1,23 +1,25 @@
-<ion-header class="ion-no-border premium-header">
-  <ion-toolbar>
+<ion-header class="ion-no-border">
+  <ion-toolbar class="main-toolbar">
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/" color="light"></ion-back-button>
+      <ion-back-button defaultHref="/" color="dark"></ion-back-button>
     </ion-buttons>
-    <ion-title class="font-bold text-white">Member Control</ion-title>
+    <ion-title class="toolbar-title text-gray-900">Member Control</ion-title>
   </ion-toolbar>
+</ion-header>
 
-  <div class="px-5 pb-6">
-    <div class="premium-search-container">
+<ion-content [fullscreen]="true" class="minimal-content">
+  <div class="px-5 py-4 bg-white border-b border-gray-100">
+    <div class="minimal-search-container mt-0">
       <ion-searchbar 
         placeholder="Search for users..." 
         [debounce]="300" 
         (ionInput)="onSearch($event)"
-        class="premium-searchbar"
+        class="minimal-searchbar"
         mode="ios">
       </ion-searchbar>
     </div>
 
-    <ion-segment [value]="selectedTab()" (ionChange)="onTabChange($event)" mode="ios" class="mt-4 premium-segment">
+    <ion-segment [value]="selectedTab()" (ionChange)="onTabChange($event)" mode="ios" class="mt-4 minimal-segment">
       <ion-segment-button value="member">
         <ion-label>Members</ion-label>
       </ion-segment-button>
@@ -26,10 +28,7 @@
       </ion-segment-button>
     </ion-segment>
   </div>
-</ion-header>
-
-<ion-content [fullscreen]="true" class="premium-content">
-  <div class="px-4 pt-6 pb-20">
+  <div class="px-4 pt-4 pb-20">
     <div *ngIf="filteredUsers().length === 0 && !isLoading()" class="flex flex-col items-center justify-center py-20 text-center">
       <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
         <ion-icon name="person-circle-outline" class="text-6xl text-gray-300"></ion-icon>
@@ -38,12 +37,12 @@
       <p class="text-gray-400 mt-2 px-10">We couldn't find any users matching your search criteria.</p>
     </div>
 
-    <div class="grid grid-cols-1 gap-4">
-      <div *ngFor="let user of filteredUsers()" (click)="goToDetail(user)" class="premium-card">
-        <div class="premium-card-inner">
+    <div class="flex flex-col gap-4">
+      <div *ngFor="let user of filteredUsers()" (click)="goToDetail(user)" class="minimal-card">
+        <div class="minimal-card-inner">
           <div class="flex items-center gap-4">
             <div class="avatar-container">
-              <ion-icon [name]="user.ROLE_TYPE_ID === 1 ? 'person-circle-outline' : 'business-outline'" class="text-3xl text-primary"></ion-icon>
+              <ion-icon [name]="user.ROLE_TYPE_ID === 1 ? 'person-circle-outline' : 'business-outline'" class="text-3xl text-gray-600"></ion-icon>
               <div class="role-indicator" [class.is-owner]="user.ROLE_TYPE_ID === 2"></div>
             </div>
             
@@ -60,26 +59,31 @@
             </div>
 
             <div class="status-indicator">
-              <ion-badge [color]="getStatusColor(user.ACCOUNT_STATUS)" mode="ios" class="premium-badge">
+              <ion-badge [color]="getStatusColor(user.ACCOUNT_STATUS)" mode="ios" class="minimal-badge">
                 {{ getStatusText(user.ACCOUNT_STATUS) }}
               </ion-badge>
             </div>
           </div>
 
-          <div class="premium-actions mt-4 pt-4 flex justify-end gap-3 border-t border-gray-50">
-            <ion-button (click)="editUser($event, user)" fill="clear" class="action-btn edit" size="small">
+          <div class="minimal-actions mt-4 pt-4 flex justify-end gap-2 border-t border-gray-100 flex-wrap">
+            <ion-button (click)="editUser($event, user)" fill="clear" color="medium" class="action-btn" size="small">
               <ion-icon slot="start" name="create-outline"></ion-icon>
               Edit
             </ion-button>
             
-            <ion-button (click)="banUser($event, user)" fill="solid" color="danger" class="action-btn ban" size="small" *ngIf="user.ACCOUNT_STATUS !== 2">
+            <ion-button (click)="banUser($event, user)" fill="clear" color="danger" class="action-btn" size="small" *ngIf="user.ACCOUNT_STATUS !== 2">
               <ion-icon slot="start" name="ban-outline"></ion-icon>
               Ban
             </ion-button>
 
-            <ion-button (click)="unbanUser($event, user)" fill="solid" color="success" class="action-btn unban" size="small" *ngIf="user.ACCOUNT_STATUS === 2">
+            <ion-button (click)="unbanUser($event, user)" fill="clear" color="success" class="action-btn" size="small" *ngIf="user.ACCOUNT_STATUS === 2">
               <ion-icon slot="start" name="shield-checkmark-outline"></ion-icon>
-              Unban User
+              Unban
+            </ion-button>
+
+            <ion-button (click)="hardDeleteUser($event, user)" fill="clear" color="danger" class="action-btn hard-delete" size="small">
+              <ion-icon slot="start" name="trash-outline"></ion-icon>
+              Delete
             </ion-button>
           </div>
         </div>
@@ -87,8 +91,8 @@
     </div>
   </div>
 
-  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-    <ion-fab-button (click)="scrollToTop()" class="premium-fab">
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed" style="margin-bottom: 70px;">
+    <ion-fab-button (click)="scrollToTop()" color="dark" class="minimal-fab">
       <ion-icon name="arrow-up-outline"></ion-icon>
     </ion-fab-button>
   </ion-fab>
