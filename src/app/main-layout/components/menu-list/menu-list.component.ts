@@ -27,6 +27,7 @@ import {
   closeOutline,
   readerOutline,
   cubeOutline,
+  idCardOutline,
 } from 'ionicons/icons';
 import { AuthenService } from 'src/app/services/authenService';
 import { Subscription } from 'rxjs';
@@ -127,7 +128,7 @@ export class MenuListComponent implements OnDestroy, AfterViewInit {
       },
       {
         key: 'request-owner',
-        label: 'ร้องขอสิทธิ์เจ้าของหอ',
+        label: 'ขอสิทธิ์เจ้าของหอ',
         path: '/owner-register',
         icon: 'key-outline',
         needsId: true,
@@ -135,19 +136,12 @@ export class MenuListComponent implements OnDestroy, AfterViewInit {
         forRole: [1],
       },
       // Admin Only Menus
-      {
-        key: 'dashboard',
-        label: 'แดชบอร์ด',
-        path: '/dashboard',
-        icon: 'stats-chart-outline',
-        neddLogin: true,
-        forRole: [3],
-      },
+
       {
         key: 'owner-manage',
         label: 'คำร้องขอเป็นเจ้าของหอ',
         path: '/owner-requests',
-        icon: 'people-outline',
+        icon: 'id-card-outline',
         neddLogin: true,
         forRole: [3],
       },
@@ -161,7 +155,7 @@ export class MenuListComponent implements OnDestroy, AfterViewInit {
       },
       {
         key: 'facility-manage',
-        label: 'จัดการสิ่งอำนวยฯ',
+        label: 'สิ่งอำนวยความสะดวก',
         path: '/facility-management',
         icon: 'cube-outline',
         neddLogin: true,
@@ -172,6 +166,14 @@ export class MenuListComponent implements OnDestroy, AfterViewInit {
         label: 'จัดการประเภท',
         path: '/type-management',
         icon: 'cube-outline',
+        neddLogin: true,
+        forRole: [3],
+      },
+      {
+        key: 'dashboard',
+        label: 'แดชบอร์ด',
+        path: '/dashboard',
+        icon: 'stats-chart-outline',
         neddLogin: true,
         forRole: [3],
       },
@@ -205,6 +207,7 @@ export class MenuListComponent implements OnDestroy, AfterViewInit {
       closeOutline,
       readerOutline,
       cubeOutline,
+      idCardOutline,
     });
 
     this.authSub = this.authSv.user$.subscribe({

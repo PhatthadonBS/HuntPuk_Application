@@ -44,24 +44,6 @@
     </p>
   </div>
 
-  <!-- <div class="ref-chip-bar" *ngIf="refPoint()">
-    <div class="ref-chip">
-      <ion-icon name="location-outline"></ion-icon>
-      <span
-        >จุดอ้างอิง: {{ refPoint()!.lat | number:'1.4-4' }}, {{ refPoint()!.lng
-        | number:'1.4-4' }}</span
-      >
-      <ion-button
-        fill="clear"
-        size="small"
-        (click)="clearRefPoint()"
-        class="chip-clear-btn"
-      >
-        <ion-icon name="close-outline" slot="icon-only"></ion-icon>
-      </ion-button>
-    </div>
-  </div> -->
-
   <div class="empty-state" [class.hidden]="selectedDorms().length > 0">
     <div class="empty-content">
       <div class="empty-icon-wrapper">
@@ -288,17 +270,6 @@
     </div>
     <div class="h-[3rem] w-full"></div>
   </div>
-
-  <!-- <ion-fab
-    slot="fixed"
-    vertical="bottom"
-    horizontal="end"
-    *ngIf="selectedDorms().length < maxDorms()"
-  >
-    <ion-fab-button color="primary" (click)="openSelectModal()">
-      <ion-icon name="add"></ion-icon>
-    </ion-fab-button>
-  </ion-fab> -->
 
   <ion-modal [isOpen]="isModalOpen()" class="minimal-modal select-dorm-modal">
     <ng-template>

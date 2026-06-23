@@ -357,7 +357,7 @@ export class DormComparePage implements OnInit, OnDestroy {
       this.map = new google.maps.Map(el, {
         center: { lat: 16.2458428, lng: 103.2492193 },
         zoom: 14,
-        disableDefaultUI: false,
+        disableDefaultUI: true,
         zoomControl: false,
         clickableIcons: false,
       });
@@ -493,10 +493,13 @@ export class DormComparePage implements OnInit, OnDestroy {
             const leg = route.legs[0];
 
             // Update Signal distance to match map (Driving Distance)
-            this.selectedDorms.update(current => {
+            this.selectedDorms.update((current) => {
               const updated = [...current];
               if (updated[index]) {
-                updated[index] = { ...updated[index], distance: leg.distance.value };
+                updated[index] = {
+                  ...updated[index],
+                  distance: leg.distance.value,
+                };
               }
               return updated;
             });
@@ -651,7 +654,10 @@ export class DormComparePage implements OnInit, OnDestroy {
       const dorm = updatedDorms[i];
       updatedDorms[i] = {
         ...dorm,
-        distance: await this.getDrivingDistance(point, { lat: dorm.lat, lng: dorm.lng })
+        distance: await this.getDrivingDistance(point, {
+          lat: dorm.lat,
+          lng: dorm.lng,
+        }),
       };
     }
 
@@ -662,7 +668,7 @@ export class DormComparePage implements OnInit, OnDestroy {
     try {
       await this.gMapSv.load();
       const service = new google.maps.DirectionsService();
-      
+
       const req: google.maps.DirectionsRequest = {
         origin,
         destination,
@@ -675,12 +681,24 @@ export class DormComparePage implements OnInit, OnDestroy {
             resolve(result.routes[0].legs[0].distance.value);
           } else {
             // Fallback to Haversine if Directions fails
-            resolve(this.calculateDistance(origin.lat, origin.lng, destination.lat, destination.lng));
+            resolve(
+              this.calculateDistance(
+                origin.lat,
+                origin.lng,
+                destination.lat,
+                destination.lng
+              )
+            );
           }
         });
       });
     } catch (e) {
-      return this.calculateDistance(origin.lat, origin.lng, destination.lat, destination.lng);
+      return this.calculateDistance(
+        origin.lat,
+        origin.lng,
+        destination.lat,
+        destination.lng
+      );
     }
   }
 
