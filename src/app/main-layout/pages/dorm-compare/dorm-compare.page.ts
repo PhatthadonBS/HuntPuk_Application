@@ -119,6 +119,7 @@ export class DormComparePage implements OnInit, OnDestroy {
   isModalOpen = signal<boolean>(false);
   allDorms = signal<DormSummary[]>([]);
   zones = signal<DormZone[]>([]);
+  priceTypes = signal<any[]>([]);
 
   filterParams = signal<FilterParams>({});
 
@@ -194,11 +195,21 @@ export class DormComparePage implements OnInit, OnDestroy {
 
     this.loadAllDorms();
     this.loadZones();
+    this.loadPriceTypes();
   }
 
   ngOnDestroy() {
     this.destroyMap();
     if (this.userSub) this.userSub.unsubscribe();
+  }
+
+  loadPriceTypes() {
+    this.dormSv.getPriceTypes().subscribe({
+      next: (res: any) => {
+        this.priceTypes.set(Array.isArray(res) ? res : res.data || []);
+      },
+      error: (err) => console.error('Error fetching price types', err),
+    });
   }
 
   loadZones() {
@@ -637,6 +648,17 @@ export class DormComparePage implements OnInit, OnDestroy {
   confirmMapSelection() {
     if (this.refPoint()) this.recalculateDistances();
     this.closeMapModal();
+  }
+
+  getRoomStartPrice(r: any): string {
+    if (r.PRICE > 0) return `${this.formatNumber(r.PRICE)} ฿/เดือน`;
+    if (r.perTerm > 0) return `${this.formatNumber(r.perTerm)} ฿/เทอม`;
+    if (r.perDay > 0) return `${this.formatNumber(r.perDay)} ฿/วัน`;
+    return '-';
+  }
+
+  formatNumber(num: number): string {
+    return num.toLocaleString('en-US');
   }
 
   getDistanceKm(distance: number): number {
