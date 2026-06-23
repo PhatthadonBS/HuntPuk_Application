@@ -91,6 +91,7 @@ export class DormDetailPage implements OnInit, OnDestroy {
   dormId: number | null = null;
   dorm = signal<DormDetail | null>(null);
   reviews = signal<ReviewItem[]>([]);
+  priceTypes = signal<any[]>([]);
   isLoading = signal<boolean>(true);
   isFavorite = signal<boolean>(false);
   hasError = signal<boolean>(false);
@@ -181,9 +182,15 @@ export class DormDetailPage implements OnInit, OnDestroy {
           console.error('Error fetching reviews', err);
           return of(null);
         })
+      ),
+      priceTypesReq: this.dormSv.getPriceTypes().pipe(
+        catchError(err => {
+          console.error('Error fetching price types', err);
+          return of([]);
+        })
       )
     }).subscribe({
-      next: ({ dormDetails, dormReviews }) => {
+      next: ({ dormDetails, dormReviews, priceTypesReq }) => {
         if (dormDetails && dormDetails.success) {
           const dData = dormDetails.data;
           if (!dData.gallery) dData.gallery = [];
@@ -211,6 +218,10 @@ export class DormDetailPage implements OnInit, OnDestroy {
           this.reviews.set(dormReviews.data);
         }
         
+        if (priceTypesReq) {
+          this.priceTypes.set(Array.isArray(priceTypesReq) ? priceTypesReq : (priceTypesReq as any).data || []);
+        }
+        
         this.isLoading.set(false);
       },
       error: () => {
@@ -218,6 +229,20 @@ export class DormDetailPage implements OnInit, OnDestroy {
         this.isLoading.set(false);
       }
     });
+  }
+
+  getPrice(room: any, typeId: number): number | null {
+    if (room.prices && Array.isArray(room.prices)) {
+      const p = room.prices.find((x: any) => x.priceTypeId === typeId);
+      if (p && p.price > 0) return p.price;
+    } else {
+      // Fallback
+      if (typeId === 1 && room.PRICE) return room.PRICE;
+      if (typeId === 1 && room.perMonth) return room.perMonth;
+      if (typeId === 2 && room.perTerm) return room.perTerm;
+      if (typeId === 3 && room.perDay) return room.perDay;
+    }
+    return null;
   }
 
   toggleFavorite() {

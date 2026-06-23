@@ -73,8 +73,7 @@
                 [class.closed]="d.DORM_STATUS_ID == 2"
                 [class.full]="d.DORM_STATUS_ID == 3"
               >
-                {{ d.DORM_STATUS_NAME || (d.DORM_STATUS_ID == 1 ? 'ว่าง' :
-                (d.DORM_STATUS_ID == 2 ? 'ปิด' : 'เต็ม')) }}
+                {{ d.DORM_STATUS_NAME }}
               </div>
             </div>
 

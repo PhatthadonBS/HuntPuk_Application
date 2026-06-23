@@ -129,6 +129,40 @@ export class DormServices {
     );
   }
 
+  addDormZone(name: string, lat?: number, lng?: number): Observable<any> {
+    const url = `${this.endPoint}/dorms/zones`;
+    return this.http.post<any>(url, { name, lat, lng }).pipe(
+      timeout(this.REQUEST_TIMEOUT),
+      catchError(err => {
+        console.error('addDormZone error:', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  deleteDormZone(id: number): Observable<any> {
+    const url = `${this.endPoint}/dorms/zones/${id}`;
+    return this.http.delete<any>(url).pipe(
+      timeout(this.REQUEST_TIMEOUT),
+      catchError(err => {
+        console.error('deleteDormZone error:', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  updateMasterType(type: string, id: number, name: string, lat?: number, lng?: number): Observable<any> {
+    const url = `${this.endPoint}/type_management/${type}/${id}`;
+    const payload = { name, lat, lng };
+    return this.http.put<any>(url, payload).pipe(
+      timeout(this.REQUEST_TIMEOUT),
+      catchError(err => {
+        console.error('updateMasterType error:', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
   getReviewsByDormId(dorm_id: number): Observable<ReviewGetRes> {
     const url = `${this.endPoint}/dorms/review/${dorm_id}`;
     return this.http.get<ReviewGetRes>(url).pipe(
@@ -237,6 +271,96 @@ export class DormServices {
       map(res => res.data),
       catchError(err => {
         console.error('getBedTypes error:', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  addBedType(name: string): Observable<any> {
+    const url = `${this.endPoint}/dorms/bedTypes`;
+    return this.http.post<any>(url, { name }).pipe(
+      timeout(this.REQUEST_TIMEOUT),
+      catchError(err => {
+        console.error('addBedType error:', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  deleteBedType(id: number): Observable<any> {
+    const url = `${this.endPoint}/dorms/bedTypes/${id}`;
+    return this.http.delete<any>(url).pipe(
+      timeout(this.REQUEST_TIMEOUT),
+      catchError(err => {
+        console.error('deleteBedType error:', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  getPriceTypes(): Observable<MasterType[]> {
+    const url = `${this.endPoint}/dorms/priceTypes`;
+    return this.http.get<{ success: boolean; data: MasterType[] }>(url).pipe(
+      timeout(this.REQUEST_TIMEOUT),
+      map(res => res.data),
+      catchError(err => {
+        console.error('getPriceTypes error:', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  addPriceType(name: string): Observable<any> {
+    const url = `${this.endPoint}/dorms/priceTypes`;
+    return this.http.post<any>(url, { name }).pipe(
+      timeout(this.REQUEST_TIMEOUT),
+      catchError(err => {
+        console.error('addPriceType error:', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  deletePriceType(id: number): Observable<any> {
+    const url = `${this.endPoint}/dorms/priceTypes/${id}`;
+    return this.http.delete<any>(url).pipe(
+      timeout(this.REQUEST_TIMEOUT),
+      catchError(err => {
+        console.error('deletePriceType error:', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  getDormStatuses(): Observable<MasterType[]> {
+    const url = `${this.endPoint}/dorms/dormStatuses`;
+    return this.http.get<{ success: boolean; data: MasterType[] }>(url).pipe(
+      timeout(this.REQUEST_TIMEOUT),
+      map(res => res.data),
+      catchError(err => {
+        console.error('getDormStatuses error:', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  addDormStatus(name: string): Observable<any> {
+    const url = `${this.endPoint}/dorms/dormStatuses`;
+    return this.http.post<any>(url, { name }).pipe(
+      timeout(this.REQUEST_TIMEOUT),
+      catchError(err => {
+        console.error('addDormStatus error:', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  deleteDormStatus(id: number): Observable<any> {
+    const url = `${this.endPoint}/dorms/dormStatuses/${id}`;
+    return this.http.delete<any>(url).pipe(
+      timeout(this.REQUEST_TIMEOUT),
+      catchError(err => {
+        console.error('deleteDormStatus error:', err);
         return throwError(() => err);
       })
     );

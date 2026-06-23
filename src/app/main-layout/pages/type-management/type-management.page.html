@@ -1,71 +1,384 @@
-<ion-header [translucent]="true">
-  <ion-toolbar color="primary">
-    <ion-title>จัดการประเภท</ion-title>
-  </ion-toolbar>
-  <ion-toolbar>
-    <ion-segment [value]="selectedSegment" (ionChange)="segmentChanged($event)">
-      <ion-segment-button value="dorm">
-        <ion-label>ประเภทหอพัก</ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="room">
-        <ion-label>ประเภทห้องพัก</ion-label>
-      </ion-segment-button>
-    </ion-segment>
+<ion-header class="ion-no-border">
+  <ion-toolbar class="main-toolbar">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="toolbar-title">จัดการข้อมูลระบบ (Master Data)</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" class="ion-padding">
-  
-  <!-- Dorm Type Section -->
-  <div *ngIf="selectedSegment === 'dorm'">
-    <ion-item>
-      <ion-input label="เพิ่มประเภทหอพักใหม่" labelPlacement="floating" [(ngModel)]="newDormTypeName" placeholder="กรอกชื่อประเภท..."></ion-input>
-      <ion-button slot="end" (click)="addDormType()" [disabled]="!newDormTypeName.trim()">
-        <ion-icon slot="start" name="add-circle-outline"></ion-icon>
-        เพิ่ม
-      </ion-button>
-    </ion-item>
-    
-    <ion-list class="ion-margin-top">
-      <ion-item-divider>
-        <ion-label>รายการประเภทหอพักที่มีอยู่</ion-label>
-      </ion-item-divider>
-      <ion-item *ngFor="let type of dormTypes">
-        <ion-label>{{ type.name }}</ion-label>
-        <ion-button slot="end" color="danger" fill="clear" (click)="confirmDeleteDormType(type)">
-          <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
-        </ion-button>
-      </ion-item>
-      <ion-item *ngIf="dormTypes.length === 0">
-        <ion-label color="medium" class="ion-text-center">ไม่มีข้อมูลประเภทหอพัก</ion-label>
-      </ion-item>
-    </ion-list>
+<ion-content [fullscreen]="true" class="type-management-content ion-padding">
+  <div class="content-wrapper">
+    <div class="summary-header">
+      <h1>หมวดหมู่ข้อมูล</h1>
+      <p>เลือกหมวดหมู่ที่ต้องการจัดการเพิ่มหรือลบข้อมูล</p>
+    </div>
+
+    <ion-grid class="ion-no-padding type-grid">
+      <ion-row>
+        <!-- Dorm Type -->
+        <ion-col size="12" size-md="6" size-lg="4">
+          <ion-card class="type-card" (click)="openModal('dorm')" button>
+            <div class="card-icon-container bg-primary-light">
+              <ion-icon name="business-outline" color="primary"></ion-icon>
+            </div>
+            <ion-card-header>
+              <ion-card-title>ประเภทหอพัก</ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+              มีข้อมูล {{ dormTypes().length }} รายการ
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+
+        <!-- Room Type -->
+        <ion-col size="12" size-md="6" size-lg="4">
+          <ion-card class="type-card" (click)="openModal('room')" button>
+            <div class="card-icon-container bg-secondary-light">
+              <ion-icon name="options-outline" color="secondary"></ion-icon>
+            </div>
+            <ion-card-header>
+              <ion-card-title>ประเภทห้องพัก</ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+              มีข้อมูล {{ roomTypes().length }} รายการ
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+
+        <!-- Bed Type -->
+        <ion-col size="12" size-md="6" size-lg="4">
+          <ion-card class="type-card" (click)="openModal('bed')" button>
+            <div class="card-icon-container bg-tertiary-light">
+              <ion-icon name="bed-outline" color="tertiary"></ion-icon>
+            </div>
+            <ion-card-header>
+              <ion-card-title>ประเภทเตียง</ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+              มีข้อมูล {{ bedTypes().length }} รายการ
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+
+        <!-- Price Type -->
+        <ion-col size="12" size-md="6" size-lg="4">
+          <ion-card class="type-card" (click)="openModal('price')" button>
+            <div class="card-icon-container bg-success-light">
+              <ion-icon name="cash-outline" color="success"></ion-icon>
+            </div>
+            <ion-card-header>
+              <ion-card-title>ประเภทราคา</ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+              มีข้อมูล {{ priceTypes().length }} รายการ
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+
+        <!-- Dorm Status -->
+        <ion-col size="12" size-md="6" size-lg="4">
+          <ion-card class="type-card" (click)="openModal('status')" button>
+            <div class="card-icon-container bg-warning-light">
+              <ion-icon name="alert-circle-outline" color="warning"></ion-icon>
+            </div>
+            <ion-card-header>
+              <ion-card-title>สถานะหอพัก</ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+              มีข้อมูล {{ dormStatuses().length }} รายการ
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+
+        <!-- Dorm Zone -->
+        <ion-col size="12" size-md="6" size-lg="4">
+          <ion-card class="type-card" (click)="openModal('zone')" button>
+            <div class="card-icon-container bg-danger-light">
+              <ion-icon name="map-outline" color="danger"></ion-icon>
+            </div>
+            <ion-card-header>
+              <ion-card-title>โซนหอพัก</ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+              มีข้อมูล {{ dormZones().length }} รายการ
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
   </div>
 
-  <!-- Room Type Section -->
-  <div *ngIf="selectedSegment === 'room'">
-    <ion-item>
-      <ion-input label="เพิ่มประเภทห้องพักใหม่" labelPlacement="floating" [(ngModel)]="newRoomTypeName" placeholder="กรอกชื่อประเภท..."></ion-input>
-      <ion-button slot="end" (click)="addRoomType()" [disabled]="!newRoomTypeName.trim()">
-        <ion-icon slot="start" name="add-circle-outline"></ion-icon>
-        เพิ่ม
-      </ion-button>
-    </ion-item>
-    
-    <ion-list class="ion-margin-top">
-      <ion-item-divider>
-        <ion-label>รายการประเภทห้องพักที่มีอยู่</ion-label>
-      </ion-item-divider>
-      <ion-item *ngFor="let type of roomTypes">
-        <ion-label>{{ type.name }}</ion-label>
-        <ion-button slot="end" color="danger" fill="clear" (click)="confirmDeleteRoomType(type)">
-          <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
-        </ion-button>
-      </ion-item>
-      <ion-item *ngIf="roomTypes.length === 0">
-        <ion-label color="medium" class="ion-text-center">ไม่มีข้อมูลประเภทห้องพัก</ion-label>
-      </ion-item>
-    </ion-list>
-  </div>
+  <!-- Shared Modal for Management -->
+  
+  
+  <!-- Dorm Type Modal -->
+  <ion-modal [isOpen]="activeModal() === 'dorm'" (didDismiss)="closeModal()" class="center-modal">
+    <ng-template>
+      <ion-header class="ion-no-border">
+        <ion-toolbar>
+          <ion-title>จัดการประเภทหอพัก</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="closeModal()">
+              <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="ion-padding modal-bg">
+        <div class="add-section">
+          <h3>{{ editItemId() ? 'แก้ไขข้อมูล' : 'เพิ่มข้อมูลใหม่' }}</h3>
+          <div class="input-group">
+            <ion-input label="ชื่อประเภท" labelPlacement="floating" [(ngModel)]="newItemName" placeholder="กรอกชื่อ..."></ion-input>
+          </div>
+          <ion-button expand="block" class="ion-margin-top" (click)="saveItem()" [disabled]="!newItemName().trim()">
+            <ion-icon slot="start" [name]="editItemId() ? 'create-outline' : 'add-circle-outline'"></ion-icon>
+            {{ editItemId() ? 'บันทึกการแก้ไข' : 'เพิ่มข้อมูล' }}
+          </ion-button>
+          <ion-button expand="block" fill="clear" color="medium" class="ion-margin-top" *ngIf="editItemId()" (click)="editItemId.set(null); newItemName.set('');">
+            ยกเลิกการแก้ไข
+          </ion-button>
+        </div>
+        <ion-item-divider class="ion-margin-top ion-margin-bottom"><ion-label>รายการที่มีอยู่</ion-label></ion-item-divider>
+        <ion-list class="item-list" lines="full">
+          <ion-item *ngFor="let item of dormTypes()">
+            <ion-label>{{ item.name }}</ion-label>
+            <ion-button slot="end" color="primary" fill="clear" (click)="editItem(item, 'dorm')">
+              <ion-icon slot="icon-only" name="create-outline"></ion-icon>
+            </ion-button>
+            <ion-button slot="end" color="danger" fill="clear" (click)="confirmDelete(item.id, item.name, 'dorm')">
+              <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+            </ion-button>
+          </ion-item>
+          <div *ngIf="dormTypes().length === 0" class="empty-state">ไม่มีข้อมูล</div>
+        </ion-list>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+  <!-- Room Type Modal -->
+  <ion-modal [isOpen]="activeModal() === 'room'" (didDismiss)="closeModal()" class="center-modal">
+    <ng-template>
+      <ion-header class="ion-no-border">
+        <ion-toolbar>
+          <ion-title>จัดการประเภทห้องพัก</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="closeModal()"><ion-icon name="close-outline" slot="icon-only"></ion-icon></ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="ion-padding modal-bg">
+        <div class="add-section">
+          <h3>{{ editItemId() ? 'แก้ไขข้อมูล' : 'เพิ่มข้อมูลใหม่' }}</h3>
+          <div class="input-group">
+            <ion-input label="ชื่อประเภท" labelPlacement="floating" [(ngModel)]="newItemName" placeholder="กรอกชื่อ..."></ion-input>
+          </div>
+          <ion-button expand="block" class="ion-margin-top" (click)="saveItem()" [disabled]="!newItemName().trim()">
+            <ion-icon slot="start" [name]="editItemId() ? 'create-outline' : 'add-circle-outline'"></ion-icon>
+            {{ editItemId() ? 'บันทึกการแก้ไข' : 'เพิ่มข้อมูล' }}
+          </ion-button>
+          <ion-button expand="block" fill="clear" color="medium" class="ion-margin-top" *ngIf="editItemId()" (click)="editItemId.set(null); newItemName.set('');">ยกเลิกการแก้ไข</ion-button>
+        </div>
+        <ion-item-divider class="ion-margin-top ion-margin-bottom"><ion-label>รายการที่มีอยู่</ion-label></ion-item-divider>
+        <ion-list class="item-list" lines="full">
+          <ion-item *ngFor="let item of roomTypes()">
+            <ion-label>{{ item.name }}</ion-label>
+            <ion-button slot="end" color="primary" fill="clear" (click)="editItem(item, 'room')"><ion-icon slot="icon-only" name="create-outline"></ion-icon></ion-button>
+            <ion-button slot="end" color="danger" fill="clear" (click)="confirmDelete(item.id, item.name, 'room')"><ion-icon slot="icon-only" name="trash-outline"></ion-icon></ion-button>
+          </ion-item>
+          <div *ngIf="roomTypes().length === 0" class="empty-state">ไม่มีข้อมูล</div>
+        </ion-list>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+  <!-- Bed Type Modal -->
+  <ion-modal [isOpen]="activeModal() === 'bed'" (didDismiss)="closeModal()" class="center-modal">
+    <ng-template>
+      <ion-header class="ion-no-border">
+        <ion-toolbar>
+          <ion-title>จัดการประเภทเตียง</ion-title>
+          <ion-buttons slot="end"><ion-button (click)="closeModal()"><ion-icon name="close-outline" slot="icon-only"></ion-icon></ion-button></ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="ion-padding modal-bg">
+        <div class="add-section">
+          <h3>{{ editItemId() ? 'แก้ไขข้อมูล' : 'เพิ่มข้อมูลใหม่' }}</h3>
+          <div class="input-group">
+            <ion-input label="ชื่อประเภท" labelPlacement="floating" [(ngModel)]="newItemName" placeholder="กรอกชื่อ..."></ion-input>
+          </div>
+          <ion-button expand="block" class="ion-margin-top" (click)="saveItem()" [disabled]="!newItemName().trim()">
+            <ion-icon slot="start" [name]="editItemId() ? 'create-outline' : 'add-circle-outline'"></ion-icon>
+            {{ editItemId() ? 'บันทึกการแก้ไข' : 'เพิ่มข้อมูล' }}
+          </ion-button>
+          <ion-button expand="block" fill="clear" color="medium" class="ion-margin-top" *ngIf="editItemId()" (click)="editItemId.set(null); newItemName.set('');">ยกเลิกการแก้ไข</ion-button>
+        </div>
+        <ion-item-divider class="ion-margin-top ion-margin-bottom"><ion-label>รายการที่มีอยู่</ion-label></ion-item-divider>
+        <ion-list class="item-list" lines="full">
+          <ion-item *ngFor="let item of bedTypes()">
+            <ion-label>{{ item.name }}</ion-label>
+            <ion-button slot="end" color="primary" fill="clear" (click)="editItem(item, 'bed')"><ion-icon slot="icon-only" name="create-outline"></ion-icon></ion-button>
+            <ion-button slot="end" color="danger" fill="clear" (click)="confirmDelete(item.id, item.name, 'bed')"><ion-icon slot="icon-only" name="trash-outline"></ion-icon></ion-button>
+          </ion-item>
+          <div *ngIf="bedTypes().length === 0" class="empty-state">ไม่มีข้อมูล</div>
+        </ion-list>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+  <!-- Price Type Modal -->
+  <ion-modal [isOpen]="activeModal() === 'price'" (didDismiss)="closeModal()" class="center-modal">
+    <ng-template>
+      <ion-header class="ion-no-border">
+        <ion-toolbar>
+          <ion-title>จัดการประเภทราคา</ion-title>
+          <ion-buttons slot="end"><ion-button (click)="closeModal()"><ion-icon name="close-outline" slot="icon-only"></ion-icon></ion-button></ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="ion-padding modal-bg">
+        <div class="add-section">
+          <h3>{{ editItemId() ? 'แก้ไขข้อมูล' : 'เพิ่มข้อมูลใหม่' }}</h3>
+          <div class="input-group">
+            <ion-input label="ชื่อประเภท" labelPlacement="floating" [(ngModel)]="newItemName" placeholder="กรอกชื่อ..."></ion-input>
+          </div>
+          <ion-button expand="block" class="ion-margin-top" (click)="saveItem()" [disabled]="!newItemName().trim()">
+            <ion-icon slot="start" [name]="editItemId() ? 'create-outline' : 'add-circle-outline'"></ion-icon>
+            {{ editItemId() ? 'บันทึกการแก้ไข' : 'เพิ่มข้อมูล' }}
+          </ion-button>
+          <ion-button expand="block" fill="clear" color="medium" class="ion-margin-top" *ngIf="editItemId()" (click)="editItemId.set(null); newItemName.set('');">ยกเลิกการแก้ไข</ion-button>
+        </div>
+        <ion-item-divider class="ion-margin-top ion-margin-bottom"><ion-label>รายการที่มีอยู่</ion-label></ion-item-divider>
+        <ion-list class="item-list" lines="full">
+          <ion-item *ngFor="let item of priceTypes()">
+            <ion-label>{{ item.name }}</ion-label>
+            <ion-button slot="end" color="primary" fill="clear" (click)="editItem(item, 'price')"><ion-icon slot="icon-only" name="create-outline"></ion-icon></ion-button>
+            <ion-button slot="end" color="danger" fill="clear" (click)="confirmDelete(item.id, item.name, 'price')"><ion-icon slot="icon-only" name="trash-outline"></ion-icon></ion-button>
+          </ion-item>
+          <div *ngIf="priceTypes().length === 0" class="empty-state">ไม่มีข้อมูล</div>
+        </ion-list>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+  <!-- Dorm Status Modal -->
+  <ion-modal [isOpen]="activeModal() === 'status'" (didDismiss)="closeModal()" class="center-modal">
+    <ng-template>
+      <ion-header class="ion-no-border">
+        <ion-toolbar>
+          <ion-title>จัดการสถานะหอพัก</ion-title>
+          <ion-buttons slot="end"><ion-button (click)="closeModal()"><ion-icon name="close-outline" slot="icon-only"></ion-icon></ion-button></ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="ion-padding modal-bg">
+        <div class="add-section">
+          <h3>{{ editItemId() ? 'แก้ไขข้อมูล' : 'เพิ่มข้อมูลใหม่' }}</h3>
+          <div class="input-group">
+            <ion-input label="ชื่อประเภท" labelPlacement="floating" [(ngModel)]="newItemName" placeholder="กรอกชื่อ..."></ion-input>
+          </div>
+          <ion-button expand="block" class="ion-margin-top" (click)="saveItem()" [disabled]="!newItemName().trim()">
+            <ion-icon slot="start" [name]="editItemId() ? 'create-outline' : 'add-circle-outline'"></ion-icon>
+            {{ editItemId() ? 'บันทึกการแก้ไข' : 'เพิ่มข้อมูล' }}
+          </ion-button>
+          <ion-button expand="block" fill="clear" color="medium" class="ion-margin-top" *ngIf="editItemId()" (click)="editItemId.set(null); newItemName.set('');">ยกเลิกการแก้ไข</ion-button>
+        </div>
+        <ion-item-divider class="ion-margin-top ion-margin-bottom"><ion-label>รายการที่มีอยู่</ion-label></ion-item-divider>
+        <ion-list class="item-list" lines="full">
+          <ion-item *ngFor="let item of dormStatuses()">
+            <ion-label>{{ item.name }}</ion-label>
+            <ion-button slot="end" color="primary" fill="clear" (click)="editItem(item, 'status')"><ion-icon slot="icon-only" name="create-outline"></ion-icon></ion-button>
+            <ion-button slot="end" color="danger" fill="clear" (click)="confirmDelete(item.id, item.name, 'status')"><ion-icon slot="icon-only" name="trash-outline"></ion-icon></ion-button>
+          </ion-item>
+          <div *ngIf="dormStatuses().length === 0" class="empty-state">ไม่มีข้อมูล</div>
+        </ion-list>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+  <!-- Dorm Zone Modal -->
+  <ion-modal [isOpen]="activeModal() === 'zone'" (didDismiss)="closeModal()" class="center-modal">
+    <ng-template>
+      <ion-header class="ion-no-border">
+        <ion-toolbar>
+          <ion-title>จัดการโซนหอพัก</ion-title>
+          <ion-buttons slot="end"><ion-button (click)="closeModal()"><ion-icon name="close-outline" slot="icon-only"></ion-icon></ion-button></ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="ion-padding modal-bg">
+        <div class="add-section">
+          <h3>{{ editItemId() ? 'แก้ไขข้อมูล' : 'เพิ่มข้อมูลใหม่' }}</h3>
+          <div class="input-group">
+            <ion-input label="ชื่อโซน" labelPlacement="floating" [(ngModel)]="newItemName" placeholder="กรอกชื่อ..."></ion-input>
+          </div>
+          
+          <ion-button expand="block" fill="outline" color="primary" (click)="openMapModal()" class="ion-margin-top">
+            <ion-icon slot="start" name="map-outline"></ion-icon>
+            เลือกจุดอ้างอิงบนแผนที่
+          </ion-button>
+          <div *ngIf="newZoneLat() && newZoneLng()" class="selected-coords ion-margin-top">
+            <ion-icon name="location-outline"></ion-icon>
+            พิกัด: {{ newZoneLat() | number:'1.4-4' }}, {{ newZoneLng() | number:'1.4-4' }}
+          </div>
+
+          <ion-button expand="block" class="ion-margin-top" (click)="saveItem()" [disabled]="!newItemName().trim() || !newZoneLat() || !newZoneLng()">
+            <ion-icon slot="start" [name]="editItemId() ? 'create-outline' : 'add-circle-outline'"></ion-icon>
+            {{ editItemId() ? 'บันทึกการแก้ไข' : 'เพิ่มข้อมูล' }}
+          </ion-button>
+          <ion-button expand="block" fill="clear" color="medium" class="ion-margin-top" *ngIf="editItemId()" (click)="editItemId.set(null); newItemName.set(''); newZoneLat.set(null); newZoneLng.set(null);">ยกเลิกการแก้ไข</ion-button>
+        </div>
+        <ion-item-divider class="ion-margin-top ion-margin-bottom"><ion-label>รายการที่มีอยู่</ion-label></ion-item-divider>
+        <ion-list class="item-list" lines="full">
+          <ion-item *ngFor="let item of dormZones()">
+            <ion-label>
+              <h2>{{ item.ZONE_NAME }}</h2>
+              <p><ion-icon name="location-outline"></ion-icon> {{ item.lat | number:'1.4-4' }}, {{ item.lng | number:'1.4-4' }}</p>
+            </ion-label>
+            <ion-button slot="end" color="primary" fill="clear" (click)="editItem(item, 'zone')"><ion-icon slot="icon-only" name="create-outline"></ion-icon></ion-button>
+            <ion-button slot="end" color="danger" fill="clear" (click)="confirmDelete(item.ZONE_ID, item.ZONE_NAME, 'zone')"><ion-icon slot="icon-only" name="trash-outline"></ion-icon></ion-button>
+          </ion-item>
+          <div *ngIf="dormZones().length === 0" class="empty-state">ไม่มีข้อมูล</div>
+        </ion-list>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
 
 </ion-content>
+  <!-- Map Modal -->
+  <ion-modal
+    [isOpen]="isMapModalOpen()"
+    (ionModalDidPresent)="onMapModalPresented($event)"
+    (didDismiss)="onMapModalDismissed()"
+    class="map-modal minimal-modal"
+  >
+    <ng-template>
+      <ion-header class="ion-no-border">
+        <ion-toolbar class="main-toolbar">
+          <ion-title>เลือกจุดอ้างอิง</ion-title>
+          <ion-buttons slot="end">
+            <ion-button color="dark" (click)="closeMapModal()">ปิด</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content>
+        <div id="map-el" class="map-container"></div>
+      </ion-content>
+      <ion-footer class="ion-no-border">
+        <div class="map-actions ion-padding">
+          <p class="ion-text-center map-hint" *ngIf="!refPoint()">
+            <ion-icon name="finger-print-outline"></ion-icon>
+            จิ้มที่แผนที่เพื่อเลือกจุดอ้างอิง
+          </p>
+          <p class="ion-text-center map-success" *ngIf="refPoint()">
+            <ion-icon name="checkmark-circle-outline"></ion-icon>
+            เลือกจุดอ้างอิงเรียบร้อยแล้ว
+          </p>
+          <ion-button
+            expand="block"
+            color="dark"
+            (click)="confirmMapSelection()"
+            [disabled]="!refPoint()"
+            >ยืนยันตำแหน่งนี้</ion-button
+          >
+        </div>
+      </ion-footer>
+    </ng-template>
+  </ion-modal>

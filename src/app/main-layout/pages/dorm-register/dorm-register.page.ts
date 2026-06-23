@@ -84,7 +84,7 @@ import { UserServices } from 'src/app/services/userServices';
 import { UserAllGetRes } from 'src/app/model/user.model';
 import { AuthenService } from 'src/app/services/authenService';
 import { LoadingUIComponent } from '../../components/loading-ui/loading-ui.component';
-import { finalize } from 'rxjs';
+import { finalize, lastValueFrom } from 'rxjs';
 
 declare var google: any;
 
@@ -168,6 +168,7 @@ export class DormRegisterPage implements OnInit, OnDestroy {
   zones = signal<DormZone[]>([]);
   roomTypes = signal<MasterType[]>([]);
   bedTypes = signal<MasterType[]>([]);
+  priceTypes = signal<MasterType[]>([]);
   allFacilities = signal<FacilityItem[]>([]);
   facImageErrors = signal<Record<number, boolean>>({});
 
@@ -254,7 +255,7 @@ export class DormRegisterPage implements OnInit, OnDestroy {
     return this.dormForm.get('facilities') as FormArray;
   }
 
-  ngOnInit() {
+  async ngOnInit() {
     const uId = this.route.snapshot.paramMap.get('user_id');
     const dId = this.route.snapshot.paramMap.get('dorm_id');
 
@@ -266,7 +267,12 @@ export class DormRegisterPage implements OnInit, OnDestroy {
     if (dId) {
       this.dormId = Number(dId);
       this.isEditMode.set(true);
-      this.loadDormData(this.dormId);
+    }
+
+    await this.loadMasterData();
+
+    if (this.isEditMode()) {
+      this.loadDormData(this.dormId!);
     }
 
     const userObj = this.authSv.currentUserValue;
@@ -318,7 +324,6 @@ export class DormRegisterPage implements OnInit, OnDestroy {
       }
     }
 
-    this.loadMasterData();
     if (!this.isEditMode()) {
       this.addRoom(); // Default 1 room for new reg
     }
@@ -419,23 +424,7 @@ export class DormRegisterPage implements OnInit, OnDestroy {
             this.rooms.clear();
             if (d.rooms && d.rooms.length > 0) {
               d.rooms.forEach((r: any) => {
-                const group = this.fb.group({
-                  roomType: [r.ROOM_TYPE_NAME, Validators.required],
-                  bedType: [r.BED_TYPE_ID || 1, Validators.required],
-                  perDay: [
-                    r.perDay || 0,
-                    [Validators.required, Validators.min(0)],
-                  ],
-                  perMonth: [
-                    r.PRICE || 0,
-                    [Validators.required, Validators.min(0)],
-                  ],
-                  perTerm: [
-                    r.perTerm || 0,
-                    [Validators.required, Validators.min(0)],
-                  ],
-                });
-                this.rooms.push(group);
+                this.addRoom(r);
               });
             } else {
               this.addRoom();
@@ -488,30 +477,63 @@ export class DormRegisterPage implements OnInit, OnDestroy {
     this.destroyMap();
   }
 
-  loadMasterData() {
-    this.dormSv.getDormTypes().subscribe((data) => this.dormTypes.set(data));
-    this.dormSv.getZones().subscribe((res) => {
-      if (res.success) this.zones.set(res.data);
-    });
-    this.dormSv.getRoomTypes().subscribe((data) => this.roomTypes.set(data));
-    this.dormSv.getBedTypes().subscribe((data) => this.bedTypes.set(data));
-    this.dormSv.getFacilities().subscribe((res) => {
-      if (res && res.success) {
-        this.allFacilities.set(res.data);
-      } else if (Array.isArray(res)) {
-        // Fallback for old API structure if any
-        this.allFacilities.set(res);
+  async loadMasterData() {
+    try {
+      const [dTypes, zRes, rTypes, bTypes, facRes, pTypes] = await Promise.all([
+        lastValueFrom(this.dormSv.getDormTypes()),
+        lastValueFrom(this.dormSv.getZones()),
+        lastValueFrom(this.dormSv.getRoomTypes()),
+        lastValueFrom(this.dormSv.getBedTypes()),
+        lastValueFrom(this.dormSv.getFacilities()),
+        lastValueFrom(this.dormSv.getPriceTypes())
+      ]);
+
+      this.dormTypes.set(dTypes);
+      if (zRes && zRes.success) this.zones.set(zRes.data);
+      this.roomTypes.set(rTypes);
+      this.bedTypes.set(bTypes);
+      if (facRes && facRes.success) {
+        this.allFacilities.set(facRes.data);
+      } else if (Array.isArray(facRes)) {
+        this.allFacilities.set(facRes);
       }
-    });
+      this.priceTypes.set(pTypes);
+    } catch (e) {
+      console.error('Failed to load master data', e);
+    }
   }
 
-  addRoom() {
+  getPricesFormArray(roomIndex: number): FormArray {
+    return this.rooms.at(roomIndex).get('prices') as FormArray;
+  }
+
+  addRoom(existingData?: any) {
+    const pricesArray = this.fb.array<FormGroup>([]);
+    
+    // Create an input for EVERY active price type from DB
+    for (const pt of this.priceTypes()) {
+      let existingVal = 0;
+      if (existingData && existingData.prices) {
+        const found = existingData.prices.find((p: any) => p.priceTypeId === pt.id);
+        if (found) existingVal = found.price;
+      } else if (existingData) {
+        // Fallback for older data format
+        if (pt.id === 1 && existingData.PRICE) existingVal = existingData.PRICE;
+        if (pt.id === 1 && existingData.perMonth) existingVal = existingData.perMonth;
+        if (pt.id === 2 && existingData.perTerm) existingVal = existingData.perTerm;
+        if (pt.id === 3 && existingData.perDay) existingVal = existingData.perDay;
+      }
+
+      pricesArray.push(this.fb.group({
+        priceTypeId: [pt.id],
+        price: [existingVal, [Validators.required, Validators.min(0)]]
+      }));
+    }
+
     const roomGroup = this.fb.group({
-      roomType: [null, Validators.required],
-      bedType: [null, Validators.required],
-      perDay: [null, [Validators.required, Validators.min(0)]],
-      perMonth: [null, [Validators.required, Validators.min(0)]],
-      perTerm: [null, [Validators.required, Validators.min(0)]],
+      roomType: [existingData ? existingData.ROOM_TYPE_NAME : null, Validators.required],
+      bedType: [existingData ? (existingData.BED_TYPE_ID || 1) : null, Validators.required],
+      prices: pricesArray
     });
     this.rooms.push(roomGroup);
   }

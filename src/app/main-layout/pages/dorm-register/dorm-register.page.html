@@ -154,28 +154,12 @@
             </div>
           </div>
 
-          <div class="grid grid-cols-3 gap-2">
-            <div class="input-group">
-              <label>รายวัน <span class="text-red-500">*</span></label>
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-3" formArrayName="prices">
+            <div class="input-group" *ngFor="let pt of priceTypes(); let j = index" [formGroupName]="j">
+              <label>{{ pt.name }} <span class="text-red-500">*</span></label>
               <ion-input
                 type="number"
-                formControlName="perDay"
-                class="custom-input"
-              ></ion-input>
-            </div>
-            <div class="input-group">
-              <label>รายเดือน <span class="text-red-500">*</span></label>
-              <ion-input
-                type="number"
-                formControlName="perMonth"
-                class="custom-input"
-              ></ion-input>
-            </div>
-            <div class="input-group">
-              <label>รายเทอม <span class="text-red-500">*</span></label>
-              <ion-input
-                type="number"
-                formControlName="perTerm"
+                formControlName="price"
                 class="custom-input"
               ></ion-input>
             </div>

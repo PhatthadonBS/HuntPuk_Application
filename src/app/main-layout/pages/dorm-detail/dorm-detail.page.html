@@ -180,14 +180,12 @@
               <th scope="col" class="px-4 py-3 whitespace-nowrap text-center">
                 เตียง
               </th>
-              <th scope="col" class="px-4 py-3 whitespace-nowrap text-center">
-                รายวัน (บาท)
-              </th>
-              <th scope="col" class="px-4 py-3 whitespace-nowrap text-center">
-                รายเดือน (บาท)
-              </th>
-              <th scope="col" class="px-4 py-3 whitespace-nowrap text-center">
-                รายเทอม (บาท)
+              <th
+                scope="col"
+                class="px-4 py-3 whitespace-nowrap text-center"
+                *ngFor="let pt of priceTypes()"
+              >
+                {{ pt.name }}
               </th>
             </tr>
           </thead>
@@ -205,14 +203,13 @@
               <td class="px-4 py-3 text-center whitespace-nowrap text-gray-700">
                 {{ room.bedType ? room.bedType : '-' }}
               </td>
-              <td class="px-4 py-3 text-center">
-                {{ room.perDay ? (room.perDay | number) : '-' }}
-              </td>
-              <td class="px-4 py-3 text-center text-primary font-bold">
-                {{ room.PRICE ? (room.PRICE | number) : '-' }}
-              </td>
-              <td class="px-4 py-3 text-center">
-                {{ room.perTerm ? (room.perTerm | number) : '-' }}
+              <td class="px-4 py-3 text-center" *ngFor="let pt of priceTypes()">
+                <ng-container
+                  *ngIf="getPrice(room, pt.id) as val; else noPrice"
+                >
+                  <span> {{ val | number }} </span>
+                </ng-container>
+                <ng-template #noPrice>-</ng-template>
               </td>
             </tr>
           </tbody>
