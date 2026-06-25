@@ -237,10 +237,13 @@ export class DormDetailPage implements OnInit, OnDestroy {
       if (p && p.price > 0) return p.price;
     } else {
       // Fallback
-      if (typeId === 1 && room.PRICE) return room.PRICE;
-      if (typeId === 1 && room.perMonth) return room.perMonth;
-      if (typeId === 2 && room.perTerm) return room.perTerm;
-      if (typeId === 3 && room.perDay) return room.perDay;
+      const pt = this.priceTypes().find(t => t.id === typeId);
+      if (pt) {
+        if (pt.name.includes('เดือน') && room.PRICE) return room.PRICE;
+        if (pt.name.includes('เดือน') && room.perMonth) return room.perMonth;
+        if (pt.name.includes('เทอม') && room.perTerm) return room.perTerm;
+        if (pt.name.includes('วัน') && room.perDay) return room.perDay;
+      }
     }
     return null;
   }

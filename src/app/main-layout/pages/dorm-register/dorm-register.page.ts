@@ -518,10 +518,10 @@ export class DormRegisterPage implements OnInit, OnDestroy {
         if (found) existingVal = found.price;
       } else if (existingData) {
         // Fallback for older data format
-        if (pt.id === 1 && existingData.PRICE) existingVal = existingData.PRICE;
-        if (pt.id === 1 && existingData.perMonth) existingVal = existingData.perMonth;
-        if (pt.id === 2 && existingData.perTerm) existingVal = existingData.perTerm;
-        if (pt.id === 3 && existingData.perDay) existingVal = existingData.perDay;
+        if (pt.name.includes('เดือน') && existingData.PRICE) existingVal = existingData.PRICE;
+        if (pt.name.includes('เดือน') && existingData.perMonth) existingVal = existingData.perMonth;
+        if (pt.name.includes('เทอม') && existingData.perTerm) existingVal = existingData.perTerm;
+        if (pt.name.includes('วัน') && existingData.perDay) existingVal = existingData.perDay;
       }
 
       pricesArray.push(this.fb.group({

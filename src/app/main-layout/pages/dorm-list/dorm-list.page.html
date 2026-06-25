@@ -1,17 +1,22 @@
 <ion-header class="ion-no-border main-header">
   <ion-toolbar class="main-toolbar">
-    <ion-buttons slot="start">
-      <ion-back-button
-        defaultHref="/home"
-        icon="arrow-back-circle-outline"
-      ></ion-back-button>
-    </ion-buttons>
-    <ion-title class="toolbar-title">ค้นหาหอพัก</ion-title>
+    <div
+      class="header-tool flex justify-between align-middle text-lg font-bold"
+    >
+      <a
+        (click)="goBack()"
+        class="back-btn flex justify-between align-middle ml-[.25rem] p-[.25rem] pl-1 pr-3 w-[5rem] rounded-full bg-slate-100"
+      >
+        <ion-icon name="arrow-back-circle-outline" size="large"></ion-icon>
+        <span class="">กลับ</span>
+      </a>
+      <span class="mt-1 text-white mr-[1rem] text-xl">รายการหอพัก</span>
+    </div>
   </ion-toolbar>
 </ion-header>
 
-<ion-content 
-  [fullscreen]="true" 
+<ion-content
+  [fullscreen]="true"
   class="dorm-list-content"
   [scrollEvents]="true"
   (ionScroll)="onScroll($event)"
@@ -24,9 +29,9 @@
   <div class="content-wrapper">
     <!-- Filter Group moved here (Relative to content) -->
     <div class="filter-relative-wrapper">
-      <app-filter-group 
-        [zones]="zones()" 
-        [showCompare]="false" 
+      <app-filter-group
+        [zones]="zones()"
+        [showCompare]="false"
         [showBack]="false"
         [initialParams]="initialParams()"
         [openFilterOnLoad]="autoOpenFilter()"
@@ -38,8 +43,9 @@
 
     <div class="results-count-wrapper" *ngIf="allDorms().length > 0">
       <div class="count-badge">
-        <ion-icon name="bed-outline"></ion-icon>
-        <span>หอพักที่พบ <strong>{{ filteredDorms().length }}</strong> แห่ง</span>
+        <span
+          >หอพักที่พบ <strong>{{ filteredDorms().length }}</strong> แห่ง</span
+        >
       </div>
     </div>
 
@@ -47,41 +53,56 @@
       <div class="minimal-dorm-card" *ngFor="let dorm of filteredDorms()">
         <!-- Row 1: Image Section -->
         <div class="image-container">
-          <img #dormImg 
-               [src]="dorm.image || 'https://placehold.co/600x400?text=No+Image'" 
-               alt="Dorm Image" 
-               class="dorm-image"
-               (error)="dormImg.src = 'https://placehold.co/600x400?text=No+Image'" />
-          
-          <ion-button 
-            fill="clear" 
-            class="fav-btn" 
+          <img
+            #dormImg
+            [src]="dorm.image || 'https://placehold.co/600x400?text=No+Image'"
+            alt="Dorm Image"
+            class="dorm-image"
+            (error)="dormImg.src = 'https://placehold.co/600x400?text=No+Image'"
+          />
+
+          <ion-button
+            fill="clear"
+            class="fav-btn"
             [class.active]="dorm.isFavorite"
             (click)="toggleFavorite($event, dorm)"
           >
-            <ion-icon [name]="dorm.isFavorite ? 'bookmark' : 'bookmark-outline'" slot="icon-only"></ion-icon>
+            <ion-icon
+              [name]="dorm.isFavorite ? 'bookmark' : 'bookmark-outline'"
+              slot="icon-only"
+            ></ion-icon>
           </ion-button>
 
-          <div class="full-status-banner" *ngIf="dorm.DORM_STATUS_ID == 3">
-            <ion-label>ที่พักเต็มแล้ว</ion-label>
+          <div
+            class="full-status-banner"
+            *ngIf="dorm.DORM_STATUS_ID && dorm.DORM_STATUS_ID !== 1"
+          >
+            <ion-label>{{ dorm.DORM_STATUS_NAME || 'ไม่ระบุ' }}</ion-label>
           </div>
         </div>
-        
+
         <!-- Row 2: Details Section (4 sections) -->
         <div class="content-details">
           <!-- Sec 1: Name and Score -->
           <div class="section-1">
-            <h2 class="dorm-name" (click)="goToDormDetail(dorm.DORM_ID)">{{ dorm.DORM_NAME }}</h2>
+            <h2 class="dorm-name" (click)="goToDormDetail(dorm.DORM_ID)">
+              {{ dorm.DORM_NAME }}
+            </h2>
             <div class="score-badge">
               <ion-icon name="star"></ion-icon>
-              <span>{{ dorm.SCORE ? (dorm.SCORE | number:'1.1-1') : '0.0' }}</span>
+              <span
+                >{{ dorm.SCORE ? (dorm.SCORE | number:'1.1-1') : '0.0' }}</span
+              >
             </div>
           </div>
 
           <!-- Sec 2: Address -->
           <div class="section-2">
             <p class="address-text">
-              <ion-icon name="location-outline"></ion-icon>{{ dorm.ADDRESS || dorm.zone }}
+              <ion-icon name="navigate-outline"></ion-icon>โซน{{ dorm.zone }}
+            </p>
+            <p class="address-text">
+              <ion-icon name="location-outline"></ion-icon>{{ dorm.ADDRESS }}
             </p>
           </div>
 
@@ -90,7 +111,7 @@
             <div class="price-display">
               <span class="price-label">เริ่มต้น</span>
               <span class="price-value">{{ dorm.start_price | number }}</span>
-              <span class="price-unit">บาท/เดือน</span>
+              <span class="price-unit">บาทต่อเดือน</span>
             </div>
             <div class="update-info" *ngIf="dorm.update_at">
               <ion-icon name="time-outline"></ion-icon>
@@ -107,23 +128,39 @@
       </div>
     </div>
 
-    <div class="empty-state" *ngIf="allDorms().length > 0 && filteredDorms().length === 0">
+    <div
+      class="empty-state"
+      *ngIf="allDorms().length > 0 && filteredDorms().length === 0"
+    >
       <div class="empty-content">
         <div class="empty-icon-wrapper">
           <ion-icon name="search-outline"></ion-icon>
         </div>
         <h3>ไม่พบหอพักที่ตรงกับเงื่อนไข</h3>
-        <p>ลองปรับเปลี่ยนคำค้นหา หรือใช้ตัวกรองที่กว้างขึ้นเพื่อดูผลลัพธ์เพิ่มเติม</p>
-        <ion-button shape="round" color="primary" class="clear-filters-btn" (click)="clearFilters()">
+        <p>
+          ลองปรับเปลี่ยนคำค้นหา
+          หรือใช้ตัวกรองที่กว้างขึ้นเพื่อดูผลลัพธ์เพิ่มเติม
+        </p>
+        <ion-button
+          shape="round"
+          color="primary"
+          class="clear-filters-btn"
+          (click)="clearFilters()"
+        >
           ล้างตัวกรองทั้งหมด
         </ion-button>
       </div>
     </div>
-    
+
     <div class="bottom-spacer"></div>
   </div>
 
-  <ion-fab vertical="bottom" horizontal="end" slot="fixed" *ngIf="showScrollBtn()">
+  <ion-fab
+    vertical="bottom"
+    horizontal="end"
+    slot="fixed"
+    *ngIf="showScrollBtn()"
+  >
     <ion-fab-button (click)="scrollToTop()" class="scroll-top-btn">
       <ion-icon name="arrow-up-outline"></ion-icon>
     </ion-fab-button>

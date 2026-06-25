@@ -1,4 +1,11 @@
-import { Component, OnInit, signal, computed, ViewChild, OnDestroy } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  signal,
+  computed,
+  ViewChild,
+  OnDestroy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -31,31 +38,35 @@ import {
   IonFabButton,
   ToastController,
   IonRefresher,
-  IonRefresherContent
+  IonRefresherContent,
 } from '@ionic/angular/standalone';
 import { DormServices } from 'src/app/services/dormServices';
 import { UserServices } from 'src/app/services/userServices';
 import { AuthenService } from 'src/app/services/authenService';
 import { DormSummary, DormZone } from 'src/app/model/dorm.model';
 import { addIcons } from 'ionicons';
-import { 
-  filterOutline, 
-  star, 
-  locationOutline, 
-  cashOutline, 
-  arrowBackCircleOutline, 
-  searchOutline, 
-  timeOutline, 
+import {
+  filterOutline,
+  star,
+  locationOutline,
+  cashOutline,
+  arrowBackCircleOutline,
+  searchOutline,
+  timeOutline,
   chevronForwardOutline,
   bookmarkOutline,
   bookmark,
   bedOutline,
-  arrowUpOutline
+  arrowUpOutline,
+  navigateOutline,
 } from 'ionicons/icons';
 import { environment } from 'src/environments/environment';
 import { ActivatedRoute } from '@angular/router';
 import { NavController } from '@ionic/angular';
-import { FilterGroupComponent, FilterParams } from '../../components/filter-group/filter-group.component';
+import {
+  FilterGroupComponent,
+  FilterParams,
+} from '../../components/filter-group/filter-group.component';
 import { MainLayoutPage } from '../../main-layout.page';
 import { LoadingUIComponent } from '../../components/loading-ui/loading-ui.component';
 import { finalize, Subscription, forkJoin, of } from 'rxjs';
@@ -98,7 +109,7 @@ import { finalize, Subscription, forkJoin, of } from 'rxjs';
     FilterGroupComponent,
     LoadingUIComponent,
     IonRefresher,
-    IonRefresherContent
+    IonRefresherContent,
   ],
 })
 export class DormListPage implements OnInit, OnDestroy {
@@ -107,7 +118,7 @@ export class DormListPage implements OnInit, OnDestroy {
   allDorms = signal<DormSummary[]>([]);
   zones = signal<DormZone[]>([]);
   isLoading = signal<boolean>(false);
-  
+
   searchQuery = signal<string>('');
   minPrice = signal<number | null>(null);
   maxPrice = signal<number | null>(null);
@@ -131,9 +142,9 @@ export class DormListPage implements OnInit, OnDestroy {
     const score = this.selectedScore();
     const favs = this.favIds();
 
-    dorms = dorms.map(d => ({
+    dorms = dorms.map((d) => ({
       ...d,
-      isFavorite: favs.includes(d.DORM_ID)
+      isFavorite: favs.includes(d.DORM_ID),
     }));
 
     if (query) {
@@ -149,7 +160,7 @@ export class DormListPage implements OnInit, OnDestroy {
       dorms = dorms.filter((d) => Number(d.SCORE) >= score);
     }
     if (zoneId) {
-      const zoneObj = this.zones().find(z => z.ZONE_ID.toString() === zoneId);
+      const zoneObj = this.zones().find((z) => z.ZONE_ID.toString() === zoneId);
       if (zoneObj) {
         dorms = dorms.filter((d) => d.zone === zoneObj.ZONE_NAME);
       }
@@ -167,19 +178,20 @@ export class DormListPage implements OnInit, OnDestroy {
     private mainLayout: MainLayoutPage,
     private toastCtrl: ToastController
   ) {
-    addIcons({ 
-      filterOutline, 
-      star, 
-      locationOutline, 
-      cashOutline, 
-      arrowBackCircleOutline, 
+    addIcons({
+      filterOutline,
+      star,
+      locationOutline,
+      cashOutline,
+      arrowBackCircleOutline,
       searchOutline,
       timeOutline,
       chevronForwardOutline,
       bookmarkOutline,
       bookmark,
       bedOutline,
-      arrowUpOutline
+      arrowUpOutline,
+      navigateOutline,
     });
   }
 
@@ -193,7 +205,7 @@ export class DormListPage implements OnInit, OnDestroy {
       }
     });
 
-    this.route.queryParams.subscribe(params => {
+    this.route.queryParams.subscribe((params) => {
       const p: FilterParams = {};
       if (params['q']) {
         p.search = params['q'];
@@ -210,7 +222,7 @@ export class DormListPage implements OnInit, OnDestroy {
           this.selectedScore.set(scoreNum);
         }
       }
-      
+
       if (Object.keys(p).length > 0) {
         this.initialParams.set(p);
       }
@@ -236,20 +248,23 @@ export class DormListPage implements OnInit, OnDestroy {
           this.favIds.set(res.data.map((f: any) => f.DORMID));
         }
       },
-      error: (err) => console.error('Error fetching favorites', err)
+      error: (err) => console.error('Error fetching favorites', err),
     });
   }
 
   loadDorms() {
     this.isLoading.set(true);
-    this.dormSv.getDormsMobile().pipe(finalize(() => this.isLoading.set(false))).subscribe({
-      next: (res) => {
-        if (res.success) {
-          this.allDorms.set(res.data);
-        }
-      },
-      error: (err) => console.error('Error fetching dorms', err),
-    });
+    this.dormSv
+      .getDormsMobile()
+      .pipe(finalize(() => this.isLoading.set(false)))
+      .subscribe({
+        next: (res) => {
+          if (res.success) {
+            this.allDorms.set(res.data);
+          }
+        },
+        error: (err) => console.error('Error fetching dorms', err),
+      });
   }
 
   handleRefresh(event: any) {
@@ -277,14 +292,14 @@ export class DormListPage implements OnInit, OnDestroy {
     this.maxPrice.set(params.maxPrice ?? null);
     this.selectedScore.set(params.score ?? null);
     this.selectedZoneId.set(params.zone || null);
-    
+
     // Ensure the filter modal state stays in sync if it gets re-opened
     this.initialParams.set({
-        search: params.search,
-        minPrice: params.minPrice,
-        maxPrice: params.maxPrice,
-        score: params.score,
-        zone: params.zone
+      search: params.search,
+      minPrice: params.minPrice,
+      maxPrice: params.maxPrice,
+      score: params.score,
+      zone: params.zone,
     });
   }
 
@@ -313,10 +328,10 @@ export class DormListPage implements OnInit, OnDestroy {
     if (isFav) {
       this.userSv.removeFavorite(dorm.DORM_ID).subscribe({
         next: () => {
-          this.favIds.set(currentFavs.filter(id => id !== dorm.DORM_ID));
+          this.favIds.set(currentFavs.filter((id) => id !== dorm.DORM_ID));
           this.showToast('ลบออกจากรายการโปรดแล้ว', 'success');
         },
-        error: (err) => console.error(err)
+        error: (err) => console.error(err),
       });
     } else {
       this.userSv.addFavorite(dorm.DORM_ID).subscribe({
@@ -324,7 +339,7 @@ export class DormListPage implements OnInit, OnDestroy {
           this.favIds.set([...currentFavs, dorm.DORM_ID]);
           this.showToast('เพิ่มลงในรายการโปรดแล้ว', 'success');
         },
-        error: (err) => console.error(err)
+        error: (err) => console.error(err),
       });
     }
   }
@@ -334,7 +349,7 @@ export class DormListPage implements OnInit, OnDestroy {
       message,
       duration: 2000,
       color,
-      position: 'bottom'
+      position: 'bottom',
     });
     await toast.present();
   }
