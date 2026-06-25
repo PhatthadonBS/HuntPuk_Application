@@ -1,7 +1,10 @@
 <ion-content fullscreen [scrollY]="false">
   <capacitor-google-map #map id="map"></capacitor-google-map>
 
-  <div class="filter-group-wrapper mt-[2rem]" *ngIf="!isOpenMenu() && !isPinMode()">
+  <div
+    class="filter-group-wrapper mt-[2rem]"
+    *ngIf="!isOpenMenu() && !isPinMode()"
+  >
     <app-filter-group
       [zones]="zones()"
       [initialParams]="getFilterParams()"
@@ -25,11 +28,7 @@
     (click)="sheetOpen.set(false)"
   ></div>
 
-  <div
-    class="dorm-popup-card"
-    *ngIf="sheetOpen() && selectedDorm() as dorm"
-    
-  >
+  <div class="dorm-popup-card" *ngIf="sheetOpen() && selectedDorm() as dorm">
     <ion-button
       fill="clear"
       class="close-popup-btn"
@@ -43,7 +42,10 @@
       [class.active]="dorm.isFavorite"
       (click)="toggleFavorite($event, dorm)"
     >
-      <ion-icon [name]="dorm.isFavorite ? 'bookmark' : 'bookmark-outline'" slot="icon-only"></ion-icon>
+      <ion-icon
+        [name]="dorm.isFavorite ? 'bookmark' : 'bookmark-outline'"
+        slot="icon-only"
+      ></ion-icon>
     </ion-button>
 
     <div class="image-container">
@@ -53,28 +55,38 @@
         class="dorm-image"
         (error)="dormImg.src = 'https://placehold.co/600x400?text=No+Image'"
       />
-      <div class="full-status-badge" *ngIf="$any(dorm).status == 3">
-        <ion-label>ห้องพักเต็ม</ion-label>
+      <div
+        class="full-status-badge"
+        *ngIf="dorm.DORM_STATUS_ID && dorm.DORM_STATUS_ID !== 1"
+      >
+        <ion-label>{{ dorm.DORM_STATUS_NAME || 'ไม่ระบุสถานะ' }}</ion-label>
       </div>
     </div>
 
     <div class="content-details">
       <div class="header-row">
-        <h2 class="dorm-name" (click)="goToDormDetail(dorm.DORM_ID)">{{ dorm.DORM_NAME }}</h2>
+        <h2 class="dorm-name" (click)="goToDormDetail(dorm.DORM_ID)">
+          {{ dorm.DORM_NAME }}
+        </h2>
         <div class="score-badge">
           <ion-icon name="star"></ion-icon>
           <span>{{ dorm.SCORE ? (dorm.SCORE | number:'1.1-1') : '0.0' }}</span>
         </div>
       </div>
       <p class="address-text">
-        <ion-icon name="location" class="text-[20px]"></ion-icon>{{ dorm.ADDRESS
-        }}
+        <ion-icon name="navigate-outline" class="text-[16px]"></ion-icon>โซน{{
+        dorm.zone }}
       </p>
+      <p class="address-text mb-[1rem]">
+        <ion-icon name="location-outline" class="text-[16px]"></ion-icon>{{
+        dorm.ADDRESS }}
+      </p>
+
       <div class="price-update-row">
         <div class="price-display">
           <span class="price-label">เริ่มต้น</span>
           <span class="price-value"> {{ dorm.start_price | number }}</span>
-          <span class="price-unit"> บาท/เดือน</span>
+          <span class="price-unit"> บาทต่อเดือน</span>
         </div>
         <p class="update-text" *ngIf="$any(dorm).update_at">
           <ion-icon name="time-outline"></ion-icon>{{ $any(dorm).update_at |

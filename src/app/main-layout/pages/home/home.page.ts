@@ -114,9 +114,9 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
   dorms = computed(() => {
     const raw = this.allDorms();
     const favs = this.favIds();
-    return raw.map(d => ({
+    return raw.map((d) => ({
       ...d,
-      isFavorite: favs.includes(d.DORM_ID)
+      isFavorite: favs.includes(d.DORM_ID),
     }));
   });
 
@@ -126,7 +126,7 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
     if (!selected) return null;
     return {
       ...selected,
-      isFavorite: this.favIds().includes(selected.DORM_ID)
+      isFavorite: this.favIds().includes(selected.DORM_ID),
     };
   });
 
@@ -174,10 +174,11 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
   ) {
     addIcons({
       star,
-      location,
+      locationOutline,
       timeOutline,
       closeOutline,
       bookmarkOutline,
+      bookmark,
       navigateOutline,
       pinOutline,
       chevronForwardOutline,
@@ -245,7 +246,7 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
           this.favIds.set(res.data.map((f: any) => f.DORMID));
         }
       },
-      error: (err) => console.error('Error fetching favorites', err)
+      error: (err) => console.error('Error fetching favorites', err),
     });
   }
 
@@ -494,10 +495,10 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
     if (isFav) {
       this.userSv.removeFavorite(dorm.DORM_ID).subscribe({
         next: () => {
-          this.favIds.set(currentFavs.filter(id => id !== dorm.DORM_ID));
+          this.favIds.set(currentFavs.filter((id) => id !== dorm.DORM_ID));
           this.showToast('ลบออกจากรายการโปรดแล้ว', 'success');
         },
-        error: (err) => console.error(err)
+        error: (err) => console.error(err),
       });
     } else {
       this.userSv.addFavorite(dorm.DORM_ID).subscribe({
@@ -505,7 +506,7 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
           this.favIds.set([...currentFavs, dorm.DORM_ID]);
           this.showToast('เพิ่มลงในรายการโปรดแล้ว', 'success');
         },
-        error: (err) => console.error(err)
+        error: (err) => console.error(err),
       });
     }
   }
@@ -515,7 +516,7 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
       message,
       duration: 2000,
       color,
-      position: 'bottom'
+      position: 'bottom',
     });
     await toast.present();
   }
