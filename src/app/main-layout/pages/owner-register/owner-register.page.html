@@ -1,26 +1,38 @@
-<ion-header class="ion-no-border">
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/" color="dark"></ion-back-button>
-    </ion-buttons>
+<ion-header class="ion-no-border main-header">
+  <ion-toolbar class="main-toolbar">
+    <div
+      class="header-tool flex justify-between align-middle text-lg font-bold"
+    >
+      <a
+        (click)="goBack()"
+        class="back-btn flex justify-between align-middle ml-[.25rem] p-[.25rem] pl-1 pr-3 w-[5rem] rounded-full bg-slate-100"
+      >
+        <ion-icon
+          name="arrow-back-circle-outline"
+          size="large"
+          color="dark"
+        ></ion-icon>
+        <span class="">กลับ</span>
+      </a>
+      <span class="mt-1 text-white mr-[1rem] text-xl"
+        >ขอสิทธิ์เป็นเจ้าของหอ</span
+      >
+    </div>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true" class="minimal-style">
-  <div class="content-wrapper">
-    <div class="minimal-header">
-      <h1 class="page-title">Registration</h1>
-      <p class="page-subtitle">Apply as a dormitory owner</p>
-    </div>
+  <div class="background"></div>
 
+  <div class="content-wrapper">
     <!-- Profile Image Uploader -->
     <div class="flex flex-col items-center mb-8">
       <div class="profile-upload-wrapper" (click)="presentPhotoOptions()">
         <div class="preview-container">
-          <img 
-            [src]="imagePreview() || 'assets/icon.png'" 
-            class="profile-preview" 
-            *ngIf="imagePreview()" 
+          <img
+            [src]="imagePreview() || 'assets/icon.png'"
+            class="profile-preview"
+            *ngIf="imagePreview()"
             (error)="handleImageError()"
           />
           <div class="placeholder-preview" *ngIf="!imagePreview()">
@@ -31,102 +43,179 @@
           </div>
         </div>
       </div>
-      <p class="text-xs font-medium text-gray-500 mt-3 uppercase tracking-wider text-center">Upload Profile Photo</p>
+      <p
+        class="text-[16px] font-medium text-black mt-3 uppercase tracking-wider text-center"
+      >
+        อัปโหลดรูปโปรไฟล์
+      </p>
     </div>
 
     <!-- Identity Section -->
     <div class="minimal-section-title">
-      <ion-icon name="person-outline"></ion-icon>
-      <span>Personal Identity</span>
+      <ion-icon name="person-outline" size="medium"></ion-icon>
+      <span class="text-[16px]">ข้อมูลส่วนตัว</span>
     </div>
     <div class="minimal-form-card">
-      <ion-item class="minimal-input-item" lines="none">
-        <ion-label position="floating">First Name</ion-label>
-        <ion-input [(ngModel)]="firstName" placeholder="Enter your first name"></ion-input>
-      </ion-item>
+      <div class="custom-input-group">
+        <label class="custom-label">ชื่อ</label>
+        <div class="custom-input-wrapper">
+          <ion-input
+            [(ngModel)]="firstName"
+            placeholder="กรอกชื่อของคุณ"
+          ></ion-input>
+        </div>
+      </div>
       <div class="h-px bg-gray-100 mx-4"></div>
-      <ion-item class="minimal-input-item" lines="none">
-        <ion-label position="floating">Last Name</ion-label>
-        <ion-input [(ngModel)]="lastName" placeholder="Enter your last name"></ion-input>
-      </ion-item>
+      <div class="custom-input-group">
+        <label class="custom-label">นามสกุล</label>
+        <div class="custom-input-wrapper">
+          <ion-input
+            [(ngModel)]="lastName"
+            placeholder="กรอกนามสกุลของคุณ"
+          ></ion-input>
+        </div>
+      </div>
     </div>
 
     <!-- Contact Section -->
     <div class="minimal-section-title">
-      <ion-icon name="mail-outline"></ion-icon>
-      <span>Contact Information</span>
+      <ion-icon name="mail-outline" size="medium"></ion-icon>
+      <span class="text-[16px]">ข้อมูลการติดต่อ</span>
     </div>
     <div class="minimal-form-card">
-      <ion-item class="minimal-input-item readonly" lines="none">
-        <ion-label position="floating">Email Address</ion-label>
-        <ion-input [(ngModel)]="email" readonly></ion-input>
-        <ion-icon name="checkmark-circle-outline" slot="end" color="success"></ion-icon>
-      </ion-item>
+      <div class="custom-input-group readonly">
+        <label class="custom-label">อีเมล</label>
+        <div class="custom-input-wrapper">
+          <ion-input [(ngModel)]="email" readonly></ion-input>
+          <ion-icon name="checkmark-circle-outline" color="success"></ion-icon>
+        </div>
+      </div>
       <div class="h-px bg-gray-100 mx-4"></div>
-      <ion-item class="minimal-input-item" lines="none">
-        <ion-label position="floating">Telephone Number</ion-label>
-        <ion-input [(ngModel)]="phone" type="tel" placeholder="0XXXXXXXXX"></ion-input>
-      </ion-item>
+      <div class="custom-input-group">
+        <label class="custom-label">เบอร์โทรศัพท์</label>
+        <div class="custom-input-wrapper">
+          <ion-input
+            [(ngModel)]="phone"
+            type="tel"
+            placeholder="0XXXXXXXXX"
+          ></ion-input>
+        </div>
+      </div>
     </div>
 
     <!-- Social Media Section -->
-    <div class="minimal-section-title">
-      <ion-icon name="link-outline"></ion-icon>
-      <span>Social Connections</span>
+    <div
+      class="minimal-section-title"
+      style="
+        display: flex;
+        flex-direction: column;
+        justify-content: start;
+        align-items: start;
+      "
+    >
+      <span class="text-[16px] ml-[.5rem]">ช่องทางการติดต่อเพิ่มเติม</span>
+      <span class="text-[14px] ml-[2rem] text-yellow-500"
+        >ถ้าไม่มี ให้เว้นว่างไว้</span
+      >
     </div>
+
     <div class="minimal-form-card mb-4">
-      <ion-item class="minimal-input-item social" lines="none">
-        <ion-icon src="assets/icon/facebook.svg" slot="start" class="text-gray-800"></ion-icon>
-        <ion-label position="floating">Facebook</ion-label>
-        <ion-input [(ngModel)]="facebook" placeholder="facebook.com/yourprofile"></ion-input>
-      </ion-item>
-      <div class="input-hint">
-        <ion-icon name="information-circle-outline"></ion-icon>
-        Tip: Copy your profile link and input it here
+      <div class="custom-input-group">
+        <label class="custom-label">Facebook</label>
+        <div class="custom-input-wrapper">
+          <ion-icon
+            src="assets/icon/facebook.svg"
+            class="text-gray-800"
+          ></ion-icon>
+          <ion-input
+            [(ngModel)]="facebook"
+            placeholder="facebook.com/yourprofile"
+          ></ion-input>
+        </div>
+        <div class="custom-hint">
+          <ion-icon name="information-circle-outline"></ion-icon>
+          <span class="text-[12px]"
+            >คำแนะนำ: คัดลอกลิงก์โปรไฟล์และวางที่นี่</span
+          >
+        </div>
       </div>
-      <div class="h-px bg-gray-100 mx-4"></div>
-      
-      <ion-item class="minimal-input-item social" lines="none">
-        <ion-icon src="assets/icon/instagram.svg" slot="start" class="text-gray-800"></ion-icon>
-        <ion-label position="floating">Instagram</ion-label>
-        <ion-input [(ngModel)]="instagram" placeholder="instagram.com/yourprofile"></ion-input>
-      </ion-item>
-      <div class="input-hint">
-        <ion-icon name="information-circle-outline"></ion-icon>
-        Tip: Copy your profile link here
+    </div>
+
+    <div class="minimal-form-card mb-4">
+      <div class="custom-input-group">
+        <label class="custom-label">Instagram</label>
+        <div class="custom-input-wrapper">
+          <ion-icon
+            src="assets/icon/instagram.svg"
+            class="text-gray-800"
+          ></ion-icon>
+          <ion-input
+            [(ngModel)]="instagram"
+            placeholder="instagram.com/yourprofile"
+          ></ion-input>
+        </div>
+        <div class="custom-hint">
+          <ion-icon name="information-circle-outline"></ion-icon>
+          <span class="text-[12px]"
+            >คำแนะนำ: คัดลอกลิงก์โปรไฟล์และวางที่นี่</span
+          >
+        </div>
       </div>
-      <div class="h-px bg-gray-100 mx-4"></div>
-      
-      <ion-item class="minimal-input-item social" lines="none">
-        <ion-icon src="assets/icon/telegram.svg" slot="start" class="text-gray-800"></ion-icon>
-        <ion-label position="floating">Telegram</ion-label>
-        <ion-input [(ngModel)]="telegram" placeholder="Your phone number"></ion-input>
-      </ion-item>
-      <div class="input-hint">
-        <ion-icon name="information-circle-outline"></ion-icon>
-        Tip: Use the phone number of your Telegram account
+    </div>
+
+    <div class="minimal-form-card mb-4">
+      <div class="custom-input-group">
+        <label class="custom-label">Telegram</label>
+        <div class="custom-input-wrapper">
+          <ion-icon
+            src="assets/icon/telegram.svg"
+            class="text-gray-800"
+          ></ion-icon>
+          <ion-input
+            [(ngModel)]="telegram"
+            placeholder="0XXXXXXXXX"
+          ></ion-input>
+        </div>
+        <div class="custom-hint">
+          <ion-icon name="information-circle-outline"></ion-icon>
+          <span class="text-[12px]"
+            >คำแนะนำ: ใช้เบอร์โทรศัพท์ที่ผูกกับบัญชีเทเลแกรม</span
+          >
+        </div>
       </div>
-      <div class="h-px bg-gray-100 mx-4"></div>
-      
-      <ion-item class="minimal-input-item social" lines="none">
-        <ion-icon src="assets/icon/line.svg" slot="start" class="text-gray-800"></ion-icon>
-        <ion-label position="floating">Line ID</ion-label>
-        <ion-input [(ngModel)]="line" placeholder="Your Line ID"></ion-input>
-      </ion-item>
-      <div class="input-hint">
-        <ion-icon name="information-circle-outline"></ion-icon>
-        Tip: Use your Line ID
+    </div>
+
+    <div class="minimal-form-card mb-4">
+      <div class="custom-input-group">
+        <label class="custom-label">Line ID</label>
+        <div class="custom-input-wrapper">
+          <ion-icon src="assets/icon/line.svg" class="text-gray-800"></ion-icon>
+          <ion-input
+            [(ngModel)]="line"
+            placeholder="ไอดีไลน์ของคุณ"
+          ></ion-input>
+        </div>
+        <div class="custom-hint">
+          <ion-icon name="information-circle-outline"></ion-icon>
+          <span class="text-[12px]">คำแนะนำ: กรอกไอดีไลน์ของคุณ</span>
+        </div>
       </div>
-      <div class="h-px bg-gray-100 mx-4"></div>
-      
-      <ion-item class="minimal-input-item social" lines="none">
-        <ion-icon src="assets/icon/x.svg" slot="start" class="text-gray-800"></ion-icon>
-        <ion-label position="floating">X (Twitter)</ion-label>
-        <ion-input [(ngModel)]="twitter" placeholder="x.com/yourprofile"></ion-input>
-      </ion-item>
-      <div class="input-hint pb-4">
-        <ion-icon name="information-circle-outline"></ion-icon>
-        Tip: Copy your X profile link
+    </div>
+
+    <div class="minimal-form-card mb-4">
+      <div class="custom-input-group">
+        <label class="custom-label">X (Twitter)</label>
+        <div class="custom-input-wrapper">
+          <ion-icon src="assets/icon/x.svg" class="text-gray-800"></ion-icon>
+          <ion-input
+            [(ngModel)]="twitter"
+            placeholder="x.com/yourprofile"
+          ></ion-input>
+        </div>
+        <div class="custom-hint">
+          <ion-icon name="information-circle-outline"></ion-icon>
+          <span class="text-[12px]">คำแนะนำ: คัดลอกลิงก์โปรไฟล์ X ของคุณ</span>
+        </div>
       </div>
     </div>
   </div>
@@ -134,8 +223,13 @@
 
 <ion-footer class="ion-no-border minimal-footer">
   <div class="p-4">
-    <ion-button expand="block" (click)="onSubmit()" class="minimal-submit-btn">
-      Confirm Registration
+    <ion-button
+      expand="block"
+      (click)="onSubmit()"
+      class="minimal-submit-btn"
+      [disabled]="isLoading()"
+    >
+      <span>ลงทะเบียน</span>
     </ion-button>
   </div>
 </ion-footer>

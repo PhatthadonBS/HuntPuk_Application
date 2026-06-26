@@ -71,3 +71,43 @@ capacitor-google-map {
 :root {
   --ion-font-family: "Sarabun", sans-serif;
 }
+
+/* Minimal Action Sheet */
+.minimal-action-sheet {
+  --background: #ffffff;
+  --backdrop-opacity: 0.4;
+
+  .action-sheet-group {
+    background: #ffffff;
+    border-radius: 16px;
+    margin-bottom: 12px;
+  }
+
+  .action-sheet-button {
+    --button-color: #333333;
+    color: #333333;
+    font-weight: 500;
+    font-size: 1.05rem;
+    
+    .action-sheet-icon {
+      color: #333333;
+    }
+    
+    &.action-sheet-cancel {
+      font-weight: 600;
+      color: #e63946;
+      --button-color: #e63946;
+      
+      .action-sheet-button-inner {
+        justify-content: center;
+      }
+    }
+  }
+
+  .action-sheet-title {
+    color: #666666;
+    font-weight: 600;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+  }
+}

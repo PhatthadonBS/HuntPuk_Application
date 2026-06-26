@@ -1,44 +1,51 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { 
-  IonContent, 
-  IonHeader, 
-  IonTitle, 
-  IonToolbar, 
-  IonButtons, 
-  IonBackButton, 
-  IonList, 
-  IonItem, 
-  IonLabel, 
-  IonInput, 
-  IonButton, 
-  IonIcon, 
-  IonAvatar, 
+import {
+  IonContent,
+  IonHeader,
+  IonTitle,
+  IonToolbar,
+  IonButtons,
+  IonBackButton,
+  IonList,
+  IonItem,
+  IonLabel,
+  IonInput,
+  IonButton,
+  IonIcon,
+  IonAvatar,
   IonThumbnail,
   IonFooter,
   ToastController,
   NavController,
   ActionSheetController,
-  AlertController
+  AlertController,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { 
-  personOutline, 
-  mailOutline, 
-  callOutline, 
+import {
+  personOutline,
+  mailOutline,
+  callOutline,
   cameraOutline,
   checkmarkCircleOutline,
   alertCircleOutline,
   imageOutline,
-  camera
+  camera,
+  close,
+  arrowBackCircleOutline,
 } from 'ionicons/icons';
 import { UserServices } from 'src/app/services/userServices';
 import { AuthenService } from 'src/app/services/authenService';
 import { UserDataGetRes } from 'src/app/model/user.model';
 import { LoadingUIComponent } from '../../components/loading-ui/loading-ui.component';
 import { finalize } from 'rxjs';
-import { Camera, CameraResultType, CameraSource, Photo } from '@capacitor/camera';
+import {
+  Camera,
+  CameraResultType,
+  CameraSource,
+  Photo,
+} from '@capacitor/camera';
 
 @Component({
   selector: 'app-owner-register',
@@ -46,25 +53,25 @@ import { Camera, CameraResultType, CameraSource, Photo } from '@capacitor/camera
   styleUrls: ['./owner-register.page.scss'],
   standalone: true,
   imports: [
-    IonContent, 
-    IonHeader, 
-    IonTitle, 
-    IonToolbar, 
-    IonButtons, 
-    IonBackButton, 
-    IonList, 
-    IonItem, 
-    IonLabel, 
-    IonInput, 
-    IonButton, 
-    IonIcon, 
-    IonAvatar, 
+    IonContent,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    IonButtons,
+    IonBackButton,
+    IonList,
+    IonItem,
+    IonLabel,
+    IonInput,
+    IonButton,
+    IonIcon,
+    IonAvatar,
     IonThumbnail,
     IonFooter,
-    CommonModule, 
+    CommonModule,
     FormsModule,
-    LoadingUIComponent
-  ]
+    LoadingUIComponent,
+  ],
 })
 export class OwnerRegisterPage implements OnInit {
   // Form State
@@ -77,11 +84,11 @@ export class OwnerRegisterPage implements OnInit {
   telegram = signal<string>('');
   line = signal<string>('');
   twitter = signal<string>('');
-  
+
   // Image State
   selectedFile: File | null = null;
   imagePreview = signal<string | null>(null);
-  
+
   isLoading = signal<boolean>(false);
   currentUser = signal<UserDataGetRes | null>(null);
 
@@ -101,7 +108,9 @@ export class OwnerRegisterPage implements OnInit {
       checkmarkCircleOutline,
       alertCircleOutline,
       imageOutline,
-      camera
+      camera,
+      close,
+      arrowBackCircleOutline,
     });
   }
 
@@ -118,18 +127,18 @@ export class OwnerRegisterPage implements OnInit {
           this.currentUser.set(data);
           this.email.set(data.EMAIL);
           this.phone.set(data.PHONE_NUMBER);
-          
+
           if (data.FIRST_NAME) this.firstName.set(data.FIRST_NAME);
           if (data.LAST_NAME) this.lastName.set(data.LAST_NAME);
           if (data.PROFILE_IMAGE) this.imagePreview.set(data.PROFILE_IMAGE);
-          
+
           this.isLoading.set(false);
         },
         error: (err) => {
-          console.error('Error fetching user profile', err);
+          console.error('เกิดข้อผิดพลาดในการโหลดข้อมูลผู้ใช้', err);
           this.isLoading.set(false);
-          this.showToast('Failed to load user profile', 'danger');
-        }
+          this.showToast('เกิดข้อผิดพลาดในการโหลดข้อมูลผู้ใช้', 'danger');
+        },
       });
     } else {
       this.navCtrl.navigateRoot('/login');
@@ -142,28 +151,28 @@ export class OwnerRegisterPage implements OnInit {
 
   async presentPhotoOptions() {
     const actionSheet = await this.actionSheetCtrl.create({
-      header: 'Select Profile Photo',
+      mode: 'md',
+      cssClass: 'minimal-action-sheet',
       buttons: [
         {
-          text: 'Take Photo',
-          icon: 'camera',
+          text: 'ถ่ายภาพ',
+          icon: 'camera-outline',
           handler: () => {
             this.takePicture(CameraSource.Camera);
-          }
+          },
         },
         {
-          text: 'Choose from Gallery',
+          text: 'เลือกจากอัลบั้ม',
           icon: 'image-outline',
           handler: () => {
             this.takePicture(CameraSource.Photos);
-          }
+          },
         },
         {
-          text: 'Cancel',
-          icon: 'close',
-          role: 'cancel'
-        }
-      ]
+          text: 'ยกเลิก',
+          role: 'cancel',
+        },
+      ],
     });
     await actionSheet.present();
   }
@@ -174,7 +183,7 @@ export class OwnerRegisterPage implements OnInit {
         quality: 90,
         allowEditing: false,
         resultType: CameraResultType.Uri,
-        source: source
+        source: source,
       });
 
       if (image.webPath) {
@@ -183,7 +192,11 @@ export class OwnerRegisterPage implements OnInit {
         const response = await fetch(image.webPath);
         const blob = await response.blob();
         const format = image.format || 'jpeg';
-        this.selectedFile = new File([blob], `profile_${Date.now()}.${format}`, { type: `image/${format}` });
+        this.selectedFile = new File(
+          [blob],
+          `profile_${Date.now()}.${format}`,
+          { type: `image/${format}` }
+        );
       }
     } catch (error) {
       console.error('Error taking picture', error);
@@ -204,8 +217,15 @@ export class OwnerRegisterPage implements OnInit {
   }
 
   async onSubmit(override: boolean = false) {
-    if (!this.firstName() || !this.lastName() || (!this.selectedFile && !override)) {
-      this.showToast('Please fill in required fields and select a profile image', 'warning');
+    if (
+      !this.firstName() ||
+      !this.lastName() ||
+      (!this.selectedFile && !override)
+    ) {
+      this.showToast(
+        'กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วนและเลือกรูปโปรไฟล์',
+        'warning'
+      );
       return;
     }
 
@@ -222,23 +242,26 @@ export class OwnerRegisterPage implements OnInit {
     formData.append('line', this.line());
     formData.append('x', this.twitter());
     if (this.selectedFile) {
-        formData.append('file', this.selectedFile);
+      formData.append('file', this.selectedFile);
     }
     if (override) {
-        formData.append('override', 'true');
+      formData.append('override', 'true');
     }
 
     this.isLoading.set(true);
     this.userSv.requestDormOwner(formData).subscribe({
       next: (res) => {
         this.isLoading.set(false);
-        this.showToast('Registration submitted successfully! Please wait for admin approval.', 'success');
+        this.showToast(
+          'ส่งคำขอเรียบร้อยแล้ว! โปรดรอการอนุมัติจากผู้ดูแลระบบ',
+          'success'
+        );
         this.navCtrl.navigateRoot('/');
       },
       error: async (err) => {
         this.isLoading.set(false);
         console.error('Error submitting registration', err);
-        
+
         // Handle pending request override logic
         if (err.status === 409 && err.error?.isPending) {
           const alert = await this.alertCtrl.create({
@@ -247,23 +270,23 @@ export class OwnerRegisterPage implements OnInit {
             buttons: [
               {
                 text: 'Cancel',
-                role: 'cancel'
+                role: 'cancel',
               },
               {
                 text: 'Confirm Override',
                 handler: () => {
                   this.onSubmit(true);
-                }
-              }
-            ]
+                },
+              },
+            ],
           });
           await alert.present();
           return;
         }
 
-        const errMsg = err.error?.message || 'Failed to submit registration';
+        const errMsg = err.error?.message || 'ส่งคำขอไม่สำเร็จ';
         this.showToast(errMsg, 'danger');
-      }
+      },
     });
   }
 
@@ -273,8 +296,11 @@ export class OwnerRegisterPage implements OnInit {
       duration: 3000,
       color,
       position: 'bottom',
-      mode: 'ios'
+      mode: 'ios',
     });
     await toast.present();
+  }
+  goBack() {
+    this.navCtrl.back();
   }
 }
