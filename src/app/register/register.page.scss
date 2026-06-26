@@ -1,4 +1,3 @@
-
 $primary-yellow: var(--ion-color-primary);
 $dark-gray: var(--ion-color-dark);
 $light-gray: #f3f4f6;
@@ -14,35 +13,25 @@ ion-content {
   width: 100%;
   height: 100%;
   z-index: 0;
-  background: linear-gradient(135deg, #ffcc00 0%, #fff5cc 100%);
+  background: linear-gradient(#ffcc00 50%, #333333 50%);
+  transform-origin: center;
+  transform: rotate(-45deg) scale(15);
   overflow: hidden;
-
-  &::before {
-    content: '';
-    position: absolute;
-    width: 150%;
-    height: 100%;
-    background: #333333;
-    top: -50%;
-    left: -25%;
-    transform: rotate(-10deg);
-    border-radius: 0 0 50% 50%;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-  }
 }
 
 .content-wrapper {
   position: relative;
   z-index: 10;
   padding: 2rem;
-  padding-bottom: 4rem; 
+  padding-bottom: 4rem;
   min-height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
 
-  &::before, &::after {
-    content: '';
+  &::before,
+  &::after {
+    content: "";
     flex: 1;
   }
 }
@@ -51,20 +40,20 @@ ion-content {
   margin-top: 2rem;
   margin-bottom: 2rem;
   text-align: center;
-  
+
   h1 {
-    color: white;
+    color: rgb(0, 0, 0);
     font-size: 2.5rem;
     font-weight: 700;
     margin: 0;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   }
 }
 
 .register-form {
   width: 100%;
   max-width: 400px;
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   padding: 2.5rem 2rem;
@@ -84,7 +73,7 @@ ion-content {
   --padding-start: 16px;
   --padding-end: 16px;
   --color: #333333;
-  --placeholder-color: #6b7280;
+  --placeholder-color: #6b6b6b;
   --highlight-color-focused: #ffcc00;
   font-weight: 500;
   transition: all 0.3s ease;
@@ -96,7 +85,7 @@ ion-content {
   --border-width: 0 !important;
   --inner-border-width: 0 !important;
   --border-style: none !important;
-  
+
   border: 1px solid rgba(0, 0, 0, 0.05) !important;
   border-bottom: none !important;
   border-radius: 16px !important;
@@ -118,7 +107,7 @@ ion-content {
     --color: var(--ion-color-medium, #9ca3af);
     color: var(--ion-color-medium, #9ca3af);
     margin-right: -0.8rem;
-    
+
     &::part(button) {
       color: var(--ion-color-medium, #9ca3af);
       box-shadow: none !important;
@@ -167,7 +156,7 @@ ion-content {
 
 .back-btn {
   --background: transparent;
-  
+
   ion-icon {
     margin-right: 0.5rem;
   }
@@ -175,7 +164,8 @@ ion-content {
 
 .next-btn {
   --background: white;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
   border-radius: 16px;
   border: gray 1px solid;
   &[disabled] {
