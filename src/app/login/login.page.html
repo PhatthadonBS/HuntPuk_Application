@@ -1,4 +1,4 @@
-<ion-content [fullscreen]="true"> 
+<ion-content [fullscreen]="true">
   <div class="background-container"></div>
 
   <div class="content-wrapper">
@@ -26,9 +26,13 @@
           type="password"
           placeholder="รหัสผ่าน"
           formControlName="password"
-          class="custom-input "
+          class="custom-input"
         >
-          <ion-input-password-toggle slot="end" color="medium" class="!-mr-3"></ion-input-password-toggle>
+          <ion-input-password-toggle
+            slot="end"
+            color="medium"
+            class="!-mr-3"
+          ></ion-input-password-toggle>
         </ion-input>
       </div>
 
@@ -46,11 +50,12 @@
       </ion-button>
 
       <div class="register-text">
-        ยังไม่มีบัญชี? <span class="highlight"><a routerLink="/register">สมัครสมาชิก</a></span>
+        ยังไม่มีบัญชี?
+        <span class="highlight"><a routerLink="/register">สมัครสมาชิก</a></span>
       </div>
 
       <ion-button class="skip-btn" fill="clear" routerLink="/">
-        <span>ข้ามเข้าสู่แอป</span>
+        <span>ข้าม</span>
         <div class="icon-wrapper">
           <ion-icon name="arrow-forward-circle-outline"></ion-icon>
         </div>
