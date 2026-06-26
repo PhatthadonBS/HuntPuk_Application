@@ -115,6 +115,8 @@ export interface UserFavGetRes {
   COVERIMAGE: string;
   SCORE: string;
   DORM_STATUS_NAME: string;
+  ZONE_NAME: string | null;
+  START_PRICE: number;
 }
 
 export interface UserLoggedInPostRes {

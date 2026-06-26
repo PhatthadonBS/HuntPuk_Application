@@ -24,20 +24,23 @@ import {
   IonSpinner,
   ToastController,
   NavController,
+  IonRefresher,
+  IonRefresherContent,
 } from '@ionic/angular/standalone';
 import { UserServices } from 'src/app/services/userServices';
 import { AuthenService } from 'src/app/services/authenService';
 import { UserFavGetRes } from 'src/app/model/user.model';
 import { Subscription } from 'rxjs';
 import { addIcons } from 'ionicons';
-import { 
-  trashOutline, 
-  gitCompareOutline, 
-  star, 
+import {
+  trashOutline,
+  gitCompareOutline,
+  star,
   locationOutline,
   bookmarkOutline,
   closeOutline,
-  homeOutline
+  homeOutline,
+  arrowBackCircleOutline,
 } from 'ionicons/icons';
 import { environment } from 'src/environments/environment';
 import { LoadingUIComponent } from '../../components/loading-ui/loading-ui.component';
@@ -70,7 +73,9 @@ import { LoadingUIComponent } from '../../components/loading-ui/loading-ui.compo
     IonSpinner,
     CommonModule,
     FormsModule,
-    LoadingUIComponent
+    LoadingUIComponent,
+    IonRefresher,
+    IonRefresherContent,
   ],
 })
 export class MyFavoritesPage implements OnInit, OnDestroy {
@@ -78,7 +83,7 @@ export class MyFavoritesPage implements OnInit, OnDestroy {
   favorites = signal<UserFavGetRes[]>([]);
   selectedDormIds = signal<number[]>([]);
   isLoading = signal<boolean>(true);
-  
+
   private userSub?: Subscription;
   currentUser: any = null;
 
@@ -95,7 +100,8 @@ export class MyFavoritesPage implements OnInit, OnDestroy {
       locationOutline,
       bookmarkOutline,
       closeOutline,
-      homeOutline
+      homeOutline,
+      arrowBackCircleOutline,
     });
   }
 
@@ -112,6 +118,32 @@ export class MyFavoritesPage implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     if (this.userSub) this.userSub.unsubscribe();
+  }
+
+  handleRefresh(event: any) {
+    this.userSv.getMyFavorites(this.currentUser.id).subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          const processed = res.data.map((fav) => ({
+            ...fav,
+            COVERIMAGE: fav.COVERIMAGE
+              ? `${this.env.ENDPOINT}/images/${fav.COVERIMAGE}`
+              : '',
+          }));
+          this.favorites.set(processed);
+
+          const currentIds = processed.map((f) => f.DORMID);
+          this.selectedDormIds.update((ids) =>
+            ids.filter((id) => currentIds.includes(id))
+          );
+        }
+        event.target.complete();
+      },
+      error: (err) => {
+        console.error('Error refreshing favorites', err);
+        event.target.complete();
+      },
+    });
   }
 
   loadFavorites() {
@@ -137,7 +169,7 @@ export class MyFavoritesPage implements OnInit, OnDestroy {
       if (isChecked) {
         if (ids.length >= 5) {
           this.showToast('เปรียบเทียบได้สูงสุด 5 แห่ง', 'warning');
-          setTimeout(() => event.target.checked = false, 0);
+          setTimeout(() => (event.target.checked = false), 0);
           return ids;
         }
         return [...ids, dormId];
@@ -148,9 +180,14 @@ export class MyFavoritesPage implements OnInit, OnDestroy {
   }
 
   async removeFavorite(dormId: number) {
+    if (!confirm('คุณต้องการลบหอพักนี้ออกจากรายการโปรดหรือไม่?')) {
+      return;
+    }
     this.userSv.removeFavorite(dormId).subscribe({
       next: async (res) => {
-        this.favorites.update((favs) => favs.filter((f) => f.DORMID !== dormId));
+        this.favorites.update((favs) =>
+          favs.filter((f) => f.DORMID !== dormId)
+        );
         this.selectedDormIds.update((ids) => ids.filter((id) => id !== dormId));
         this.showToast('ลบออกจากรายการโปรดแล้ว', 'success');
       },
@@ -164,15 +201,15 @@ export class MyFavoritesPage implements OnInit, OnDestroy {
   confirmComparison() {
     const ids = this.selectedDormIds();
     if (ids.length < 2) {
-      this.showToast('กรุณาเลือกหอพักอย่างน้อย 2 แห่งเพื่อเปรียบเทียบ', 'primary');
+      this.showToast(
+        'กรุณาเลือกหอพักอย่างน้อย 2 แห่งเพื่อเปรียบเทียบ',
+        'primary'
+      );
       return;
     }
-    // Navigate to comparison page and pass IDs
-    // We can use state or query params. Let's use navigation state or service.
-    // For now, let's assume DormComparePage can read these from somewhere.
-    // I will implement passing them via state.
+
     this.navCtrl.navigateForward('/dorm-compare', {
-      state: { preSelectedIds: ids }
+      state: { preSelectedIds: ids },
     });
   }
 
@@ -189,5 +226,15 @@ export class MyFavoritesPage implements OnInit, OnDestroy {
   goToDetail(dormId: number) {
     this.navCtrl.navigateForward(`/dorm-detail/${dormId}`);
   }
-}
 
+  goBack() {
+    if (this.authSv.currentUserValue?.role == 3) {
+      return this.navCtrl.back();
+    }
+    this.navCtrl.navigateRoot('/');
+  }
+
+  goToDormList() {
+    return this.navCtrl.navigateForward('/dorms');
+  }
+}
