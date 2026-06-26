@@ -41,11 +41,11 @@
     <div class="gallery-section relative group">
       <!-- Full Dorm Banner Overlay -->
       <div
-        *ngIf="d.DORM_STATUS_ID === 3"
-        class="absolute bottom-0 left-0 w-full bg-red-600/90 text-white text-center py-2 z-20 backdrop-blur-sm flex items-center justify-center gap-2"
+        *ngIf="d.DORM_STATUS_ID != 1"
+        class="absolute bottom-0 left-0 w-full text-white text-center py-2 z-20 backdrop-blur-sm flex items-center justify-center gap-2"
+        [ngClass]="getStatusColor(d.DORM_STATUS_ID)"
       >
-        <ion-icon name="alert-circle" class="text-xl"></ion-icon>
-        <span class="font-bold tracking-wide">หอพักนี้เต็มแล้ว</span>
+        <span class="font-bold tracking-wide">{{d.DORM_STATUS_NAME}}</span>
       </div>
 
       <!-- Slide Left Button -->

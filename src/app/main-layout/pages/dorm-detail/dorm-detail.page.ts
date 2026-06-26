@@ -53,6 +53,8 @@ import {
   swapHorizontalOutline,
   checkmarkCircleOutline,
   personCircleOutline,
+  warningOutline,
+  constructOutline,
 } from 'ionicons/icons';
 
 @Component({
@@ -133,6 +135,8 @@ export class DormDetailPage implements OnInit, OnDestroy {
       swapHorizontalOutline,
       checkmarkCircleOutline,
       personCircleOutline,
+      warningOutline,
+      constructOutline,
     });
   }
 
@@ -246,6 +250,26 @@ export class DormDetailPage implements OnInit, OnDestroy {
       }
     }
     return null;
+  }
+
+  getStatusColor(statusId: number): string {
+    switch (statusId) {
+      case 1: return 'bg-emerald-600/90'; // Available
+      case 2: return 'bg-amber-500/90';   // Almost full
+      case 3: return 'bg-red-600/90';     // Full
+      case 4: return 'bg-gray-600/90';    // Maintenance
+      default: return 'bg-gray-600/90';
+    }
+  }
+
+  getStatusIcon(statusId: number): string {
+    switch (statusId) {
+      case 1: return 'checkmark-circle-outline';
+      case 2: return 'warning-outline';
+      case 3: return 'alert-circle-outline';
+      case 4: return 'construct-outline';
+      default: return 'information-circle-outline';
+    }
   }
 
   toggleFavorite() {
