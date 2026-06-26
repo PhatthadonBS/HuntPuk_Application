@@ -72,6 +72,7 @@ export class FilterGroupComponent implements OnInit, OnChanges, OnDestroy {
   @Input() showBack: boolean = false;
   @Input() showSearch: boolean = true;
   @Input() isInline: boolean = false;
+  @Input() showAutoComplete: boolean = true;
   @Input() initialParams: FilterParams | null = null;
   @Input() openFilterOnLoad: boolean = false;
   @Output() filterApplied = new EventEmitter<FilterParams>();
@@ -159,7 +160,9 @@ export class FilterGroupComponent implements OnInit, OnChanges, OnDestroy {
       if (!this.isFilterModalOpen) {
         this.minPrice = this.parseNumber(this.initialParams.minPrice);
         this.maxPrice = this.parseNumber(this.initialParams.maxPrice);
-        this.selectedZone = this.initialParams.zone ? this.initialParams.zone.toString() : '';
+        this.selectedZone = this.initialParams.zone
+          ? this.initialParams.zone.toString()
+          : '';
         this.selectedScore = this.parseNumber(this.initialParams.score);
       }
     }
@@ -170,7 +173,9 @@ export class FilterGroupComponent implements OnInit, OnChanges, OnDestroy {
       this.searchQuery = this.initialParams.search || '';
       this.minPrice = this.parseNumber(this.initialParams.minPrice);
       this.maxPrice = this.parseNumber(this.initialParams.maxPrice);
-      this.selectedZone = this.initialParams.zone ? this.initialParams.zone.toString() : '';
+      this.selectedZone = this.initialParams.zone
+        ? this.initialParams.zone.toString()
+        : '';
       this.selectedScore = this.parseNumber(this.initialParams.score);
     } else {
       this.searchQuery = '';
@@ -186,7 +191,7 @@ export class FilterGroupComponent implements OnInit, OnChanges, OnDestroy {
     this.minPrice = this.parseNumber(params.minPrice);
     this.maxPrice = this.parseNumber(params.maxPrice);
     this.selectedScore = this.parseNumber(params.score);
-    
+
     if (params.zone) {
       this.selectedZone = params.zone.toString();
     } else {
@@ -287,10 +292,10 @@ export class FilterGroupComponent implements OnInit, OnChanges, OnDestroy {
     this.selectedZone = '';
     this.selectedScore = null;
     this.searchQuery = '';
-    
+
     // Do not close the modal, allow the user to see the fields reset to their default values.
     // They can then close the modal using the close button or by applying filters.
-    
+
     setTimeout(() => {
       this.emitFilters();
     }, 0);

@@ -29,6 +29,7 @@ import {
   IonCheckbox,
   IonFab,
   IonFabButton,
+  NavController,
 } from '@ionic/angular/standalone';
 import { DormServices } from 'src/app/services/dormServices';
 import { AuthenService } from 'src/app/services/authenService';
@@ -147,7 +148,8 @@ export class DormComparePage implements OnInit, OnDestroy {
   constructor(
     private dormSv: DormServices,
     private authSv: AuthenService,
-    private gMapSv: GoogleMapService
+    private gMapSv: GoogleMapService,
+    private navctrl: NavController
   ) {
     addIcons({
       addOutline,
@@ -651,10 +653,42 @@ export class DormComparePage implements OnInit, OnDestroy {
   }
 
   getRoomStartPrice(r: any): string {
-    if (r.PRICE > 0) return `${this.formatNumber(r.PRICE)} ฿/เดือน`;
-    if (r.perTerm > 0) return `${this.formatNumber(r.perTerm)} ฿/เทอม`;
-    if (r.perDay > 0) return `${this.formatNumber(r.perDay)} ฿/วัน`;
+    if (r.PRICE > 0) return `${this.formatNumber(r.PRICE)} บาท/เดือน`;
+    if (r.perTerm > 0) return `${this.formatNumber(r.perTerm)} บาท/เทอม`;
+    if (r.perDay > 0) return `${this.formatNumber(r.perDay)} บาท/วัน`;
     return '-';
+  }
+
+  getDormStartPriceObj(dorm: any): { price: string; unit: string } {
+    if (dorm.start_price > 0) {
+      return { price: this.formatNumber(dorm.start_price), unit: 'บาท/เดือน' };
+    }
+
+    if (dorm.rooms && dorm.rooms.length > 0) {
+      let minPrice = Infinity;
+      let unit = '';
+
+      for (const r of dorm.rooms) {
+        if (r.PRICE > 0 && r.PRICE < minPrice) {
+          minPrice = r.PRICE;
+          unit = 'บาท/เดือน';
+        }
+        if (r.perTerm > 0 && r.perTerm < minPrice) {
+          minPrice = r.perTerm;
+          unit = 'บาท/เทอม';
+        }
+        if (r.perDay > 0 && r.perDay < minPrice) {
+          minPrice = r.perDay;
+          unit = 'บาท/วัน';
+        }
+      }
+
+      if (minPrice !== Infinity) {
+        return { price: this.formatNumber(minPrice), unit };
+      }
+    }
+
+    return { price: '-', unit: '' };
   }
 
   formatNumber(num: number): string {
@@ -663,6 +697,13 @@ export class DormComparePage implements OnInit, OnDestroy {
 
   getDistanceKm(distance: number): number {
     return Math.floor(distance / 1000);
+  }
+
+  getDistanceObj(distance: number): { value: string; unit: string } {
+    if (distance >= 1000) {
+      return { value: (distance / 1000).toFixed(2), unit: 'กิโลเมตร' };
+    }
+    return { value: this.formatNumber(distance), unit: 'เมตร' };
   }
 
   async recalculateDistances() {
@@ -742,5 +783,13 @@ export class DormComparePage implements OnInit, OnDestroy {
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
     return Math.round(R * c);
+  }
+
+  goBack() {
+    if (this.authSv.currentUserValue?.role == 3) {
+      this.navctrl.back();
+    }
+
+    this.navctrl.navigateRoot('/');
   }
 }
