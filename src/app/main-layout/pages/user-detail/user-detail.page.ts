@@ -31,7 +31,7 @@ import {
   personCircleOutline,
   trashBin,
   trashOutline,
-  lockClosedOutline
+  lockClosedOutline,
 } from 'ionicons/icons';
 import {
   ActivatedRoute,
@@ -69,10 +69,10 @@ import { LoadingUIComponent } from '../../components/loading-ui/loading-ui.compo
     FormsModule,
     RouterLink,
     IonButton,
-    LoadingUIComponent
-  ], 
+    LoadingUIComponent,
+  ],
 })
-export class UserDetailPage{
+export class UserDetailPage {
   user = signal<UserDataGetRes | null>(null);
   errMsg = signal<string | null>(null);
   succMsg = signal<string | null>(null);
@@ -87,7 +87,7 @@ export class UserDetailPage{
     private actRouter: ActivatedRoute,
     private navCtrl: NavController,
     private alertController: AlertController
-  ) { 
+  ) {
     addIcons({
       arrowBackCircleOutline,
       person,
@@ -102,7 +102,7 @@ export class UserDetailPage{
       trashOutline,
       create,
       ellipsisHorizontalOutline,
-      lockClosedOutline
+      lockClosedOutline,
     });
   }
 
@@ -110,19 +110,22 @@ export class UserDetailPage{
     const user_id = this.actRouter.snapshot.paramMap.get('user_id');
     if (user_id) {
       this.isLoading.set(true);
-      this.userSv.getUserByID(Number(user_id)).pipe(finalize(() => this.isLoading.set(false))).subscribe({
-        next: (u) => {
-          this.user.set(u);
-          this.checkRoles(Number(user_id));
-        },
-        error: (err: any) => {
-          this.errMsg.set(extractErrorMessage(err));
+      this.userSv
+        .getUserByID(Number(user_id))
+        .pipe(finalize(() => this.isLoading.set(false)))
+        .subscribe({
+          next: (u) => {
+            this.user.set(u);
+            this.checkRoles(Number(user_id));
+          },
+          error: (err: any) => {
+            this.errMsg.set(extractErrorMessage(err));
 
-          timer(3000).subscribe(() => {
-            return this.navCtrl.navigateRoot('/');
-          });
-        },
-      });
+            timer(3000).subscribe(() => {
+              return this.navCtrl.navigateRoot('/');
+            });
+          },
+        });
     } else {
       this.errMsg.set('not found user id');
       timer(3000).subscribe(() => {
@@ -141,11 +144,11 @@ export class UserDetailPage{
 
   handleImageError() {
     if (this.user()) {
-       const u: any = this.user();
-       if (u.PROFILE_IMAGE) {
-         const updatedUser = { ...u, PROFILE_IMAGE: undefined };
-         this.user.set(updatedUser);
-       }
+      const u: any = this.user();
+      if (u.PROFILE_IMAGE) {
+        const updatedUser = { ...u, PROFILE_IMAGE: undefined };
+        this.user.set(updatedUser);
+      }
     }
   }
 
@@ -157,15 +160,15 @@ export class UserDetailPage{
         {
           text: 'ยกเลิก',
           role: 'cancel',
-          cssClass: 'secondary'
+          cssClass: 'secondary',
         },
         {
           text: 'ออกจากระบบ',
           handler: () => {
             this.authSv.logoutUser();
-          }
-        }
-      ]
+          },
+        },
+      ],
     });
 
     await alert.present();
@@ -187,14 +190,14 @@ export class UserDetailPage{
         {
           name: 'confirmText',
           type: 'text',
-          placeholder: 'พิมพ์ DELETE'
-        }
+          placeholder: 'พิมพ์ DELETE',
+        },
       ],
       buttons: [
         {
           text: 'ยกเลิก',
           role: 'cancel',
-          cssClass: 'secondary'
+          cssClass: 'secondary',
         },
         {
           text: 'ลบบัญชี',
@@ -204,25 +207,34 @@ export class UserDetailPage{
               const uid = this.user()?.USER_ID;
               if (uid) {
                 this.isLoading.set(true);
-                this.userSv.deleteAccount(uid).pipe(finalize(() => this.isLoading.set(false))).subscribe({
-                  next: () => {
-                    this.authSv.logoutUser();
-                  },
-                  error: (err) => {
-                    this.errMsg.set(extractErrorMessage(err));
-                  }
-                });
+                this.userSv
+                  .deleteAccount(uid)
+                  .pipe(finalize(() => this.isLoading.set(false)))
+                  .subscribe({
+                    next: () => {
+                      this.authSv.logoutUser();
+                    },
+                    error: (err) => {
+                      this.errMsg.set(extractErrorMessage(err));
+                    },
+                  });
               }
               return true;
             } else {
-              this.errMsg.set('คำยืนยันไม่ถูกต้อง กรุณาพิมพ์ DELETE เพื่อยืนยัน');
+              this.errMsg.set(
+                'คำยืนยันไม่ถูกต้อง กรุณาพิมพ์ DELETE เพื่อยืนยัน'
+              );
               return false; // Prevents the alert from closing if typing is wrong
             }
-          }
-        }
-      ]
+          },
+        },
+      ],
     });
 
     await alert.present();
+  }
+
+  goBack() {
+    return this.navCtrl.back();
   }
 }
