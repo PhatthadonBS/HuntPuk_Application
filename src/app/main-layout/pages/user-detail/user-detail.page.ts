@@ -235,6 +235,10 @@ export class UserDetailPage {
   }
 
   goBack() {
-    return this.navCtrl.back();
+    const role = this.authSv.currentUserValue?.role;
+    if (role == 3) {
+      return this.navCtrl.back();
+    }
+    return this.navCtrl.navigateRoot('/');
   }
 }

@@ -20,16 +20,24 @@ import {
   IonItem,
   IonInput,
   IonButtons,
-  IonBackButton
+  IonBackButton,
 } from '@ionic/angular/standalone';
 import { UserServices } from 'src/app/services/userServices';
-import { UserDataGetRes, UserUpdatePostReqForm } from 'src/app/model/user.model';
+import {
+  UserDataGetRes,
+  UserUpdatePostReqForm,
+} from 'src/app/model/user.model';
 import { timer, finalize } from 'rxjs';
 import { NavController, AlertController } from '@ionic/angular';
 import { extractErrorMessage } from 'src/app/utils/error.util';
 import { ActivatedRoute } from '@angular/router';
 import { addIcons } from 'ionicons';
-import { person, personOutline, callOutline, arrowBackCircleOutline } from 'ionicons/icons';
+import {
+  person,
+  personOutline,
+  callOutline,
+  arrowBackCircleOutline,
+} from 'ionicons/icons';
 import { LoadingUIComponent } from '../../components/loading-ui/loading-ui.component';
 
 @Component({
@@ -54,7 +62,7 @@ import { LoadingUIComponent } from '../../components/loading-ui/loading-ui.compo
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    LoadingUIComponent
+    LoadingUIComponent,
   ],
 })
 export class ProfileUpdatePage {
@@ -81,24 +89,27 @@ export class ProfileUpdatePage {
 
   ionViewWillEnter() {
     const uid_param = this.actRouter.snapshot.paramMap.get('user_id');
-    this.user_id.set(Number(uid_param)); 
-    
+    this.user_id.set(Number(uid_param));
+
     this.isLoading.set(true);
-    this.userSv.getUserByID(Number(uid_param)).pipe(finalize(() => this.isLoading.set(false))).subscribe({
-      next: (u) => {
-        this.user.set(u);
-        this.updateForm.patchValue({
-          username: u.USERNAME,
-          phone_number: u.PHONE_NUMBER
-        });
-      },
-      error: (err) => {
-        this.errMsg.set(extractErrorMessage(err));
-        timer(3000).subscribe(() => {
-          this.navCtrl.navigateRoot('/');
-        });
-      }
-    });
+    this.userSv
+      .getUserByID(Number(uid_param))
+      .pipe(finalize(() => this.isLoading.set(false)))
+      .subscribe({
+        next: (u) => {
+          this.user.set(u);
+          this.updateForm.patchValue({
+            username: u.USERNAME,
+            phone_number: u.PHONE_NUMBER,
+          });
+        },
+        error: (err) => {
+          this.errMsg.set(extractErrorMessage(err));
+          timer(3000).subscribe(() => {
+            this.navCtrl.navigateRoot('/');
+          });
+        },
+      });
   }
 
   goBack() {
@@ -115,15 +126,15 @@ export class ProfileUpdatePage {
         {
           text: 'ยกเลิก',
           role: 'cancel',
-          cssClass: 'secondary'
+          cssClass: 'secondary',
         },
         {
           text: 'ยืนยัน',
           handler: () => {
             this.update();
-          }
-        }
-      ]
+          },
+        },
+      ],
     });
 
     await alert.present();
@@ -131,22 +142,25 @@ export class ProfileUpdatePage {
 
   update() {
     if (this.updateForm.invalid) return;
-    
+
     const formData = this.updateForm.getRawValue();
-    
+
     this.isLoading.set(true);
-    this.userSv.profileUpdate(this.user()!.USER_ID, formData).pipe(finalize(() => this.isLoading.set(false))).subscribe({
-      next: () => {
-        this.errMsg.set(null);
-        this.succMsg.set('แก้ไขข้อมูลเสร็จสิ้น');
-        timer(1500).subscribe(() => {
-          this.navCtrl.navigateRoot(['/profile', this.user()!.USER_ID]);
-        });
-      },
-      error: (err: any) => {
-        this.succMsg.set(null);
-        this.errMsg.set(extractErrorMessage(err));
-      },
-    });
+    this.userSv
+      .profileUpdate(this.user()!.USER_ID, formData)
+      .pipe(finalize(() => this.isLoading.set(false)))
+      .subscribe({
+        next: () => {
+          this.errMsg.set(null);
+          this.succMsg.set('แก้ไขข้อมูลเสร็จสิ้น');
+          timer(1500).subscribe(() => {
+            this.navCtrl.navigateRoot(['/profile', this.user()!.USER_ID]);
+          });
+        },
+        error: (err: any) => {
+          this.succMsg.set(null);
+          this.errMsg.set(extractErrorMessage(err));
+        },
+      });
   }
 }
