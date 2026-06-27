@@ -1,20 +1,37 @@
-<ion-header class="ion-no-border">
+<ion-header class="ion-no-border main-header">
   <ion-toolbar class="main-toolbar">
-    <ion-buttons slot="start">
-      <ion-button (click)="handleBack()" color="dark">
-        <ion-icon name="arrow-back-circle-outline" style="font-size: 28px;"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-    <ion-title class="toolbar-title"
-      >{{ isEditMode() ? 'แก้ไขข้อมูลหอพัก' : 'ลงทะเบียนหอพัก' }}</ion-title
+    <div
+      class="header-tool flex justify-between align-middle text-lg font-bold"
     >
+      <a
+        (click)="goBack()"
+        class="back-btn flex justify-between align-middle ml-[.25rem] p-[.25rem] pl-1 pr-3 w-[5rem] rounded-full bg-slate-100"
+      >
+        <ion-icon
+          name="arrow-back-circle-outline"
+          size="large"
+          color="dark"
+        ></ion-icon>
+        <span class="">กลับ</span>
+      </a>
+      <span class="mt-1 text-white mr-[1rem] text-xl"
+        >{{ isEditMode() ? 'แก้ไขข้อมูลหอพัก' : 'ลงทะเบียนหอพัก' }}</span
+      >
+    </div>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true" class="dorm-register-content">
+  <div class="background"></div>
   <div class="content-wrapper">
     <!-- Tab Navigation -->
-    <ion-segment [value]="currentStep().toString()" (ionChange)="segmentChanged($event)" mode="md" class="mb-4 register-tabs" scrollable="true">
+    <ion-segment
+      [value]="currentStep().toString()"
+      (ionChange)="segmentChanged($event)"
+      mode="md"
+      class="mb-4 register-tabs"
+      scrollable="true"
+    >
       <ion-segment-button value="1">
         <ion-icon name="location-outline"></ion-icon>
       </ion-segment-button>
@@ -36,7 +53,7 @@
       <!-- 2.1 Dorm Info -->
       <div class="section-container" *ngIf="currentStep() === 1">
         <h2 class="section-title">
-          <ion-icon name="business-outline"></ion-icon> ข้อมูลหอพัก
+          <ion-icon name="business-outline" color="dark"></ion-icon> ข้อมูลหอพัก
         </h2>
 
         <div class="input-group">
@@ -104,11 +121,17 @@
       </div>
 
       <!-- 2.2 Room Info -->
-      <div class="section-container" formArrayName="rooms" *ngIf="currentStep() === 2">
-        <div class="flex justify-between items-center mb-3">
-          <h2 class="section-title m-0">
-            <ion-icon name="bed-outline"></ion-icon> ข้อมูลห้องพัก
-          </h2>
+      <div
+        class="section-container"
+        formArrayName="rooms"
+        *ngIf="currentStep() === 2"
+      >
+        <div class="flex justify-between align-middle mb-3">
+          <div class="title-section flex items-center">
+            <ion-icon name="bed-outline" size="medium" color="dark"></ion-icon>
+            <h2 class="-mb-.5 ml-2">ข้อมูลห้องพัก</h2>
+          </div>
+
           <ion-button size="small" (click)="addRoom()"
             ><ion-icon name="add" slot="start"></ion-icon>
             เพิ่มแบบห้อง</ion-button
@@ -118,9 +141,9 @@
         <div
           *ngFor="let room of rooms.controls; let i = index"
           [formGroupName]="i"
-          class="room-card p-3 mb-3"
+          class="room-card p-3"
         >
-          <div class="flex justify-between items-center mb-2">
+          <div class="room-header flex justify-between items-center mb-2">
             <span class="font-bold">แบบที่ {{ i + 1 }}</span>
             <ion-button
               fill="clear"
@@ -133,7 +156,7 @@
             </ion-button>
           </div>
 
-          <div class="grid grid-cols-2 gap-3 mb-3">
+          <div class="grid grid-cols-2 gap-3 !mb-[.5rem]">
             <div class="input-group">
               <label>ประเภทห้อง <span class="text-red-500">*</span></label>
               <select formControlName="roomType" class="native-select">
@@ -154,9 +177,19 @@
             </div>
           </div>
 
-          <div class="grid grid-cols-2 md:grid-cols-3 gap-3" formArrayName="prices">
-            <div class="input-group" *ngFor="let pt of priceTypes(); let j = index" [formGroupName]="j">
-              <label>{{ pt.name }} <span class="text-red-500">*</span></label>
+          <div
+            class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-2"
+            formArrayName="prices"
+          >
+            <p class="col-span-2 md:col-span-3 text-sm font-bold text-gray-600">
+              *ถ้าไม่มีให้ปล่อยว่าง
+            </p>
+            <div
+              class="input-group !-mb-1"
+              *ngFor="let pt of priceTypes(); let j = index"
+              [formGroupName]="j"
+            >
+              <label>{{ pt.name }} </label>
               <ion-input
                 type="number"
                 formControlName="price"
@@ -168,13 +201,15 @@
       </div>
 
       <!-- Utilities (Cost related) -->
-      <div class="section-container" *ngIf="currentStep() === 3">
+      <div class="section-container mb-5" *ngIf="currentStep() === 3">
         <h2 class="section-title">
-          <ion-icon name="water-outline"></ion-icon> ค่าน้ำ / ค่าไฟ
+          <ion-icon name="water-outline" color="dark"></ion-icon> ค่าน้ำ / ค่าไฟ
         </h2>
         <div class="grid grid-cols-2 gap-3">
           <div class="input-group">
-            <label>ค่าน้ำ (บาท/หน่วย) <span class="text-red-500">*</span></label>
+            <label
+              >ค่าน้ำ (บาท/หน่วย) <span class="text-red-500">*</span></label
+            >
             <ion-input
               type="number"
               inputmode="numeric"
@@ -193,7 +228,7 @@
           </div>
         </div>
         <div class="input-group">
-          <label>ค่าน้ำเหมาจ่าย (บาท/เดือน - ถ้ามี) <span class="text-red-500">*</span></label>
+          <label>ค่าน้ำเหมาจ่าย (บาท/เดือน - ถ้ามี)</label>
           <ion-input
             type="number"
             inputmode="numeric"
@@ -229,16 +264,16 @@
               ></ion-icon>
             </div>
             <span class="fac-label">{{ fac.FAC_TYPE_NAME }}</span>
-            <div class="check-badge">
-              <ion-icon name="checkmark-circle"></ion-icon>
-            </div>
           </div>
         </div>
 
         <h3 class="sub-title">เพิ่มสิ่งอำนวยความสะดวกใหม่</h3>
         <div class="custom-fac-form p-3">
           <div class="flex gap-4 items-end">
-            <div class="fac-icon-upload" (click)="selectImage('CUSTOM_FAC')">
+            <div
+              class="fac-icon-upload mb-4"
+              (click)="selectImage('CUSTOM_FAC')"
+            >
               <img
                 *ngIf="customFacIcon.preview"
                 [src]="customFacIcon.preview"
@@ -285,7 +320,6 @@
               (error)="handleImageError($event)"
             />
             <div class="placeholder" *ngIf="!images['FRONT'].preview">
-              <ion-icon name="camera"></ion-icon>
               <span class="!text-sm">รูปหน้าหอพัก</span>
             </div>
             <ion-button
@@ -299,14 +333,17 @@
             </ion-button>
           </div>
 
-          <div class="image-box" (click)="selectImage('LICENSE')" *ngIf="!isEditMode()">
+          <div
+            class="image-box"
+            (click)="selectImage('LICENSE')"
+            *ngIf="!isEditMode()"
+          >
             <img
               *ngIf="images['LICENSE'].preview"
               [src]="images['LICENSE'].preview"
               (error)="handleImageError($event)"
             />
             <div class="placeholder" *ngIf="!images['LICENSE'].preview">
-              <ion-icon name="image"></ion-icon>
               <span class="!text-sm">ใบอนุญาตประกอบการหอพัก</span>
             </div>
             <ion-button
@@ -427,7 +464,11 @@
             class="image-box"
             *ngFor="let img of otherImages(); let i = index"
           >
-            <img *ngIf="img.preview" [src]="img.preview" (error)="handleImageError($event)" />
+            <img
+              *ngIf="img.preview"
+              [src]="img.preview"
+              (error)="handleImageError($event)"
+            />
             <ion-button
               fill="clear"
               color="danger"
@@ -467,16 +508,28 @@
           </h2>
           <div class="input-group">
             <label>เลือกเจ้าของหอพัก</label>
-            <ion-button expand="block" fill="outline" (click)="openOwnerModal()" class="location-btn text-black">
+            <ion-button
+              expand="block"
+              fill="outline"
+              (click)="openOwnerModal()"
+              class="location-btn text-black"
+            >
               <ion-icon name="person-circle-outline" slot="start"></ion-icon>
               ค้นหาและเลือกเจ้าของหอพัก
             </ion-button>
-            
-            <div class="mt-3 p-3 bg-gray-50 rounded-lg border border-gray-200 flex items-center gap-3">
-              <ion-icon name="person-circle-outline" class="text-3xl text-gray-500"></ion-icon>
+
+            <div
+              class="mt-3 p-3 bg-gray-50 rounded-lg border border-gray-200 flex items-center gap-3"
+            >
+              <ion-icon
+                name="person-circle-outline"
+                class="text-3xl text-gray-500"
+              ></ion-icon>
               <div class="flex flex-col">
                 <span class="text-xs text-gray-500">เจ้าของหอพักที่เลือก</span>
-                <span class="text-sm font-medium text-gray-800">{{ selectedOwnerName }}</span>
+                <span class="text-sm font-medium text-gray-800"
+                  >{{ selectedOwnerName }}</span
+                >
               </div>
             </div>
           </div>
@@ -491,16 +544,16 @@
           (click)="prevStep()"
           class="prev-btn flex-1"
         >
-          ย้อนกลับ
+          <p class="text-[18px] font-normal">ย้อนกลับ</p>
         </ion-button>
-        
+
         <ion-button
           *ngIf="currentStep() < 5"
           expand="block"
           (click)="nextStep()"
           class="next-btn flex-1"
         >
-          ถัดไป
+          <p class="text-[18px] font-normal">ถัดไป</p>
         </ion-button>
 
         <ion-button
@@ -510,7 +563,9 @@
           class="confirm-btn flex-1"
           [disabled]="dormForm.invalid"
         >
-          {{ isEditMode() ? 'บันทึกการแก้ไข' : 'ลงทะเบียนหอพัก' }}
+          <p class="text-[18px] font-normal">
+            {{ isEditMode() ? 'บันทึกการแก้ไข' : 'ลงทะเบียนหอพัก' }}
+          </p>
         </ion-button>
       </div>
     </form>
@@ -526,21 +581,27 @@
     <ng-template>
       <ion-header class="ion-no-border">
         <ion-toolbar>
-          <ion-title>ปักหมุดตำแหน่งหอพัก</ion-title>
-          <ion-buttons slot="end">
-            <ion-button (click)="closeMapModal()">ปิด</ion-button>
-          </ion-buttons>
+          <div class="flex justify-between align-middle pl-4 pr-4">
+            <ion-title color="light">ปักหมุดตำแหน่งหอพัก</ion-title>
+            <ion-buttons slot="end">
+              <ion-button (click)="closeMapModal()" color="light">
+                <p class="text-[18px] font-normal">ปิด</p></ion-button
+              >
+            </ion-buttons>
+          </div>
         </ion-toolbar>
       </ion-header>
       <ion-content>
         <div id="map-canvas" class="map-container"></div>
       </ion-content>
       <ion-footer class="ion-no-border">
-        <div class="map-actions p-4 bg-white">
-          <p class="text-center text-sm mb-3">
+        <div class="map-actions p-4 bg-white mb-[2rem]">
+          <span
+            class="text-center text-sm mb-3 flex align-middle justify-center"
+          >
             <ion-icon name="information-circle-outline"></ion-icon>
-            แตะบนแผนที่เพื่อเลือกตำแหน่งที่ตั้ง
-          </p>
+            <p class="-mt-1">แตะบนแผนที่เพื่อเลือกตำแหน่งที่ตั้ง</p></span
+          >
           <ion-button
             expand="block"
             color="dark"
@@ -564,9 +625,9 @@
           </ion-buttons>
         </ion-toolbar>
         <ion-toolbar>
-          <ion-searchbar 
-            placeholder="ค้นหาชื่อ, นามสกุล, username..." 
-            [ngModel]="ownerSearchText()" 
+          <ion-searchbar
+            placeholder="ค้นหาชื่อ, นามสกุล, username..."
+            [ngModel]="ownerSearchText()"
             (ngModelChange)="ownerSearchText.set($event)"
             [ngModelOptions]="{standalone: true}"
           ></ion-searchbar>
@@ -574,9 +635,16 @@
       </ion-header>
       <ion-content>
         <ion-list>
-          <ion-item button *ngFor="let owner of filteredOwners()" (click)="selectOwner(owner.USER_ID)">
+          <ion-item
+            button
+            *ngFor="let owner of filteredOwners()"
+            (click)="selectOwner(owner.USER_ID)"
+          >
             <ion-avatar slot="start">
-              <img [src]="owner.PROFILE_IMAGE || 'https://ionicframework.com/docs/img/demos/avatar.svg'" (error)="handleAvatarError($event)"/>
+              <img
+                [src]="owner.PROFILE_IMAGE || 'https://ionicframework.com/docs/img/demos/avatar.svg'"
+                (error)="handleAvatarError($event)"
+              />
             </ion-avatar>
             <ion-label>
               <h2>{{ owner.FIRST_NAME || '' }} {{ owner.LAST_NAME || '' }}</h2>

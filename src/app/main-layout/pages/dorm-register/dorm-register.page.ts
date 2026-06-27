@@ -50,6 +50,7 @@ import {
   IonSegmentButton,
   IonSearchbar,
   IonList,
+  ActionSheetController,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -74,6 +75,8 @@ import {
   sendOutline,
   star,
   personCircleOutline,
+  cameraOutline,
+  imageOutline,
 } from 'ionicons/icons';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { DormServices } from 'src/app/services/dormServices';
@@ -205,7 +208,8 @@ export class DormRegisterPage implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef,
     private userSv: UserServices,
     private authSv: AuthenService,
-    private location: Location
+    private location: Location,
+    private actionSheetCtrl: ActionSheetController
   ) {
     addIcons({
       camera,
@@ -229,6 +233,8 @@ export class DormRegisterPage implements OnInit, OnDestroy {
       sendOutline,
       star,
       personCircleOutline,
+      cameraOutline,
+      imageOutline,
     });
 
     this.dormForm = this.fb.group({
@@ -367,7 +373,9 @@ export class DormRegisterPage implements OnInit, OnDestroy {
     if (this.content) {
       this.content.scrollToTop(300);
     } else {
-      const content = document.querySelector('ion-content.dorm-register-content');
+      const content = document.querySelector(
+        'ion-content.dorm-register-content'
+      );
       if (content) {
         (content as any).scrollToTop(300);
       }
@@ -485,7 +493,7 @@ export class DormRegisterPage implements OnInit, OnDestroy {
         lastValueFrom(this.dormSv.getRoomTypes()),
         lastValueFrom(this.dormSv.getBedTypes()),
         lastValueFrom(this.dormSv.getFacilities()),
-        lastValueFrom(this.dormSv.getPriceTypes())
+        lastValueFrom(this.dormSv.getPriceTypes()),
       ]);
 
       this.dormTypes.set(dTypes);
@@ -509,31 +517,45 @@ export class DormRegisterPage implements OnInit, OnDestroy {
 
   addRoom(existingData?: any) {
     const pricesArray = this.fb.array<FormGroup>([]);
-    
+
     // Create an input for EVERY active price type from DB
     for (const pt of this.priceTypes()) {
       let existingVal = 0;
       if (existingData && existingData.prices) {
-        const found = existingData.prices.find((p: any) => p.priceTypeId === pt.id);
+        const found = existingData.prices.find(
+          (p: any) => p.priceTypeId === pt.id
+        );
         if (found) existingVal = found.price;
       } else if (existingData) {
         // Fallback for older data format
-        if (pt.name.includes('เดือน') && existingData.PRICE) existingVal = existingData.PRICE;
-        if (pt.name.includes('เดือน') && existingData.perMonth) existingVal = existingData.perMonth;
-        if (pt.name.includes('เทอม') && existingData.perTerm) existingVal = existingData.perTerm;
-        if (pt.name.includes('วัน') && existingData.perDay) existingVal = existingData.perDay;
+        if (pt.name.includes('เดือน') && existingData.PRICE)
+          existingVal = existingData.PRICE;
+        if (pt.name.includes('เดือน') && existingData.perMonth)
+          existingVal = existingData.perMonth;
+        if (pt.name.includes('เทอม') && existingData.perTerm)
+          existingVal = existingData.perTerm;
+        if (pt.name.includes('วัน') && existingData.perDay)
+          existingVal = existingData.perDay;
       }
 
-      pricesArray.push(this.fb.group({
-        priceTypeId: [pt.id],
-        price: [existingVal, [Validators.required, Validators.min(0)]]
-      }));
+      pricesArray.push(
+        this.fb.group({
+          priceTypeId: [pt.id],
+          price: [existingVal, [Validators.required, Validators.min(0)]],
+        })
+      );
     }
 
     const roomGroup = this.fb.group({
-      roomType: [existingData ? existingData.ROOM_TYPE_NAME : null, Validators.required],
-      bedType: [existingData ? (existingData.BED_TYPE_ID || 1) : null, Validators.required],
-      prices: pricesArray
+      roomType: [
+        existingData ? existingData.ROOM_TYPE_NAME : null,
+        Validators.required,
+      ],
+      bedType: [
+        existingData ? existingData.BED_TYPE_ID || 1 : null,
+        Validators.required,
+      ],
+      prices: pricesArray,
     });
     this.rooms.push(roomGroup);
   }
@@ -592,11 +614,48 @@ export class DormRegisterPage implements OnInit, OnDestroy {
       }
 
       // Single select for specific slots or replacement
+      const actionSheet = await this.actionSheetCtrl.create({
+        mode: 'md',
+        cssClass: 'minimal-action-sheet',
+        buttons: [
+          {
+            text: 'ถ่ายภาพ',
+            icon: 'camera-outline',
+            handler: () => {
+              this.processImageSelection(key, isOther, index, CameraSource.Camera);
+            },
+          },
+          {
+            text: 'เลือกจากอัลบั้ม',
+            icon: 'image-outline',
+            handler: () => {
+              this.processImageSelection(key, isOther, index, CameraSource.Photos);
+            },
+          },
+          {
+            text: 'ยกเลิก',
+            role: 'cancel',
+          },
+        ],
+      });
+      await actionSheet.present();
+    } catch (e) {
+      console.error('Image selection canceled or failed', e);
+    }
+  }
+
+  private async processImageSelection(
+    key: string,
+    isOther: boolean,
+    index: number,
+    source: CameraSource
+  ) {
+    try {
       const image = await Camera.getPhoto({
         quality: 90,
         allowEditing: false,
         resultType: CameraResultType.DataUrl,
-        source: CameraSource.Prompt,
+        source: source,
       });
 
       if (image.dataUrl) {
@@ -766,7 +825,7 @@ export class DormRegisterPage implements OnInit, OnDestroy {
 
   getInvalidStep(): number | null {
     const controls = this.dormForm.controls;
-    
+
     if (
       controls['name'].invalid ||
       controls['type_id'].invalid ||
@@ -831,7 +890,9 @@ export class DormRegisterPage implements OnInit, OnDestroy {
     textData.facilities = JSON.stringify(formVal.facilities);
     textData.roomTypes = JSON.stringify(formVal.rooms);
     if (this.customFacName && this.customFacName.trim() !== '') {
-      textData.new_facilities = JSON.stringify([{ name: this.customFacName.trim(), icon: '' }]);
+      textData.new_facilities = JSON.stringify([
+        { name: this.customFacName.trim(), icon: '' },
+      ]);
     }
     delete (textData as any).rooms;
 
@@ -964,5 +1025,9 @@ export class DormRegisterPage implements OnInit, OnDestroy {
       position: 'bottom',
     });
     await toast.present();
+  }
+
+  goBack() {
+    this.navCtrl.back();
   }
 }

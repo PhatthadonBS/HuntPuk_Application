@@ -88,16 +88,17 @@ capacitor-google-map {
     color: #333333;
     font-weight: 500;
     font-size: 1.05rem;
-    
+
     .action-sheet-icon {
       color: #333333;
     }
-    
+
     &.action-sheet-cancel {
       font-weight: 600;
       color: #e63946;
       --button-color: #e63946;
-      
+      margin-bottom: -1rem;
+
       .action-sheet-button-inner {
         justify-content: center;
       }
