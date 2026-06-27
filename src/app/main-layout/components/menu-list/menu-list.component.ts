@@ -110,7 +110,7 @@ export class MenuListComponent implements OnDestroy, AfterViewInit {
       },
       {
         key: 'dorm-manage',
-        label: 'จัดการหอพัก',
+        label: `${role == 3 ? 'จัดการหอพัก' : 'หอพักของฉัน'}`,
         path: '/my-dorm',
         icon: 'business-outline',
         needsId: true,
