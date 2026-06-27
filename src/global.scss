@@ -65,11 +65,11 @@ capacitor-google-map {
   padding: 0;
   margin: 0;
   box-sizing: border-box;
-  font-family: "Sarabun", sans-serif;
+  font-family: "Sarabun", sans-serif !important;
 }
 
 :root {
-  --ion-font-family: "Sarabun", sans-serif;
+  --ion-font-family: "Sarabun", sans-serif !important;
 }
 
 /* Minimal Action Sheet */

@@ -1,7 +1,16 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, timeout, catchError, throwError, of, map } from 'rxjs';
-import { DormAllGetRes, FacOfDormGetRes, DormZoneGetRes, DormDetailGetRes, ReviewGetRes, FacilityGetRes, MasterType, DormSummary } from '../model/dorm.model';
+import {
+  DormAllGetRes,
+  FacOfDormGetRes,
+  DormZoneGetRes,
+  DormDetailGetRes,
+  ReviewGetRes,
+  FacilityGetRes,
+  MasterType,
+  DormSummary,
+} from '../model/dorm.model';
 import { environment } from 'src/environments/environment';
 
 export interface DormQueryParams {
@@ -27,9 +36,10 @@ export class DormServices {
     let deviceId = localStorage.getItem('huntpuk_device_id');
     if (!deviceId) {
       // Fallback for older environments without crypto.randomUUID
-      deviceId = typeof crypto !== 'undefined' && crypto.randomUUID 
-        ? crypto.randomUUID() 
-        : 'id-' + Math.random().toString(36).substr(2, 9) + '-' + Date.now();
+      deviceId =
+        typeof crypto !== 'undefined' && crypto.randomUUID
+          ? crypto.randomUUID()
+          : 'id-' + Math.random().toString(36).substr(2, 9) + '-' + Date.now();
       localStorage.setItem('huntpuk_device_id', deviceId);
     }
     return deviceId;
@@ -38,22 +48,26 @@ export class DormServices {
   // ==================== Analytics ====================
   recordWebsiteView(): Observable<any> {
     const headers = { 'X-Device-Id': this.getDeviceId() };
-    return this.http.post(`${this.endPoint}/views/website`, {}, { headers }).pipe(
-      catchError(err => {
-        console.error('Failed to record website view', err);
-        return of(null);
-      })
-    );
+    return this.http
+      .post(`${this.endPoint}/views/website`, {}, { headers })
+      .pipe(
+        catchError((err) => {
+          console.error('Failed to record website view', err);
+          return of(null);
+        })
+      );
   }
 
   recordDormView(dormId: string | number): Observable<any> {
     const headers = { 'X-Device-Id': this.getDeviceId() };
-    return this.http.post(`${this.endPoint}/views/dorm/${dormId}`, {}, { headers }).pipe(
-      catchError(err => {
-        console.error('Failed to record dorm view', err);
-        return of(null);
-      })
-    );
+    return this.http
+      .post(`${this.endPoint}/views/dorm/${dormId}`, {}, { headers })
+      .pipe(
+        catchError((err) => {
+          console.error('Failed to record dorm view', err);
+          return of(null);
+        })
+      );
   }
   // ===================================================
 
@@ -67,29 +81,45 @@ export class DormServices {
     return this.fetchDorms(url, params);
   }
 
-  private fetchDorms(url: string, params?: DormQueryParams): Observable<DormAllGetRes> {
+  private fetchDorms(
+    url: string,
+    params?: DormQueryParams
+  ): Observable<DormAllGetRes> {
     let httpParams = new HttpParams();
 
     if (params) {
       if (params.search) httpParams = httpParams.set('search', params.search);
       if (params.zone) httpParams = httpParams.set('zone', params.zone);
-      if (params.minPrice !== undefined && params.minPrice !== null && !isNaN(params.minPrice)) {
+      if (
+        params.minPrice !== undefined &&
+        params.minPrice !== null &&
+        !isNaN(params.minPrice)
+      ) {
         httpParams = httpParams.set('minPrice', params.minPrice.toString());
       }
-      if (params.maxPrice !== undefined && params.maxPrice !== null && !isNaN(params.maxPrice)) {
+      if (
+        params.maxPrice !== undefined &&
+        params.maxPrice !== null &&
+        !isNaN(params.maxPrice)
+      ) {
         httpParams = httpParams.set('maxPrice', params.maxPrice.toString());
       }
-      if (params.score !== undefined && params.score !== null && !isNaN(params.score)) {
+      if (
+        params.score !== undefined &&
+        params.score !== null &&
+        !isNaN(params.score)
+      ) {
         httpParams = httpParams.set('score', params.score.toString());
       }
       if (params.lat) httpParams = httpParams.set('lat', params.lat.toString());
       if (params.lng) httpParams = httpParams.set('lng', params.lng.toString());
-      if (params.radius) httpParams = httpParams.set('radius', params.radius.toString());
+      if (params.radius)
+        httpParams = httpParams.set('radius', params.radius.toString());
     }
 
     return this.http.get<DormAllGetRes>(url, { params: httpParams }).pipe(
       timeout(this.REQUEST_TIMEOUT),
-      catchError(err => {
+      catchError((err) => {
         console.error(`fetchDorms error or timeout at ${url}:`, err);
         return throwError(() => err);
       })
@@ -100,7 +130,7 @@ export class DormServices {
     const url = `${this.endPoint}/dorms/${dorm_id}`;
     return this.http.get<DormDetailGetRes>(url).pipe(
       timeout(this.REQUEST_TIMEOUT),
-      catchError(err => {
+      catchError((err) => {
         console.error('getDormById error or timeout:', err);
         return throwError(() => err);
       })
@@ -111,7 +141,7 @@ export class DormServices {
     const url = `${this.endPoint}/dorms/facility/${dorm_id}`;
     return this.http.get<FacOfDormGetRes>(url).pipe(
       timeout(this.REQUEST_TIMEOUT),
-      catchError(err => {
+      catchError((err) => {
         console.error('getFacByDormID error or timeout:', err);
         return throwError(() => err);
       })
@@ -122,7 +152,7 @@ export class DormServices {
     const url = `${this.endPoint}/dorms/zones`;
     return this.http.get<DormZoneGetRes>(url).pipe(
       timeout(this.REQUEST_TIMEOUT),
-      catchError(err => {
+      catchError((err) => {
         console.error('getZones error or timeout:', err);
         return throwError(() => err);
       })
@@ -133,7 +163,7 @@ export class DormServices {
     const url = `${this.endPoint}/dorms/zones`;
     return this.http.post<any>(url, { name, lat, lng }).pipe(
       timeout(this.REQUEST_TIMEOUT),
-      catchError(err => {
+      catchError((err) => {
         console.error('addDormZone error:', err);
         return throwError(() => err);
       })
@@ -144,19 +174,25 @@ export class DormServices {
     const url = `${this.endPoint}/dorms/zones/${id}`;
     return this.http.delete<any>(url).pipe(
       timeout(this.REQUEST_TIMEOUT),
-      catchError(err => {
+      catchError((err) => {
         console.error('deleteDormZone error:', err);
         return throwError(() => err);
       })
     );
   }
 
-  updateMasterType(type: string, id: number, name: string, lat?: number, lng?: number): Observable<any> {
+  updateMasterType(
+    type: string,
+    id: number,
+    name: string,
+    lat?: number,
+    lng?: number
+  ): Observable<any> {
     const url = `${this.endPoint}/type_management/${type}/${id}`;
     const payload = { name, lat, lng };
     return this.http.put<any>(url, payload).pipe(
       timeout(this.REQUEST_TIMEOUT),
-      catchError(err => {
+      catchError((err) => {
         console.error('updateMasterType error:', err);
         return throwError(() => err);
       })
@@ -167,18 +203,23 @@ export class DormServices {
     const url = `${this.endPoint}/dorms/review/${dorm_id}`;
     return this.http.get<ReviewGetRes>(url).pipe(
       timeout(this.REQUEST_TIMEOUT),
-      catchError(err => {
+      catchError((err) => {
         console.error('getReviewsByDormId error or timeout:', err);
         return throwError(() => err);
       })
     );
   }
 
-  addReview(data: { user_id: number; dorm_id: number; score: number; comment: string }): Observable<any> {
+  addReview(data: {
+    user_id: number;
+    dorm_id: number;
+    score: number;
+    comment: string;
+  }): Observable<any> {
     const url = `${this.endPoint}/user/review`;
     return this.http.post<any>(url, data).pipe(
       timeout(this.REQUEST_TIMEOUT),
-      catchError(err => {
+      catchError((err) => {
         console.error('addReview error or timeout:', err);
         return throwError(() => err);
       })
@@ -189,7 +230,7 @@ export class DormServices {
     const url = `${this.endPoint}/dorms/facilities`;
     return this.http.get<FacilityGetRes>(url).pipe(
       timeout(this.REQUEST_TIMEOUT),
-      catchError(err => {
+      catchError((err) => {
         console.error('getFacilities error:', err);
         return throwError(() => err);
       })
@@ -200,8 +241,8 @@ export class DormServices {
     const url = `${this.endPoint}/dorms/dormTypes`;
     return this.http.get<{ success: boolean; data: MasterType[] }>(url).pipe(
       timeout(this.REQUEST_TIMEOUT),
-      map(res => res.data),
-      catchError(err => {
+      map((res) => res.data),
+      catchError((err) => {
         console.error('getDormTypes error:', err);
         return throwError(() => err);
       })
@@ -212,7 +253,7 @@ export class DormServices {
     const url = `${this.endPoint}/dorms/dormTypes`;
     return this.http.post<any>(url, { name }).pipe(
       timeout(this.REQUEST_TIMEOUT),
-      catchError(err => {
+      catchError((err) => {
         console.error('addDormType error:', err);
         return throwError(() => err);
       })
@@ -223,7 +264,7 @@ export class DormServices {
     const url = `${this.endPoint}/dorms/dormTypes/${id}`;
     return this.http.delete<any>(url).pipe(
       timeout(this.REQUEST_TIMEOUT),
-      catchError(err => {
+      catchError((err) => {
         console.error('deleteDormType error:', err);
         return throwError(() => err);
       })
@@ -234,8 +275,8 @@ export class DormServices {
     const url = `${this.endPoint}/dorms/roomTypes`;
     return this.http.get<{ success: boolean; data: MasterType[] }>(url).pipe(
       timeout(this.REQUEST_TIMEOUT),
-      map(res => res.data),
-      catchError(err => {
+      map((res) => res.data),
+      catchError((err) => {
         console.error('getRoomTypes error:', err);
         return throwError(() => err);
       })
@@ -246,7 +287,7 @@ export class DormServices {
     const url = `${this.endPoint}/dorms/roomTypes`;
     return this.http.post<any>(url, { name }).pipe(
       timeout(this.REQUEST_TIMEOUT),
-      catchError(err => {
+      catchError((err) => {
         console.error('addRoomType error:', err);
         return throwError(() => err);
       })
@@ -257,7 +298,7 @@ export class DormServices {
     const url = `${this.endPoint}/dorms/roomTypes/${id}`;
     return this.http.delete<any>(url).pipe(
       timeout(this.REQUEST_TIMEOUT),
-      catchError(err => {
+      catchError((err) => {
         console.error('deleteRoomType error:', err);
         return throwError(() => err);
       })
@@ -268,8 +309,8 @@ export class DormServices {
     const url = `${this.endPoint}/dorms/bedTypes`;
     return this.http.get<{ success: boolean; data: MasterType[] }>(url).pipe(
       timeout(this.REQUEST_TIMEOUT),
-      map(res => res.data),
-      catchError(err => {
+      map((res) => res.data),
+      catchError((err) => {
         console.error('getBedTypes error:', err);
         return throwError(() => err);
       })
@@ -280,7 +321,7 @@ export class DormServices {
     const url = `${this.endPoint}/dorms/bedTypes`;
     return this.http.post<any>(url, { name }).pipe(
       timeout(this.REQUEST_TIMEOUT),
-      catchError(err => {
+      catchError((err) => {
         console.error('addBedType error:', err);
         return throwError(() => err);
       })
@@ -291,7 +332,7 @@ export class DormServices {
     const url = `${this.endPoint}/dorms/bedTypes/${id}`;
     return this.http.delete<any>(url).pipe(
       timeout(this.REQUEST_TIMEOUT),
-      catchError(err => {
+      catchError((err) => {
         console.error('deleteBedType error:', err);
         return throwError(() => err);
       })
@@ -302,8 +343,8 @@ export class DormServices {
     const url = `${this.endPoint}/dorms/priceTypes`;
     return this.http.get<{ success: boolean; data: MasterType[] }>(url).pipe(
       timeout(this.REQUEST_TIMEOUT),
-      map(res => res.data),
-      catchError(err => {
+      map((res) => res.data),
+      catchError((err) => {
         console.error('getPriceTypes error:', err);
         return throwError(() => err);
       })
@@ -314,7 +355,7 @@ export class DormServices {
     const url = `${this.endPoint}/dorms/priceTypes`;
     return this.http.post<any>(url, { name }).pipe(
       timeout(this.REQUEST_TIMEOUT),
-      catchError(err => {
+      catchError((err) => {
         console.error('addPriceType error:', err);
         return throwError(() => err);
       })
@@ -325,7 +366,7 @@ export class DormServices {
     const url = `${this.endPoint}/dorms/priceTypes/${id}`;
     return this.http.delete<any>(url).pipe(
       timeout(this.REQUEST_TIMEOUT),
-      catchError(err => {
+      catchError((err) => {
         console.error('deletePriceType error:', err);
         return throwError(() => err);
       })
@@ -336,8 +377,8 @@ export class DormServices {
     const url = `${this.endPoint}/dorms/dormStatuses`;
     return this.http.get<{ success: boolean; data: MasterType[] }>(url).pipe(
       timeout(this.REQUEST_TIMEOUT),
-      map(res => res.data),
-      catchError(err => {
+      map((res) => res.data),
+      catchError((err) => {
         console.error('getDormStatuses error:', err);
         return throwError(() => err);
       })
@@ -348,7 +389,7 @@ export class DormServices {
     const url = `${this.endPoint}/dorms/dormStatuses`;
     return this.http.post<any>(url, { name }).pipe(
       timeout(this.REQUEST_TIMEOUT),
-      catchError(err => {
+      catchError((err) => {
         console.error('addDormStatus error:', err);
         return throwError(() => err);
       })
@@ -359,7 +400,7 @@ export class DormServices {
     const url = `${this.endPoint}/dorms/dormStatuses/${id}`;
     return this.http.delete<any>(url).pipe(
       timeout(this.REQUEST_TIMEOUT),
-      catchError(err => {
+      catchError((err) => {
         console.error('deleteDormStatus error:', err);
         return throwError(() => err);
       })
@@ -370,7 +411,7 @@ export class DormServices {
     const url = `${this.endPoint}/dorms/mobile`;
     return this.http.post<any>(url, data).pipe(
       timeout(this.REQUEST_TIMEOUT),
-      catchError(err => {
+      catchError((err) => {
         console.error('registerDorm error:', err);
         return throwError(() => err);
       })
@@ -381,18 +422,20 @@ export class DormServices {
     const url = `${this.endPoint}/dorms/mobile/${dormId}/images`;
     return this.http.post<any>(url, formData).pipe(
       timeout(60000), // Longer timeout for multiple high-res images
-      catchError(err => {
+      catchError((err) => {
         console.error('uploadDormImages error:', err);
         return throwError(() => err);
       })
     );
   }
 
-  getDormByOwner(user_id: number): Observable<{ success: boolean; data: DormSummary[] }> {
+  getDormByOwner(
+    user_id: number
+  ): Observable<{ success: boolean; data: DormSummary[] }> {
     const url = `${this.endPoint}/spec/dorm/${user_id}`;
     return this.http.get<{ success: boolean; data: DormSummary[] }>(url).pipe(
       timeout(this.REQUEST_TIMEOUT),
-      catchError(err => {
+      catchError((err) => {
         console.error('getDormByOwner error:', err);
         return throwError(() => err);
       })
@@ -403,7 +446,7 @@ export class DormServices {
     const url = `${this.endPoint}/spec/dorm/${dorm_id}`;
     return this.http.put<any>(url, data).pipe(
       timeout(this.REQUEST_TIMEOUT),
-      catchError(err => {
+      catchError((err) => {
         console.error('updateDorm error:', err);
         return throwError(() => err);
       })
@@ -414,7 +457,7 @@ export class DormServices {
     const url = `${this.endPoint}/dorms/changeStatus/${dorm_id}`;
     return this.http.put<any>(url, { status_id }).pipe(
       timeout(this.REQUEST_TIMEOUT),
-      catchError(err => {
+      catchError((err) => {
         console.error('changeDormStatus error:', err);
         return throwError(() => err);
       })
@@ -425,8 +468,21 @@ export class DormServices {
     const url = `${this.endPoint}/spec/dorm/${dorm_id}`;
     return this.http.delete<any>(url).pipe(
       timeout(this.REQUEST_TIMEOUT),
-      catchError(err => {
+      catchError((err) => {
         console.error('removeDorm error:', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  getFacilityReqCount(user_id?: number): Observable<any> {
+    let url = `${this.endPoint}/dorms/facility-req-count`;
+    if (user_id) {
+      url += `?user_id=${user_id}`;
+    }
+    return this.http.get<any>(url).pipe(
+      catchError((err) => {
+        console.error('getFacilityReqCount error:', err);
         return throwError(() => err);
       })
     );
@@ -436,7 +492,7 @@ export class DormServices {
     const url = `${this.endPoint}/dorms/facility/${dorm_id}`;
     return this.http.get<any>(url).pipe(
       timeout(this.REQUEST_TIMEOUT),
-      catchError(err => {
+      catchError((err) => {
         console.error('getFacilitiesOfDorm error:', err);
         return throwError(() => err);
       })
@@ -446,7 +502,7 @@ export class DormServices {
     const url = `${this.endPoint}/admin/facilities/requests`;
     return this.http.get<FacilityGetRes>(url).pipe(
       timeout(this.REQUEST_TIMEOUT),
-      catchError(err => {
+      catchError((err) => {
         console.error('getFacilityRequests error:', err);
         return throwError(() => err);
       })
@@ -457,7 +513,7 @@ export class DormServices {
     const url = `${this.endPoint}/admin/facilities/approve/${facId}`;
     return this.http.put<any>(url, {}).pipe(
       timeout(this.REQUEST_TIMEOUT),
-      catchError(err => {
+      catchError((err) => {
         console.error('approveFacility error:', err);
         return throwError(() => err);
       })
@@ -468,7 +524,7 @@ export class DormServices {
     const url = `${this.endPoint}/admin/facilities/reject/${facId}`;
     return this.http.delete<any>(url).pipe(
       timeout(this.REQUEST_TIMEOUT),
-      catchError(err => {
+      catchError((err) => {
         console.error('rejectFacility error:', err);
         return throwError(() => err);
       })
@@ -479,7 +535,7 @@ export class DormServices {
     const url = `${this.endPoint}/admin/facilities/${facId}`;
     return this.http.delete<any>(url).pipe(
       timeout(this.REQUEST_TIMEOUT),
-      catchError(err => {
+      catchError((err) => {
         console.error('deleteFacility error:', err);
         return throwError(() => err);
       })
@@ -490,7 +546,7 @@ export class DormServices {
     const url = `${this.endPoint}/dorms/admin/mobile`;
     return this.http.get<DormAllGetRes>(url).pipe(
       timeout(this.REQUEST_TIMEOUT),
-      catchError(err => {
+      catchError((err) => {
         console.error('getAllDormsAdmin error:', err);
         return throwError(() => err);
       })
@@ -501,18 +557,22 @@ export class DormServices {
     const url = `${this.endPoint}/dorms/pendingReq`;
     return this.http.get<DormAllGetRes>(url).pipe(
       timeout(this.REQUEST_TIMEOUT),
-      catchError(err => {
+      catchError((err) => {
         console.error('getPendingDormReq error:', err);
         return throwError(() => err);
       })
     );
   }
 
-  approveDormReq(data: { dorm_id: number; approve_status: boolean; msg?: string }): Observable<any> {
+  approveDormReq(data: {
+    dorm_id: number;
+    approve_status: boolean;
+    msg?: string;
+  }): Observable<any> {
     const url = `${this.endPoint}/dorms/approve`;
     return this.http.post<any>(url, data).pipe(
       timeout(this.REQUEST_TIMEOUT),
-      catchError(err => {
+      catchError((err) => {
         console.error('approveDormReq error:', err);
         return throwError(() => err);
       })
@@ -523,7 +583,7 @@ export class DormServices {
     const url = `${this.endPoint}/dorms/facility/${userId}`;
     return this.http.put<any>(url, formData).pipe(
       timeout(this.REQUEST_TIMEOUT),
-      catchError(err => {
+      catchError((err) => {
         console.error('updateFacility error:', err);
         return throwError(() => err);
       })

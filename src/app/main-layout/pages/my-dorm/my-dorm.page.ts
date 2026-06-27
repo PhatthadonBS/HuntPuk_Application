@@ -1,17 +1,52 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, computed, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { 
-  IonContent, IonHeader, IonTitle, IonToolbar, IonButtons, IonBackButton,
-  IonList, IonItem, IonThumbnail, IonLabel, IonButton, IonIcon, IonBadge,
-  AlertController, ToastController, NavController, IonText, IonSegment, IonSegmentButton,
-  IonRefresher, IonRefresherContent
+import {
+  IonContent,
+  IonHeader,
+  IonTitle,
+  IonToolbar,
+  IonButtons,
+  IonBackButton,
+  IonList,
+  IonItem,
+  IonThumbnail,
+  IonLabel,
+  IonButton,
+  IonIcon,
+  IonBadge,
+  AlertController,
+  ToastController,
+  NavController,
+  IonText,
+  IonSegment,
+  IonSegmentButton,
+  IonRefresherContent,
+  ActionSheetController,
+  IonRefresher,
+  IonFab,
+  IonFabButton,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { createOutline, trashOutline, powerOutline, arrowBackCircleOutline,
-  alertCircleOutline, businessOutline, locationOutline, checkmarkCircleOutline, closeCircleOutline,
-  timeOutline, checkmarkCircle, star, documentTextOutline
+import {
+  createOutline,
+  trashOutline,
+  powerOutline,
+  arrowBackCircleOutline,
+  alertCircleOutline,
+  businessOutline,
+  locationOutline,
+  checkmarkCircleOutline,
+  closeCircleOutline,
+  timeOutline,
+  checkmarkCircle,
+  star,
+  documentTextOutline,
+  optionsOutline,
+  warningOutline,
+  searchOutline,
+  arrowUpOutline,
 } from 'ionicons/icons';
 import { DormServices } from 'src/app/services/dormServices';
 import { AuthenService } from 'src/app/services/authenService';
@@ -19,6 +54,7 @@ import { DormSummary } from 'src/app/model/dorm.model';
 import { ActivatedRoute } from '@angular/router';
 import { finalize } from 'rxjs';
 import { LoadingUIComponent } from '../../components/loading-ui/loading-ui.component';
+import { FilterGroupComponent } from '../../components/filter-group/filter-group.component';
 
 @Component({
   selector: 'app-my-dorm',
@@ -26,11 +62,32 @@ import { LoadingUIComponent } from '../../components/loading-ui/loading-ui.compo
   styleUrls: ['./my-dorm.page.scss'],
   standalone: true,
   imports: [
-    IonContent, IonHeader, IonTitle, IonToolbar, IonButtons, IonBackButton,
-    IonList, IonItem, IonThumbnail, IonLabel, IonButton, IonIcon, IonBadge,
-    IonSegment, IonSegmentButton, CommonModule, FormsModule, LoadingUIComponent, IonText, RouterModule,
-    IonRefresher, IonRefresherContent
-  ]
+    IonContent,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    IonButtons,
+    IonBackButton,
+    IonList,
+    IonItem,
+    IonThumbnail,
+    IonLabel,
+    IonButton,
+    IonIcon,
+    IonBadge,
+    IonSegment,
+    IonSegmentButton,
+    CommonModule,
+    FormsModule,
+    LoadingUIComponent,
+    IonText,
+    RouterModule,
+    IonRefresher,
+    IonRefresherContent,
+    FilterGroupComponent,
+    IonFab,
+    IonFabButton,
+  ],
 })
 export class MyDormPage implements OnInit {
   userId: number | null = null;
@@ -39,6 +96,36 @@ export class MyDormPage implements OnInit {
   dormRequests = signal<DormSummary[]>([]);
   currentSegment = signal<'all' | 'requests'>('all');
   isLoading = signal<boolean>(false);
+  searchQuery = signal<string>('');
+  showScrollBtn = signal<boolean>(false);
+
+  @ViewChild(IonContent, { static: false }) content!: IonContent;
+
+  handleFilter(event: any) {
+    if (event && event.search !== undefined) {
+      this.searchQuery.set(event.search);
+    }
+  }
+
+  filteredDorms = computed(() => {
+    const q = this.searchQuery().toLowerCase();
+    if (!q) return this.dorms();
+    return this.dorms().filter(
+      (d) =>
+        d.DORM_NAME.toLowerCase().includes(q) ||
+        (d.ADDRESS && d.ADDRESS.toLowerCase().includes(q))
+    );
+  });
+
+  filteredRequests = computed(() => {
+    const q = this.searchQuery().toLowerCase();
+    if (!q) return this.dormRequests();
+    return this.dormRequests().filter(
+      (d) =>
+        d.DORM_NAME.toLowerCase().includes(q) ||
+        (d.ADDRESS && d.ADDRESS.toLowerCase().includes(q))
+    );
+  });
 
   constructor(
     private dormSv: DormServices,
@@ -46,12 +133,27 @@ export class MyDormPage implements OnInit {
     private route: ActivatedRoute,
     private alertCtrl: AlertController,
     private toastCtrl: ToastController,
-    private navCtrl: NavController
+    private navCtrl: NavController,
+    private actionSheetCtrl: ActionSheetController
   ) {
     addIcons({
-      createOutline, trashOutline, powerOutline, arrowBackCircleOutline,
-      alertCircleOutline, businessOutline, locationOutline, checkmarkCircleOutline, closeCircleOutline,
-      timeOutline, checkmarkCircle, star, documentTextOutline
+      createOutline,
+      trashOutline,
+      powerOutline,
+      arrowBackCircleOutline,
+      alertCircleOutline,
+      businessOutline,
+      locationOutline,
+      checkmarkCircleOutline,
+      closeCircleOutline,
+      timeOutline,
+      checkmarkCircle,
+      star,
+      documentTextOutline,
+      optionsOutline,
+      warningOutline,
+      searchOutline,
+      arrowUpOutline,
     });
   }
 
@@ -60,7 +162,7 @@ export class MyDormPage implements OnInit {
     if (user) {
       this.userRole.set(user.role);
     }
-    
+
     const id = this.route.snapshot.paramMap.get('user_id');
     if (id) {
       this.userId = Number(id);
@@ -94,10 +196,11 @@ export class MyDormPage implements OnInit {
 
   loadMyDorms() {
     this.isLoading.set(true);
-    
-    const requestObservable = this.userRole() === 3 
-      ? this.dormSv.getAllDormsAdmin()
-      : this.dormSv.getDormByOwner(this.userId!);
+
+    const requestObservable =
+      this.userRole() === 3
+        ? this.dormSv.getAllDormsAdmin()
+        : this.dormSv.getDormByOwner(this.userId!);
 
     requestObservable
       .pipe(finalize(() => this.isLoading.set(false)))
@@ -112,71 +215,107 @@ export class MyDormPage implements OnInit {
         error: (err) => {
           console.error(err);
           this.showToast('ไม่สามารถดึงข้อมูลหอพักได้', 'danger');
-        }
+        },
       });
   }
 
   loadDormRequests() {
     this.isLoading.set(true);
-    this.dormSv.getPendingDormReq()
+    this.dormSv
+      .getPendingDormReq()
       .pipe(finalize(() => this.isLoading.set(false)))
       .subscribe({
         next: (res) => {
           if (res && res.data) {
             this.dormRequests.set(res.data);
           } else if (Array.isArray(res)) {
-             this.dormRequests.set(res as any);
+            this.dormRequests.set(res as any);
           }
         },
         error: (err) => {
           console.error(err);
-        }
+        },
       });
   }
 
   editDorm(dorm: DormSummary) {
-    this.navCtrl.navigateForward(`/dorm-register/${this.userId}/${dorm.DORM_ID}`);
+    this.navCtrl.navigateForward(
+      `/dorm-register/${this.userId}/${dorm.DORM_ID}`
+    );
   }
 
   viewReqDormDetail(dorm: DormSummary) {
-    this.navCtrl.navigateForward(['/dorm-detail', dorm.DORM_ID], { queryParams: { adminReq: 'true' } });
+    this.navCtrl.navigateForward(['/dorm-detail', dorm.DORM_ID], {
+      queryParams: { adminReq: 'true' },
+    });
   }
 
   viewDormDetail(dorm: DormSummary) {
-    this.navCtrl.navigateForward(['/dorm-detail', dorm.DORM_ID]);
+    this.navCtrl.navigateForward([
+      '/dorm-detail',
+      dorm.DORM_ID,
+      { queryParams: { preview: 'true' } },
+    ]);
   }
 
-  async toggleStatus(dorm: DormSummary) {
-    const isClosing = dorm.DORM_STATUS_ID == 1;
-    const alert = await this.alertCtrl.create({
-      header: isClosing ? 'ปิดรับจองหอพัก?' : 'เปิดรับจองหอพัก?',
-      message: isClosing 
-        ? `คุณต้องการเปลี่ยนสถานะ "${dorm.DORM_NAME}" เป็น "ปิดรับจอง" หรือไม่?` 
-        : `คุณต้องการเปลี่ยนสถานะ "${dorm.DORM_NAME}" เป็น "ว่าง" หรือไม่?`,
+  async openStatusMenu(dorm: DormSummary) {
+    const actionSheet = await this.actionSheetCtrl.create({
+      header: 'จัดการสถานะหอพัก',
+      cssClass: 'minimal-action-sheet',
       buttons: [
-        { text: 'ยกเลิก', role: 'cancel' },
         {
-          text: 'ยืนยัน',
+          text: 'เปิดให้บริการ',
+          icon: 'checkmark-circle-outline',
           handler: () => {
-            const newStatus = isClosing ? 2 : 1;
-            this.isLoading.set(true);
-            this.dormSv.changeDormStatus(dorm.DORM_ID, newStatus)
-              .pipe(finalize(() => this.isLoading.set(false)))
-              .subscribe({
-                next: () => {
-                  this.showToast('อัปเดตสถานะสำเร็จ', 'success');
-                  this.loadMyDorms();
-                },
-                error: (err) => {
-                  console.error(err);
-                  this.showToast('อัปเดตสถานะไม่สำเร็จ', 'danger');
-                }
-              });
-          }
-        }
-      ]
+            this.changeStatus(dorm, 1);
+          },
+        },
+        {
+          text: 'ปิดปรับปรุง',
+          icon: 'warning-outline',
+          handler: () => {
+            this.changeStatus(dorm, 2);
+          },
+        },
+        {
+          text: 'ห้องเต็ม',
+          icon: 'close-circle-outline',
+          handler: () => {
+            this.changeStatus(dorm, 3);
+          },
+        },
+        {
+          text: 'ลบ',
+          role: 'destructive',
+          icon: 'trash-outline',
+          handler: () => {
+            this.deleteDorm(dorm);
+          },
+        },
+        {
+          text: 'ยกเลิก',
+          role: 'cancel',
+        },
+      ],
     });
-    await alert.present();
+    await actionSheet.present();
+  }
+
+  private changeStatus(dorm: DormSummary, newStatus: number) {
+    this.isLoading.set(true);
+    this.dormSv
+      .changeDormStatus(dorm.DORM_ID, newStatus)
+      .pipe(finalize(() => this.isLoading.set(false)))
+      .subscribe({
+        next: () => {
+          this.showToast('อัปเดตสถานะสำเร็จ', 'success');
+          this.loadMyDorms();
+        },
+        error: (err) => {
+          console.error(err);
+          this.showToast('อัปเดตสถานะไม่สำเร็จ', 'danger');
+        },
+      });
   }
 
   async deleteDorm(dorm: DormSummary) {
@@ -191,7 +330,8 @@ export class MyDormPage implements OnInit {
           role: 'destructive',
           handler: () => {
             this.isLoading.set(true);
-            this.dormSv.removeDorm(dorm.DORM_ID)
+            this.dormSv
+              .removeDorm(dorm.DORM_ID)
               .pipe(finalize(() => this.isLoading.set(false)))
               .subscribe({
                 next: () => {
@@ -201,11 +341,11 @@ export class MyDormPage implements OnInit {
                 error: (err) => {
                   console.error(err);
                   this.showToast('ลบหอพักไม่สำเร็จ', 'danger');
-                }
+                },
               });
-          }
-        }
-      ]
+          },
+        },
+      ],
     });
     await alert.present();
   }
@@ -220,7 +360,8 @@ export class MyDormPage implements OnInit {
           text: 'อนุมัติ',
           handler: () => {
             this.isLoading.set(true);
-            this.dormSv.approveDormReq({ dorm_id: dorm.DORM_ID, approve_status: true })
+            this.dormSv
+              .approveDormReq({ dorm_id: dorm.DORM_ID, approve_status: true })
               .pipe(finalize(() => this.isLoading.set(false)))
               .subscribe({
                 next: () => {
@@ -230,11 +371,11 @@ export class MyDormPage implements OnInit {
                 error: (err) => {
                   console.error(err);
                   this.showToast('เกิดข้อผิดพลาด', 'danger');
-                }
+                },
               });
-          }
-        }
-      ]
+          },
+        },
+      ],
     });
     await alert.present();
   }
@@ -247,8 +388,8 @@ export class MyDormPage implements OnInit {
         {
           name: 'msg',
           type: 'textarea',
-          placeholder: 'ระบุเหตุผลการปฏิเสธคำร้องขอ...'
-        }
+          placeholder: 'ระบุเหตุผลการปฏิเสธคำร้องขอ...',
+        },
       ],
       buttons: [
         { text: 'ยกเลิก', role: 'cancel' },
@@ -257,7 +398,12 @@ export class MyDormPage implements OnInit {
           role: 'destructive',
           handler: (data) => {
             this.isLoading.set(true);
-            this.dormSv.approveDormReq({ dorm_id: dorm.DORM_ID, approve_status: false, msg: data.msg })
+            this.dormSv
+              .approveDormReq({
+                dorm_id: dorm.DORM_ID,
+                approve_status: false,
+                msg: data.msg,
+              })
               .pipe(finalize(() => this.isLoading.set(false)))
               .subscribe({
                 next: () => {
@@ -267,17 +413,44 @@ export class MyDormPage implements OnInit {
                 error: (err) => {
                   console.error(err);
                   this.showToast('เกิดข้อผิดพลาด', 'danger');
-                }
+                },
               });
-          }
-        }
-      ]
+          },
+        },
+      ],
     });
     await alert.present();
   }
 
   async showToast(message: string, color: string) {
-    const toast = await this.toastCtrl.create({ message, duration: 2000, color, position: 'bottom' });
+    const toast = await this.toastCtrl.create({
+      message,
+      duration: 2000,
+      color,
+      position: 'bottom',
+    });
     await toast.present();
+  }
+
+  goBack() {
+    if (this.authSv.currentUserValue?.role != 3) {
+      this.navCtrl.navigateRoot('/');
+    } else {
+      this.navCtrl.back();
+    }
+  }
+
+  onScroll(event: any) {
+    if (event.detail.scrollTop > 300) {
+      this.showScrollBtn.set(true);
+    } else {
+      this.showScrollBtn.set(false);
+    }
+  }
+
+  scrollToTop() {
+    if (this.content) {
+      this.content.scrollToTop(500);
+    }
   }
 }

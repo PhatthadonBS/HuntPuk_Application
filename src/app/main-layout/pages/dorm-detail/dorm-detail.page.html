@@ -334,6 +334,8 @@
       <!-- Owner Name Display -->
       <div
         class="flex items-center justify-center gap-3 bg-gray-50 p-3 rounded-lg border border-gray-100 mb-4"
+        [ngClass]="{'cursor-pointer hover:bg-gray-100 transition-colors': isAdmin()}"
+        [routerLink]="isAdmin() ? ['/user-detail', d.USER_ID] : null"
         *ngIf="d.FIRST_NAME && d.FIRST_NAME !== '(ไม่ระบุชื่อ)'"
       >
         <ion-avatar class="w-10 h-10 border border-gray-200">
@@ -513,7 +515,7 @@
 
     <!-- Preview Actions -->
     <div
-      class="preview-actions p-4 flex gap-4 bg-white border-t sticky bottom-0 z-20"
+      class="preview-actions p-4 flex gap-4 bg-white rounded-xl mt-4 mb-16"
       *ngIf="isPreview()"
     >
       <ion-button
@@ -521,16 +523,39 @@
         fill="outline"
         class="flex-1"
         (click)="goBackToEdit()"
-        >แก้ไขข้อมูล</ion-button
+        color="secondary"
+        ><p style="font-size: 16px; color: black">ย้อนกลับ</p></ion-button
       >
       <ion-button
         expand="block"
         class="flex-1 confirm-btn"
         (click)="finalConfirm()"
-        >ยืนยันข้อมูล</ion-button
+        >ยืนยัน</ion-button
       >
     </div>
-    <div class="h-10" *ngIf="isPreview()"></div>
+
+    <!-- Admin Request Actions -->
+    <div
+      class="preview-actions p-4 flex gap-4 bg-white rounded-xl mt-4 mb-16"
+      *ngIf="isAdminReq()"
+    >
+      <ion-button
+        expand="block"
+        fill="outline"
+        class="flex-1"
+        color="danger"
+        (click)="rejectRequest()"
+        ><p style="font-size: 16px">ปฏิเสธ</p></ion-button
+      >
+      <ion-button
+        expand="block"
+        class="flex-1"
+        color="success"
+        (click)="approveRequest()"
+        >อนุมัติ</ion-button
+      >
+    </div>
+    <div class="h-[2rem]" *ngIf="isPreview() || isAdminReq()"></div>
   </ng-container>
 
   <app-loading-ui *ngIf="isLoading()"></app-loading-ui>

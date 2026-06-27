@@ -1,23 +1,51 @@
-<ion-header class="ion-no-border">
+<ion-header class="ion-no-border main-header">
   <ion-toolbar class="main-toolbar">
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/"></ion-back-button>
-    </ion-buttons>
-    <ion-title class="toolbar-title">หอพักของฉัน</ion-title>
+    <div
+      class="header-tool flex justify-between align-middle text-lg font-bold"
+    >
+      <a
+        (click)="goBack()"
+        class="back-btn flex justify-between align-middle ml-[.25rem] p-[.25rem] pl-1 pr-3 w-[5rem] rounded-full bg-slate-100"
+      >
+        <ion-icon name="arrow-back-circle-outline" size="large"></ion-icon>
+        <span class="">กลับ</span>
+      </a>
+      <span class="mt-1 text-white mr-[1rem] text-xl"
+        >{{userRole() == 3 ? 'จัดการหอพัก' : 'หอพักของฉัน'}}</span
+      >
+    </div>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" class="my-dorm-content">
+<ion-content
+  [fullscreen]="true"
+  class="my-dorm-content"
+  [scrollEvents]="true"
+  (ionScroll)="onScroll($event)"
+>
+  <div class="background"></div>
+
   <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
   <div class="content-wrapper">
+    <!-- Filter Group -->
+    <div style="padding: 16px 16px 0 16px">
+      <app-filter-group
+        *ngIf="userRole() === 3"
+        [showCompare]="false"
+        [showFilter]="false"
+        [showAutoComplete]="false"
+        (filterApplied)="handleFilter($event)"
+      ></app-filter-group>
+    </div>
+
     <!-- Admin Segment -->
     <ion-segment
       *ngIf="userRole() === 3"
       [value]="currentSegment()"
       (ionChange)="segmentChanged($event)"
-      mode="md"
+      mode="ios"
       class="custom-segment"
     >
       <ion-segment-button value="all">
@@ -30,128 +58,148 @@
 
     <!-- Tab 1: All Dorms -->
     <ng-container *ngIf="currentSegment() === 'all'">
-      <!-- Header Summary -->
-      <div class="summary-section">
-        <div class="summary-header">
-          <h1>{{ userRole() === 3 ? 'จัดการหอพัก' : 'หอพักของฉัน' }}</h1>
-          <p>มีหอพักในระบบทั้งหมด {{ dorms().length }} แห่ง</p>
+      <ng-container *ngIf="!isLoading() && filteredDorms().length === 0">
+        <div class="container-wraper flex justify-center items-center mt-[40%]">
+          <div class="empty-state bg-white/90 w-[80%] h-[50%] rounded-2xl">
+            <ion-icon name="business-outline" color="dark"></ion-icon>
+            <h3>ยังไม่มีข้อมูลหอพัก</h3>
+            <p class="!text-black">คุณยังไม่ได้ลงทะเบียนหอพักในระบบ</p>
+            <ion-button
+              color="dark"
+              class="add-btn"
+              routerLink="/dorm-register/{{userId}}"
+            >
+              ลงทะเบียนหอพัก
+            </ion-button>
+          </div>
         </div>
-      </div>
-
-      <!-- Empty State -->
-      <div *ngIf="!isLoading() && dorms().length === 0" class="empty-state">
-        <ion-icon name="business-outline"></ion-icon>
-        <h3>ยังไม่มีข้อมูลหอพัก</h3>
-        <p>
-          คุณยังไม่ได้ลงทะเบียนหอพักในระบบ<br />เริ่มต้นลงทะเบียนเพื่อเปิดรับการจองได้ทันที
-        </p>
-        <ion-button
-          color="dark"
-          class="add-btn"
-          routerLink="/dorm-register/{{userId}}"
-        >
-          ลงทะเบียนหอพักใหม่
-        </ion-button>
-      </div>
+      </ng-container>
 
       <!-- Dorm List -->
       <div class="dorm-list">
-        <div *ngFor="let d of dorms()" class="dorm-item">
-          <div class="dorm-item-content" (click)="viewDormDetail(d)">
-            <!-- Thumbnail -->
-            <div class="thumbnail-wrapper">
-              <ion-thumbnail>
-                <img
-                  #img
-                  [src]="d.FRONT_DORM_IMAGE || 'https://placehold.co/200x200?text=No+Image'"
-                  (error)="img.src = 'https://placehold.co/200x200?text=No+Image'"
-                />
-              </ion-thumbnail>
-              <div
-                class="status-badge"
-                [class.open]="d.DORM_STATUS_ID == 1"
-                [class.closed]="d.DORM_STATUS_ID == 2"
-                [class.full]="d.DORM_STATUS_ID == 3"
-              >
-                {{ d.DORM_STATUS_NAME }}
-              </div>
-            </div>
-
-            <!-- Info -->
-            <div class="dorm-info">
-              <h2>{{ d.DORM_NAME }}</h2>
-              <div class="location">
-                <ion-icon name="location-outline"></ion-icon>
-                <span>{{ d.ADDRESS }}</span>
-              </div>
-              <div class="stats">
-                <div class="score">
-                  <ion-icon name="star"></ion-icon>
-                  {{ d.SCORE }}
-                </div>
+        <div *ngFor="let d of filteredDorms()" class="dorm-item">
+          <div class="content-wraper bg-white/90 rounded-2xl p-4">
+            <div class="dorm-item-content" (click)="viewDormDetail(d)">
+              <!-- Thumbnail -->
+              <div class="thumbnail-wrapper">
+                <ion-thumbnail>
+                  <img
+                    #img
+                    [src]="d.FRONT_DORM_IMAGE || 'https://placehold.co/200x200?text=No+Image'"
+                    (error)="img.src = 'https://placehold.co/200x200?text=No+Image'"
+                  />
+                </ion-thumbnail>
                 <div
-                  class="status"
-                  [class.verified]="d.REQ_STATUS == 1"
-                  [class.wait]="d.REQ_STATUS == 0 || d.REQ_STATUS == 3"
-                  [class.rejected]="d.REQ_STATUS == 2"
+                  class="status-badge"
+                  [class.open]="d.DORM_STATUS_ID == 1"
+                  [class.closed]="d.DORM_STATUS_ID == 2"
+                  [class.full]="d.DORM_STATUS_ID == 3"
                 >
-                  <ion-icon
-                    [name]="d.REQ_STATUS == 1 ? 'checkmark-circle' : (d.REQ_STATUS == 2 ? 'close-circle-outline' : (d.REQ_STATUS == 3 ? 'refresh-circle-outline' : 'time-outline'))"
-                  ></ion-icon>
-                  {{ d.REQ_STATUS == 1 ? 'ผ่านการตรวจสอบ' : (d.REQ_STATUS == 2 ?
-                  'ไม่ผ่านการตรวจสอบ' : (d.REQ_STATUS == 3 ? 'ยื่นตรวจสอบใหม่' : 'รอการตรวจสอบ')) }}
+                  {{ d.DORM_STATUS_NAME }}
+                </div>
+              </div>
+
+              <!-- Info -->
+              <div class="dorm-info">
+                <p class="text-[18px] font-bold">{{ d.DORM_NAME }}</p>
+
+                <span class="text-[14px] text-black text-ellipsis"
+                  >{{ d.ZONE_NAME }}</span
+                >
+
+                <span
+                  class="text-[14px] text-black block truncate"
+                  title="{{ d.ADDRESS }}"
+                >
+                  {{ d.ADDRESS }}
+                </span>
+
+                <div class="status">
+                  <span class="text-[14px] font-bold text-black"
+                    >สถานะคำร้อง:
+                  </span>
+                  <span
+                    class="text-[14px] underline"
+                    [class.verified]="d.REQ_STATUS == 1"
+                    [class.wait]="d.REQ_STATUS == 0 || d.REQ_STATUS == 3"
+                    [class.rejected]="d.REQ_STATUS == 2"
+                  >
+                    {{ d.REQ_STATUS == 1 ? 'ผ่านการตรวจสอบ' : (d.REQ_STATUS == 2
+                    ? 'ไม่ผ่านการตรวจสอบ' : (d.REQ_STATUS == 3 ?
+                    'ยื่นตรวจสอบใหม่' : 'รอการตรวจสอบ')) }}
+                  </span>
                 </div>
               </div>
             </div>
-          </div>
+            <!-- Action Buttons -->
+            <div class="flex gap-2 mt-2 pt-3 border-t border-gray-200/50">
+              <ion-button
+                fill="solid"
+                class="flex-1 !m-0 shadow-sm"
+                style="
+                  --background: white;
+                  --color: #ffcc00;
+                  --border-radius: 12px;
+                  --box-shadow: none;
+                "
+                (click)="editDorm(d)"
+              >
+                <ion-icon
+                  [name]="d.REQ_STATUS == 2 ? 'refresh-circle-outline' : 'create-outline'"
+                  class="mr-1 text-lg"
+                ></ion-icon>
+                <span class="font-bold"
+                  >{{ d.REQ_STATUS == 2 ? 'ยื่นใหม่' : 'แก้ไข' }}</span
+                >
+              </ion-button>
 
-          <!-- Action Buttons -->
-          <div class="actions-grid">
-            <ion-button fill="clear" class="edit-btn" (click)="editDorm(d)">
-              <ion-icon [name]="d.REQ_STATUS == 2 ? 'refresh-circle-outline' : 'create-outline'"></ion-icon>
-              {{ d.REQ_STATUS == 2 ? 'ยื่นตรวจสอบใหม่' : 'แก้ไข' }}
-            </ion-button>
-
-            <ion-button
-              fill="clear"
-              class="status-btn"
-              [class.open]="d.DORM_STATUS_ID != 1"
-              (click)="toggleStatus(d)"
-            >
-              <ion-icon name="power-outline"></ion-icon>
-              {{ d.DORM_STATUS_ID == 1 ? 'ปิดรับจอง' : 'เปิดรับจอง' }}
-            </ion-button>
-
-            <ion-button fill="clear" class="delete-btn" (click)="deleteDorm(d)">
-              <ion-icon name="trash-outline"></ion-icon>
-              ลบทิ้ง
-            </ion-button>
+              <ion-button
+                fill="solid"
+                class="flex-1 !m-0 shadow-sm"
+                style="
+                  --background: white;
+                  --color: #4b5563;
+                  --border-radius: 12px;
+                  --box-shadow: none;
+                "
+                (click)="openStatusMenu(d)"
+              >
+                <ion-icon
+                  name="options-outline"
+                  class="mr-1 text-lg"
+                ></ion-icon>
+                <span class="font-bold">จัดการ</span>
+              </ion-button>
+            </div>
           </div>
         </div>
       </div>
+      <div class="h-[4rem]"></div>
     </ng-container>
 
     <!-- Tab 2: Requests -->
     <ng-container *ngIf="currentSegment() === 'requests'">
-      <!-- Empty State Requests -->
-      <div
-        *ngIf="!isLoading() && dormRequests().length === 0"
-        class="empty-state"
-      >
-        <ion-icon name="document-text-outline"></ion-icon>
-        <h3>ไม่มีคำร้องขอลงทะเบียนหอพัก</h3>
-      </div>
+      <ng-container *ngIf="!isLoading() && filteredRequests().length === 0">
+        <div class="w-full flex justify-center mt-[20%]">
+          <div
+            class="empty-state empty-warpper flex justify-center items-center h-[40vh] w-[80%] bg-white/90 rounded-2xl"
+          >
+            <ion-icon
+              name="document-text-outline"
+              class="text-[30px]"
+            ></ion-icon>
+            <h3 class="text-[20px] font-semibold">
+              ไม่มีคำร้องขอลงทะเบียนหอพัก
+            </h3>
+          </div>
+        </div>
+      </ng-container>
 
       <!-- Requests List -->
       <div class="dorm-list">
-        <div *ngFor="let d of dormRequests()" class="dorm-item">
-          <div
-            class="dorm-item-content"
-            style="justify-content: space-between; align-items: center;"
-            (click)="viewReqDormDetail(d)"
-          >
-            <!-- Left Side: Thumbnail + Info -->
-            <div style="display: flex; gap: 16px; flex: 1; align-items: center;">
+        <div *ngFor="let d of filteredRequests()" class="dorm-item">
+          <div class="content-wraper bg-white/90 rounded-2xl p-4">
+            <div class="dorm-item-content" (click)="viewReqDormDetail(d)">
               <!-- Thumbnail -->
               <div class="thumbnail-wrapper">
                 <ion-thumbnail>
@@ -166,65 +214,116 @@
                   [class.pending]="d.REQ_STATUS == 0 || d.REQ_STATUS == 3"
                   [class.rejected]="d.REQ_STATUS == 2"
                 >
-                  {{ d.REQ_STATUS == 0 ? 'รออนุมัติ' : (d.REQ_STATUS == 2 ? 'ไม่อนุมัติ' : 'ยื่นตรวจสอบใหม่') }}
+                  {{ d.REQ_STATUS == 0 ? 'รออนุมัติ' : (d.REQ_STATUS == 2 ?
+                  'ไม่อนุมัติ' : 'ยื่นตรวจสอบใหม่') }}
                 </div>
               </div>
 
               <!-- Info -->
               <div class="dorm-info">
-                <h2>{{ d.DORM_NAME }}</h2>
-                <div class="location">
-                  <ion-icon name="location-outline"></ion-icon>
-                  <span>{{ d.ADDRESS }}</span>
+                <p class="text-[18px] font-bold">{{ d.DORM_NAME }}</p>
+
+                <span class="text-[14px] text-black text-ellipsis"
+                  >{{ d.ZONE_NAME }}</span
+                >
+
+                <span
+                  class="text-[14px] text-black block truncate"
+                  title="{{ d.ADDRESS }}"
+                >
+                  {{ d.ADDRESS }}
+                </span>
+
+                <div class="status">
+                  <span class="text-[14px] font-bold text-black"
+                    >สถานะคำร้อง:
+                  </span>
+                  <span
+                    class="text-[14px] underline"
+                    [class.wait]="d.REQ_STATUS == 0 || d.REQ_STATUS == 3"
+                    [class.rejected]="d.REQ_STATUS == 2"
+                  >
+                    {{ d.REQ_STATUS == 2 ? 'ไม่ผ่านการตรวจสอบ' : (d.REQ_STATUS
+                    == 3 ? 'ยื่นตรวจสอบใหม่' : 'รอการตรวจสอบ') }}
+                  </span>
                 </div>
               </div>
             </div>
 
-            <!-- Right Side: Delete Button -->
-            <ion-button
-              *ngIf="d.REQ_STATUS == 2"
-              fill="clear"
-              color="danger"
-              (click)="deleteDorm(d); $event.stopPropagation()"
-              style="
-                --background: #fff1f2;
-                --background-hover: #ffe4e6;
-                --color: #e11d48;
-                --border-radius: 8px;
-                --padding-start: 8px;
-                --padding-end: 8px;
-                height: 36px;
-                margin: 0;
-              "
-            >
-              <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
-            </ion-button>
-          </div>
+            <!-- Action Buttons -->
+            <div class="flex gap-2 mt-2 pt-3 border-t border-gray-200/50">
+              <ion-button
+                *ngIf="d.REQ_STATUS == 0 || d.REQ_STATUS == 3"
+                fill="solid"
+                class="flex-1 !m-0 shadow-sm"
+                style="
+                  --background: white;
+                  --color: #10b981;
+                  --border-radius: 12px;
+                  --box-shadow: none;
+                "
+                (click)="approveRequest(d)"
+              >
+                <ion-icon
+                  name="checkmark-circle-outline"
+                  class="mr-1 text-lg"
+                ></ion-icon>
+                <span class="font-bold">อนุมัติ</span>
+              </ion-button>
 
-          <!-- Action Buttons -->
-          <div class="actions-grid two-cols" *ngIf="d.REQ_STATUS == 0 || d.REQ_STATUS == 3">
-            <ion-button
-              fill="clear"
-              class="approve-btn"
-              (click)="approveRequest(d)"
-            >
-              <ion-icon name="checkmark-circle-outline"></ion-icon>
-              อนุมัติ
-            </ion-button>
+              <ion-button
+                *ngIf="d.REQ_STATUS == 0 || d.REQ_STATUS == 3"
+                fill="solid"
+                class="flex-1 !m-0 shadow-sm"
+                style="
+                  --background: white;
+                  --color: #ef4444;
+                  --border-radius: 12px;
+                  --box-shadow: none;
+                "
+                (click)="rejectRequest(d)"
+              >
+                <ion-icon
+                  name="close-circle-outline"
+                  class="mr-1 text-lg"
+                ></ion-icon>
+                <span class="font-bold">ปฏิเสธ</span>
+              </ion-button>
 
-            <ion-button
-              fill="clear"
-              class="reject-btn"
-              (click)="rejectRequest(d)"
-            >
-              <ion-icon name="close-circle-outline"></ion-icon>
-              ปฏิเสธ
-            </ion-button>
+              <ion-button
+                *ngIf="d.REQ_STATUS == 2"
+                fill="solid"
+                class="flex-1 !m-0 shadow-sm"
+                style="
+                  --background: #fff1f2;
+                  --color: #e11d48;
+                  --border-radius: 12px;
+                  --box-shadow: none;
+                "
+                (click)="deleteDorm(d); $event.stopPropagation()"
+              >
+                <ion-icon name="trash-outline" class="mr-1 text-lg"></ion-icon>
+                <span class="font-bold">ลบคำร้อง</span>
+              </ion-button>
+            </div>
           </div>
         </div>
       </div>
+      <div class="h-[4rem]"></div>
     </ng-container>
   </div>
 
   <app-loading-ui *ngIf="isLoading()"></app-loading-ui>
+
+  <ion-fab
+    vertical="bottom"
+    horizontal="end"
+    slot="fixed"
+    *ngIf="showScrollBtn()"
+    class="scroll-top-fab"
+  >
+    <ion-fab-button (click)="scrollToTop()" class="scroll-top-btn">
+      <ion-icon name="arrow-up-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
 </ion-content>

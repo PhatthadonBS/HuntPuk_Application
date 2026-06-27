@@ -267,8 +267,10 @@
           </div>
         </div>
 
-        <h3 class="sub-title">เพิ่มสิ่งอำนวยความสะดวกใหม่</h3>
-        <div class="custom-fac-form p-3">
+        <h3 class="sub-title">
+          เพิ่มสิ่งอำนวยความสะดวกใหม่ ({{ customFacReqCount() }}/3)
+        </h3>
+        <div class="custom-fac-form p-3" *ngIf="customFacReqCount() < 3">
           <div class="flex gap-4 items-end">
             <div
               class="fac-icon-upload mb-4"
@@ -297,6 +299,13 @@
             *รายการนี้จะถูกส่งไปให้แอดมินตรวจสอบก่อนใช้งาน
           </p>
         </div>
+        <p
+          class="text-sm font-bold text-red-500 mt-2 px-3"
+          *ngIf="customFacReqCount() >= 3"
+        >
+          *คุณไม่สามารถส่งคำขอเพิ่มสิ่งอำนวยความสะดวกใหม่ได้เพราะคุณได้ส่งครบ 3
+          รายการแล้ว
+        </p>
       </div>
 
       <!-- Images -->
@@ -534,9 +543,20 @@
             </div>
           </div>
         </ng-container>
+
+        <div class="mt-8 mb-4">
+          <ion-button
+            expand="block"
+            (click)="confirmAndRegister()"
+            class="confirm-btn w-full m-0"
+            [disabled]="dormForm.invalid"
+          >
+            <p class="text-[18px] font-normal">ถัดไป</p>
+          </ion-button>
+        </div>
       </div>
 
-      <div class="wizard-navigation p-4 flex gap-3">
+      <div class="wizard-navigation p-4 flex gap-3" *ngIf="currentStep() < 5">
         <ion-button
           *ngIf="currentStep() > 1"
           expand="block"
@@ -554,18 +574,6 @@
           class="next-btn flex-1"
         >
           <p class="text-[18px] font-normal">ถัดไป</p>
-        </ion-button>
-
-        <ion-button
-          *ngIf="currentStep() === 5"
-          expand="block"
-          (click)="confirmAndRegister()"
-          class="confirm-btn flex-1"
-          [disabled]="dormForm.invalid"
-        >
-          <p class="text-[18px] font-normal">
-            {{ isEditMode() ? 'บันทึกการแก้ไข' : 'ลงทะเบียนหอพัก' }}
-          </p>
         </ion-button>
       </div>
     </form>

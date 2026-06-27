@@ -1,14 +1,5 @@
-<div class="filter-group-container" [class.is-inline]="isInline">
-  <div class="row-1" *ngIf="showSearch || showBack">
-    <ion-button
-      *ngIf="showBack"
-      fill="clear"
-      class="back-btn"
-      (click)="goBack()"
-    >
-      <ion-icon name="arrow-back-outline" slot="icon-only"></ion-icon>
-    </ion-button>
-
+<div class="filter-group-container">
+  <div class="row-1" *ngIf="showSearch">
     <div class="search-wrapper" *ngIf="showSearch">
       <ion-searchbar
         [(ngModel)]="searchQuery"
@@ -23,40 +14,47 @@
       ></ion-searchbar>
 
       <!-- Autocomplete Dropdown -->
-      <ion-list
-        class="autocomplete-list"
+      <ng-container
         *ngIf="showSuggestions && suggestions.length > 0 && showAutoComplete"
       >
-        <ion-item
-          button
-          *ngFor="let dorm of suggestions"
-          (click)="selectSuggestion(dorm.DORM_NAME)"
-        >
-          <ion-icon name="location-outline" slot="start"></ion-icon>
-          <ion-label>
-            <h3>{{ dorm.DORM_NAME }}</h3>
-            <p>{{ dorm.zone }}</p>
-          </ion-label>
-        </ion-item>
-      </ion-list>
+        <ion-list class="autocomplete-list">
+          <ion-item
+            button
+            *ngFor="let dorm of suggestions"
+            (click)="selectSuggestion(dorm.DORM_NAME)"
+          >
+            <ion-icon name="location-outline" slot="start"></ion-icon>
+            <ion-label>
+              <h3>{{ dorm.DORM_NAME }}</h3>
+              <p>{{ dorm.zone }}</p>
+            </ion-label>
+          </ion-item>
+        </ion-list>
+      </ng-container>
     </div>
   </div>
 
-  <div class="row-2">
-    <ion-button class="action-btn filter-btn" (click)="goToFilter()">
-      <ion-icon name="filter-outline" slot="start"></ion-icon>
-      ตัวกรอง
-    </ion-button>
+  <ng-container *ngIf="showFilter || showCompare">
+    <div class="row-2">
+      <ion-button
+        *ngIf="showFilter"
+        class="action-btn filter-btn"
+        (click)="goToFilter()"
+      >
+        <ion-icon name="filter-outline" slot="start"></ion-icon>
+        ตัวกรอง
+      </ion-button>
 
-    <ion-button
-      *ngIf="showCompare"
-      class="action-btn compare-btn"
-      (click)="goToCompare()"
-    >
-      <ion-icon name="git-compare-outline" slot="start"></ion-icon>
-      เปรียบเทียบ
-    </ion-button>
-  </div>
+      <ion-button
+        *ngIf="showCompare"
+        class="action-btn compare-btn"
+        (click)="goToCompare()"
+      >
+        <ion-icon name="git-compare-outline" slot="start"></ion-icon>
+        เปรียบเทียบ
+      </ion-button>
+    </div>
+  </ng-container>
 </div>
 
 <ion-modal

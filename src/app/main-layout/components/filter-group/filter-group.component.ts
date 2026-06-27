@@ -69,9 +69,8 @@ export interface FilterParams {
 export class FilterGroupComponent implements OnInit, OnChanges, OnDestroy {
   @Input() zones: DormZone[] = [];
   @Input() showCompare: boolean = true;
-  @Input() showBack: boolean = false;
+  @Input() showFilter: boolean = true;
   @Input() showSearch: boolean = true;
-  @Input() isInline: boolean = false;
   @Input() showAutoComplete: boolean = true;
   @Input() initialParams: FilterParams | null = null;
   @Input() openFilterOnLoad: boolean = false;

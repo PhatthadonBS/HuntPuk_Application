@@ -174,6 +174,7 @@ export class DormRegisterPage implements OnInit, OnDestroy {
   priceTypes = signal<MasterType[]>([]);
   allFacilities = signal<FacilityItem[]>([]);
   facImageErrors = signal<Record<number, boolean>>({});
+  customFacReqCount = signal<number>(0);
 
   // Image Management
   images: { [key: string]: ImageState } = {
@@ -277,7 +278,9 @@ export class DormRegisterPage implements OnInit, OnDestroy {
 
     await this.loadMasterData();
 
-    if (this.isEditMode()) {
+    if (!this.isEditMode()) {
+      this.loadCustomFacReqCount();
+    } else {
       this.loadDormData(this.dormId!);
     }
 
@@ -472,6 +475,8 @@ export class DormRegisterPage implements OnInit, OnDestroy {
                 }))
               );
             }
+
+            this.loadCustomFacReqCount();
           }
         },
         error: (err) => {
@@ -483,6 +488,18 @@ export class DormRegisterPage implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.destroyMap();
+  }
+
+  loadCustomFacReqCount() {
+    const userId = this.dormForm.value.user_id || this.userId;
+    this.dormSv.getFacilityReqCount(userId).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.customFacReqCount.set(res.count);
+        }
+      },
+      error: (err) => console.error(err),
+    });
   }
 
   async loadMasterData() {
@@ -561,6 +578,7 @@ export class DormRegisterPage implements OnInit, OnDestroy {
   }
 
   removeRoom(index: number) {
+    if (!confirm('ต้องการลบห้องพักหรือไม่')) return;
     if (this.rooms.length > 1) {
       this.rooms.removeAt(index);
     }
@@ -622,14 +640,24 @@ export class DormRegisterPage implements OnInit, OnDestroy {
             text: 'ถ่ายภาพ',
             icon: 'camera-outline',
             handler: () => {
-              this.processImageSelection(key, isOther, index, CameraSource.Camera);
+              this.processImageSelection(
+                key,
+                isOther,
+                index,
+                CameraSource.Camera
+              );
             },
           },
           {
             text: 'เลือกจากอัลบั้ม',
             icon: 'image-outline',
             handler: () => {
-              this.processImageSelection(key, isOther, index, CameraSource.Photos);
+              this.processImageSelection(
+                key,
+                isOther,
+                index,
+                CameraSource.Photos
+              );
             },
           },
           {
@@ -863,21 +891,7 @@ export class DormRegisterPage implements OnInit, OnDestroy {
       this.showToast('กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน', 'warning');
       return;
     }
-
-    const alert = await this.alertCtrl.create({
-      header: this.isEditMode() ? 'ยืนยันการแก้ไข?' : 'ยืนยันการลงทะเบียน?',
-      message: this.isEditMode()
-        ? 'คุณต้องการบันทึกการเปลี่ยนแปลงข้อมูลหอพักใช่หรือไม่?'
-        : 'คุณต้องการส่งข้อมูลลงทะเบียนหอพักใช่หรือไม่?',
-      buttons: [
-        { text: 'ยกเลิก', role: 'cancel' },
-        {
-          text: 'ยืนยัน',
-          handler: () => this.executeSubmission(),
-        },
-      ],
-    });
-    await alert.present();
+    await this.executeSubmission();
   }
 
   async executeSubmission() {
@@ -969,10 +983,8 @@ export class DormRegisterPage implements OnInit, OnDestroy {
 
     if (!wasInitial && !hasFiles) {
       this.isLoading.set(false);
-      this.showToast('บันทึกข้อมูลเรียบร้อยแล้ว', 'success');
-
       this.navCtrl.navigateForward(`/dorm-detail/${dormId}`, {
-        queryParams: { preview: 'true' },
+        queryParams: { preview: 'true', isEdit: 'true' },
       });
       return;
     }
@@ -989,13 +1001,11 @@ export class DormRegisterPage implements OnInit, OnDestroy {
             this.location.replaceState(`/dorm-register/edit/${dormId}`);
           }
 
-          this.showToast(
-            wasInitial ? 'ลงทะเบียนสำเร็จ' : 'อัปเดตข้อมูลสำเร็จ',
-            'success'
-          );
-
           this.navCtrl.navigateForward(`/dorm-detail/${dormId}`, {
-            queryParams: { preview: 'true' },
+            queryParams: {
+              preview: 'true',
+              isEdit: !wasInitial ? 'true' : undefined,
+            },
           });
         },
         error: (err) => {
@@ -1011,7 +1021,10 @@ export class DormRegisterPage implements OnInit, OnDestroy {
             this.isEditMode.set(true);
           }
           this.navCtrl.navigateForward(`/dorm-detail/${dormId}`, {
-            queryParams: { preview: 'true' },
+            queryParams: {
+              preview: 'true',
+              isEdit: !wasInitial ? 'true' : undefined,
+            },
           });
         },
       });
