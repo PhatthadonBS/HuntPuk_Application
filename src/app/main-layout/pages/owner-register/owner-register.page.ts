@@ -34,6 +34,7 @@ import {
   camera,
   close,
   arrowBackCircleOutline,
+  globeOutline,
 } from 'ionicons/icons';
 import { UserServices } from 'src/app/services/userServices';
 import { AuthenService } from 'src/app/services/authenService';
@@ -111,6 +112,7 @@ export class OwnerRegisterPage implements OnInit {
       camera,
       close,
       arrowBackCircleOutline,
+      globeOutline,
     });
   }
 
