@@ -1,31 +1,10 @@
-@keyframes quickFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes quickFadeOut {
-  from { opacity: 1; }
-  to { opacity: 0; }
-}
-
-@keyframes fastSlideUp {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
-}
-
-@keyframes fastSlideDown {
-  from { transform: translateY(0); }
-  to { transform: translateY(100%); }
-}
-
 .menu-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4); 
+  background: rgba(0, 0, 0, 0.4);
   z-index: 2000;
   display: flex;
   align-items: flex-end;
-  animation: quickFadeIn 0.2s ease-out forwards;
 }
 
 .menu-wrapper {
@@ -35,15 +14,13 @@
   padding-top: 0rem; /* Reduced top padding for drag handle */
   padding-bottom: calc(2rem + env(safe-area-inset-bottom));
   /* 50% Opacity Solid Background */
-  background: rgba(255, 255, 255, 0.6); 
+  background: rgba(190, 190, 190, 0.9);
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
   border-radius: 24px 24px 0 0;
   box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.15);
   height: 60vh;
   overflow-y: auto;
-  /* Fast Hardware-Accelerated Animation */
-  animation: fastSlideUp 0.25s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
   will-change: transform;
 }
 
@@ -73,7 +50,7 @@
 
 .drag-label {
   margin: 0;
-  font-size: 11px;
+  font-size: 15px;
   font-weight: 500;
   color: #6b7280;
 }
@@ -94,12 +71,14 @@
   margin: 0.4rem;
   transition: transform 0.1s ease;
 
-  &:active, &.selected {
+  &:active,
+  &.selected {
     background: #ffcc00;
     transform: scale(0.95); /* Slight bounce on press */
     border-color: #ffcc00;
-    
-    ion-icon, p {
+
+    ion-icon,
+    p {
       color: #374151;
     }
   }
@@ -111,8 +90,8 @@
   }
 
   p {
-    font-size: 13px;
-    font-weight: 700;
+    font-size: 14px;
+    font-weight: 500;
     margin: 0;
     color: #374151;
     text-align: center;
