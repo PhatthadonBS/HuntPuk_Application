@@ -382,3 +382,18 @@ ion-content.minimal-style {
     --background: #cacaca;
   }
 }
+
+.scroll-top-btn {
+  --background: #e2e2e2;
+  --background-activated: #f9fafb;
+  --color: #333333;
+  --box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  border-radius: 50%;
+  margin-bottom: 6rem;
+  margin-right: 0.9rem;
+
+  ion-icon {
+    color: #333333;
+    font-size: 1.5rem;
+  }
+}

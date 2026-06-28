@@ -21,7 +21,12 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" class="minimal-style">
+<ion-content
+  [fullscreen]="true"
+  [scrollEvents]="true"
+  class="minimal-style"
+  (ionScroll)="onScroll($event)"
+>
   <div class="background"></div>
   <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
     <ion-refresher-content></ion-refresher-content>
@@ -330,6 +335,17 @@
       </ion-content>
     </ng-template>
   </ion-modal>
+
+  <ion-fab
+    vertical="bottom"
+    horizontal="end"
+    slot="fixed"
+    *ngIf="showScrollBtn()"
+  >
+    <ion-fab-button (click)="scrollToTop()" class="scroll-top-btn">
+      <ion-icon name="arrow-up-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
 
   <app-loading-ui *ngIf="isLoading()"></app-loading-ui>
 </ion-content>

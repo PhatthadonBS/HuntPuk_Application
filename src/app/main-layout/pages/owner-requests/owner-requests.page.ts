@@ -26,6 +26,8 @@ import {
   IonSearchbar,
   IonSegment,
   IonSegmentButton,
+  IonFab,
+  IonFabButton,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -43,6 +45,8 @@ import {
   callOutline,
   arrowForwardOutline,
   ellipsisVerticalOutline,
+  chevronUpOutline,
+  arrowUpOutline,
 } from 'ionicons/icons';
 import { UserServices } from 'src/app/services/userServices';
 import { UserDormOwnerGetRes } from 'src/app/model/user.model';
@@ -78,14 +82,18 @@ import { finalize } from 'rxjs';
     IonSearchbar,
     IonSegment,
     IonSegmentButton,
+    IonFab,
+    IonFabButton,
   ],
 })
 export class OwnerRequestsPage implements OnInit {
+  @ViewChild(IonContent, { static: false }) content!: IonContent;
+
   requests = signal<UserDormOwnerGetRes[]>([]);
   isLoading = signal<boolean>(false);
   selectedRequest = signal<UserDormOwnerGetRes | null>(null);
   isModalOpen = signal<boolean>(false);
-
+  showScrollBtn = signal<boolean>(false);
   // Search & Filter State
   searchTerm = signal<string>('');
   selectedSegment = signal<number>(0);
@@ -115,11 +123,17 @@ export class OwnerRequestsPage implements OnInit {
       linkOutline,
       callOutline,
       ellipsisVerticalOutline,
+      chevronUpOutline,
+      arrowUpOutline,
     });
   }
 
   ngOnInit() {
     this.fetchRequests();
+  }
+
+  scrollToTop() {
+    this.content.scrollToTop(500);
   }
 
   handleRefresh(event: any) {
@@ -338,5 +352,10 @@ export class OwnerRequestsPage implements OnInit {
 
   goBack() {
     this.navCtrl.back();
+  }
+
+  onScroll(event: any) {
+    const scrollTop = event.detail.scrollTop;
+    this.showScrollBtn.set(scrollTop > 400);
   }
 }
