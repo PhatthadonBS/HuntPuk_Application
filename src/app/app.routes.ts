@@ -87,6 +87,14 @@ export const routes: Routes = [
             (m) => m.MyDormPage
           ),
       },
+      {
+        path: 'owner-requests',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import('./main-layout/pages/owner-requests/owner-requests.page').then(
+            (m) => m.OwnerRequestsPage
+          ),
+      },
     ],
   },
 
@@ -143,14 +151,8 @@ export const routes: Routes = [
   },
 
   {
-    path: 'owner-requests',
-    loadComponent: () =>
-      import('./main-layout/pages/owner-requests/owner-requests.page').then(
-        (m) => m.OwnerRequestsPage
-      ),
-  },
-  {
     path: 'facility-management',
+    canActivate: [authGuard],
     loadComponent: () =>
       import(
         './main-layout/pages/facility-management/facility-management.page'
@@ -159,6 +161,7 @@ export const routes: Routes = [
 
   {
     path: 'dashboard',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./main-layout/pages/dashboard/dashboard.page').then(
         (m) => m.DashboardPage
@@ -167,6 +170,7 @@ export const routes: Routes = [
 
   {
     path: 'type-management',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./main-layout/pages/type-management/type-management.page').then(
         (m) => m.TypeManagementPage

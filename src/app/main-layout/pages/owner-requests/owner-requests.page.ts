@@ -19,8 +19,13 @@ import {
   IonBadge,
   ToastController,
   AlertController,
+  ActionSheetController,
   IonRefresher,
-  IonRefresherContent
+  IonRefresherContent,
+  NavController,
+  IonSearchbar,
+  IonSegment,
+  IonSegmentButton,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -32,6 +37,12 @@ import {
   timeOutline,
   chevronForwardOutline,
   alertCircleOutline,
+  arrowBackCircleOutline,
+  folderOpenOutline,
+  linkOutline,
+  callOutline,
+  arrowForwardOutline,
+  ellipsisVerticalOutline,
 } from 'ionicons/icons';
 import { UserServices } from 'src/app/services/userServices';
 import { UserDormOwnerGetRes } from 'src/app/model/user.model';
@@ -63,7 +74,10 @@ import { finalize } from 'rxjs';
     FormsModule,
     LoadingUIComponent,
     IonRefresher,
-    IonRefresherContent
+    IonRefresherContent,
+    IonSearchbar,
+    IonSegment,
+    IonSegmentButton,
   ],
 })
 export class OwnerRequestsPage implements OnInit {
@@ -72,6 +86,10 @@ export class OwnerRequestsPage implements OnInit {
   selectedRequest = signal<UserDormOwnerGetRes | null>(null);
   isModalOpen = signal<boolean>(false);
 
+  // Search & Filter State
+  searchTerm = signal<string>('');
+  selectedSegment = signal<number>(0);
+
   // Management State
   rejectReason = signal<string>('');
   showRejectInput = signal<boolean>(false);
@@ -79,7 +97,9 @@ export class OwnerRequestsPage implements OnInit {
   constructor(
     private userSv: UserServices,
     private toastCtrl: ToastController,
-    private alertCtrl: AlertController
+    private alertCtrl: AlertController,
+    private actionSheetCtrl: ActionSheetController,
+    private navCtrl: NavController
   ) {
     addIcons({
       closeOutline,
@@ -90,6 +110,11 @@ export class OwnerRequestsPage implements OnInit {
       timeOutline,
       chevronForwardOutline,
       alertCircleOutline,
+      arrowBackCircleOutline,
+      folderOpenOutline,
+      linkOutline,
+      callOutline,
+      ellipsisVerticalOutline,
     });
   }
 
@@ -107,7 +132,7 @@ export class OwnerRequestsPage implements OnInit {
   fetchRequests() {
     this.isLoading.set(true);
     this.userSv
-      .getPendingOwnerRequests()
+      .getPendingOwnerRequests(this.searchTerm(), this.selectedSegment())
       .pipe(finalize(() => this.isLoading.set(false)))
       .subscribe({
         next: (res) => {
@@ -122,6 +147,16 @@ export class OwnerRequestsPage implements OnInit {
       });
   }
 
+  onSearchChange(event: any) {
+    this.searchTerm.set(event.detail.value || '');
+    this.fetchRequests();
+  }
+
+  onSegmentChange(event: any) {
+    this.selectedSegment.set(Number(event.detail.value));
+    this.fetchRequests();
+  }
+
   openRequest(req: UserDormOwnerGetRes) {
     this.selectedRequest.set(req);
     this.rejectReason.set('');
@@ -129,9 +164,59 @@ export class OwnerRequestsPage implements OnInit {
     this.isModalOpen.set(true);
   }
 
+  async openManageActionSheet(req: UserDormOwnerGetRes, event: Event) {
+    event.stopPropagation();
+    this.selectedRequest.set(req);
+
+    const actionSheet = await this.actionSheetCtrl.create({
+      mode: 'md',
+      header: `จัดการคำขอ: ${req.FIRST_NAME || req.USERNAME}`,
+      cssClass: 'minimal-action-sheet custom-req-sheet',
+      buttons: [
+        {
+          text: 'อนุมัติ',
+          icon: 'checkmark-circle-outline',
+          cssClass: 'action-sheet-button',
+          handler: () => {
+            this.approve();
+          },
+        },
+        {
+          text: 'ปฏิเสธ',
+          role: 'destructive',
+          icon: 'close-circle-outline',
+          cssClass: 'action-sheet-button',
+          handler: () => {
+            this.reject();
+          },
+        },
+        {
+          text: 'ยกเลิก',
+          role: 'cancel',
+          cssClass: 'action-sheet-cancel',
+        },
+      ],
+    });
+
+    await actionSheet.present();
+  }
+
   closeModal() {
     this.isModalOpen.set(false);
     this.selectedRequest.set(null);
+  }
+
+  handleImageError(req: UserDormOwnerGetRes) {
+    req.PROFILE_IMAGE = '';
+    this.requests.set([...this.requests()]);
+  }
+
+  handleModalImageError() {
+    const req = this.selectedRequest();
+    if (req) {
+      req.PROFILE_IMAGE = '';
+      this.selectedRequest.set({ ...req });
+    }
   }
 
   async approve() {
@@ -139,12 +224,12 @@ export class OwnerRequestsPage implements OnInit {
     if (!req) return;
 
     const alert = await this.alertCtrl.create({
-      header: 'Approve Request',
-      message: `Confirm approval for ${req.FIRST_NAME} ${req.LAST_NAME}?`,
+      header: 'อนุมัติคำขอ',
+      message: `ยืนยันการอนุมัติคำขอของ ${req.FIRST_NAME || req.USERNAME}?`,
       buttons: [
-        { text: 'Cancel', role: 'cancel' },
+        { text: 'ยกเลิก', role: 'cancel' },
         {
-          text: 'Approve',
+          text: 'อนุมัติ',
           handler: () => {
             this.submitApproval(req.USER_ID, true, 'Approved');
           },
@@ -155,29 +240,33 @@ export class OwnerRequestsPage implements OnInit {
   }
 
   async reject() {
-    if (!this.showRejectInput()) {
-      this.showRejectInput.set(true);
-      return;
-    }
-
-    if (!this.rejectReason().trim()) {
-      this.showToast('Please provide a reason for rejection', 'warning');
-      return;
-    }
-
     const req = this.selectedRequest();
     if (!req) return;
 
     const alert = await this.alertCtrl.create({
-      header: 'Reject Request',
-      message: `Are you sure you want to reject this request?`,
-      buttons: [
-        { text: 'Cancel', role: 'cancel' },
+      header: 'เหตุผลที่ปฏิเสธ',
+      message: `กรุณาระบุเหตุผลในการปฏิเสธคำขอของ ${
+        req.FIRST_NAME || req.USERNAME
+      }`,
+      inputs: [
         {
-          text: 'Reject',
+          name: 'reason',
+          type: 'textarea',
+          placeholder: 'อธิบายเหตุผลที่คุณปฏิเสธคำขอนี้...',
+        },
+      ],
+      buttons: [
+        { text: 'ยกเลิก', role: 'cancel' },
+        {
+          text: 'ยืนยันการปฏิเสธ',
           role: 'destructive',
-          handler: () => {
-            this.submitApproval(req.USER_ID, false, this.rejectReason());
+          handler: (data) => {
+            if (!data.reason || !data.reason.trim()) {
+              this.showToast('กรุณาระบุเหตุผลที่ปฏิเสธ', 'warning');
+              return false;
+            }
+            this.submitApproval(req.USER_ID, false, data.reason.trim());
+            return true;
           },
         },
       ],
@@ -217,10 +306,14 @@ export class OwnerRequestsPage implements OnInit {
         url = handle.includes('http') ? handle : `https://${handle}`;
         break;
       case 'telegram':
-        url = handle.includes('http') ? handle : `https://t.me/+${handle.replace(/[^0-9]/g, '')}`;
+        url = handle.includes('http')
+          ? handle
+          : `https://t.me/+${handle.replace(/[^0-9]/g, '')}`;
         break;
       case 'line':
-        url = handle.includes('http') ? handle : `https://line.me/ti/p/~${handle}`;
+        url = handle.includes('http')
+          ? handle
+          : `https://line.me/ti/p/~${handle}`;
         break;
       case 'x':
         url = handle.includes('http') ? handle : `https://${handle}`;
@@ -241,5 +334,9 @@ export class OwnerRequestsPage implements OnInit {
       mode: 'ios',
     });
     await toast.present();
+  }
+
+  goBack() {
+    this.navCtrl.back();
   }
 }

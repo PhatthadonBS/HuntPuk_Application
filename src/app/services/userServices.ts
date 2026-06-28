@@ -100,8 +100,16 @@ export class UserServices {
     return this.http.post(url, formData);
   }
 
-  getPendingOwnerRequests(): Observable<{success: boolean, data: UserDormOwnerGetRes[]}> {
-    const url = `${this.endPoint}/user/dormOwnerReq`;
+  getPendingOwnerRequests(search?: string, status?: number): Observable<{success: boolean, data: UserDormOwnerGetRes[]}> {
+    let url = `${this.endPoint}/user/dormOwnerReqAll`;
+    const params = new URLSearchParams();
+    if (search) params.append('search', search);
+    if (status !== undefined) params.append('status', status.toString());
+    
+    if (params.toString()) {
+      url += `?${params.toString()}`;
+    }
+    
     return this.http.get<{success: boolean, data: UserDormOwnerGetRes[]}>(url);
   }
 
