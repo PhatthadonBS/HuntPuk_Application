@@ -32,7 +32,7 @@ import {
   trashBin,
   trashOutline,
   lockClosedOutline,
-  businessOutline
+  businessOutline,
 } from 'ionicons/icons';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UserServices } from 'src/app/services/userServices';
@@ -64,7 +64,7 @@ import { LoadingUIComponent } from '../../components/loading-ui/loading-ui.compo
     CommonModule,
     FormsModule,
     IonButton,
-    LoadingUIComponent
+    LoadingUIComponent,
   ],
 })
 export class OwnerProfilePage {
@@ -74,6 +74,7 @@ export class OwnerProfilePage {
   isLoading = signal<boolean>(false);
   isAdmin = signal<boolean>(false);
   isOwnProfile = signal<boolean>(false);
+  adminView = signal<boolean>(false);
 
   constructor(
     private userSv: UserServices,
@@ -98,17 +99,17 @@ export class OwnerProfilePage {
       create,
       ellipsisHorizontalOutline,
       lockClosedOutline,
-      businessOutline
+      businessOutline,
     });
   }
 
   ionViewWillEnter() {
     this.checkRoles();
-    
+
     // Check both query param and route param for flexibility
     let user_id = this.actRouter.snapshot.queryParamMap.get('user_id');
     if (!user_id) {
-       user_id = this.actRouter.snapshot.paramMap.get('user_id');
+      user_id = this.actRouter.snapshot.paramMap.get('user_id');
     }
 
     // If no user_id is provided but we are an owner viewing our own profile
@@ -124,6 +125,10 @@ export class OwnerProfilePage {
         return this.router.navigateByUrl('/', { replaceUrl: true });
       });
     }
+
+    if (this.actRouter.snapshot.queryParamMap.get('adminView') === 'true') {
+      this.adminView.set(true);
+    }
   }
 
   checkRoles() {
@@ -135,21 +140,24 @@ export class OwnerProfilePage {
 
   fetchOwnerData(uid: number) {
     this.isLoading.set(true);
-    
-    const currentUser = this.authSv.currentUserValue;
-    this.isOwnProfile.set(currentUser?.id === uid);
 
-    this.userSv.getUserByID(uid).pipe(finalize(() => this.isLoading.set(false))).subscribe({
-      next: (u: any) => {
-        this.user.set(u);
-      },
-      error: (err: any) => {
-        this.errMsg.set(extractErrorMessage(err));
-        timer(3000).subscribe(() => {
-          return this.navCtrl.navigateBack('/member-management');
-        });
-      },
-    });
+    const currentUser = this.authSv.currentUserValue;
+    this.isOwnProfile.set(currentUser?.id == uid);
+
+    this.userSv
+      .getUserByID(uid)
+      .pipe(finalize(() => this.isLoading.set(false)))
+      .subscribe({
+        next: (u: any) => {
+          this.user.set(u);
+        },
+        error: (err: any) => {
+          this.errMsg.set(extractErrorMessage(err));
+          timer(3000).subscribe(() => {
+            return this.navCtrl.navigateBack('/member-management');
+          });
+        },
+      });
   }
 
   handleImageError() {
@@ -167,15 +175,15 @@ export class OwnerProfilePage {
         {
           text: 'ยกเลิก',
           role: 'cancel',
-          cssClass: 'secondary'
+          cssClass: 'secondary',
         },
         {
           text: 'ออกจากระบบ',
           handler: () => {
             this.authSv.logoutUser();
-          }
-        }
-      ]
+          },
+        },
+      ],
     });
     await alert.present();
   }
@@ -195,10 +203,12 @@ export class OwnerProfilePage {
   async banUser() {
     const user = this.user();
     if (!user) return;
-    
+
     const alert = await this.alertController.create({
       header: 'Confirm Ban',
-      message: `Are you sure you want to ban ${user.FIRST_NAME || user.USERNAME}?`,
+      message: `Are you sure you want to ban ${
+        user.FIRST_NAME || user.USERNAME
+      }?`,
       buttons: [
         { text: 'Cancel', role: 'cancel' },
         {
@@ -206,16 +216,22 @@ export class OwnerProfilePage {
           role: 'destructive',
           handler: () => {
             this.isLoading.set(true);
-            this.userSv.banAccount(user.USER_ID).pipe(finalize(() => this.isLoading.set(false))).subscribe({
-              next: () => {
-                this.succMsg.set('User has been banned');
-                this.fetchOwnerData(user.USER_ID);
-              },
-              error: (err) => this.errMsg.set('Failed to ban user: ' + extractErrorMessage(err))
-            });
-          }
-        }
-      ]
+            this.userSv
+              .banAccount(user.USER_ID)
+              .pipe(finalize(() => this.isLoading.set(false)))
+              .subscribe({
+                next: () => {
+                  this.succMsg.set('User has been banned');
+                  this.fetchOwnerData(user.USER_ID);
+                },
+                error: (err) =>
+                  this.errMsg.set(
+                    'Failed to ban user: ' + extractErrorMessage(err)
+                  ),
+              });
+          },
+        },
+      ],
     });
     await alert.present();
   }
@@ -226,23 +242,31 @@ export class OwnerProfilePage {
 
     const alert = await this.alertController.create({
       header: 'Confirm Unban',
-      message: `Are you sure you want to lift the ban for ${user.FIRST_NAME || user.USERNAME}?`,
+      message: `Are you sure you want to lift the ban for ${
+        user.FIRST_NAME || user.USERNAME
+      }?`,
       buttons: [
         { text: 'Cancel', role: 'cancel' },
         {
           text: 'Lift Ban',
           handler: () => {
             this.isLoading.set(true);
-            this.userSv.unbanAccount(user.USER_ID).pipe(finalize(() => this.isLoading.set(false))).subscribe({
-              next: () => {
-                this.succMsg.set('User has been unbanned');
-                this.fetchOwnerData(user.USER_ID);
-              },
-              error: (err) => this.errMsg.set('Failed to unban user: ' + extractErrorMessage(err))
-            });
-          }
-        }
-      ]
+            this.userSv
+              .unbanAccount(user.USER_ID)
+              .pipe(finalize(() => this.isLoading.set(false)))
+              .subscribe({
+                next: () => {
+                  this.succMsg.set('User has been unbanned');
+                  this.fetchOwnerData(user.USER_ID);
+                },
+                error: (err) =>
+                  this.errMsg.set(
+                    'Failed to unban user: ' + extractErrorMessage(err)
+                  ),
+              });
+          },
+        },
+      ],
     });
     await alert.present();
   }
@@ -255,14 +279,14 @@ export class OwnerProfilePage {
         {
           name: 'confirmText',
           type: 'text',
-          placeholder: 'พิมพ์ DELETE'
-        }
+          placeholder: 'พิมพ์ DELETE',
+        },
       ],
       buttons: [
         {
           text: 'ยกเลิก',
           role: 'cancel',
-          cssClass: 'secondary'
+          cssClass: 'secondary',
         },
         {
           text: 'ลบบัญชี',
@@ -272,25 +296,34 @@ export class OwnerProfilePage {
               const uid = this.user()?.USER_ID;
               if (uid) {
                 this.isLoading.set(true);
-                this.userSv.deleteAccount(uid).pipe(finalize(() => this.isLoading.set(false))).subscribe({
-                  next: () => {
-                    this.authSv.logoutUser();
-                  },
-                  error: (err) => {
-                    this.errMsg.set(extractErrorMessage(err));
-                  }
-                });
+                this.userSv
+                  .deleteAccount(uid)
+                  .pipe(finalize(() => this.isLoading.set(false)))
+                  .subscribe({
+                    next: () => {
+                      this.authSv.logoutUser();
+                    },
+                    error: (err) => {
+                      this.errMsg.set(extractErrorMessage(err));
+                    },
+                  });
               }
               return true;
             } else {
-              this.errMsg.set('คำยืนยันไม่ถูกต้อง กรุณาพิมพ์ DELETE เพื่อยืนยัน');
+              this.errMsg.set(
+                'คำยืนยันไม่ถูกต้อง กรุณาพิมพ์ DELETE เพื่อยืนยัน'
+              );
               return false;
             }
-          }
-        }
-      ]
+          },
+        },
+      ],
     });
 
     await alert.present();
+  }
+
+  goBack() {
+    this.navCtrl.back();
   }
 }

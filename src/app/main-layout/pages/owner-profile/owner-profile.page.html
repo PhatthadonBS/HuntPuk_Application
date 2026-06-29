@@ -1,12 +1,21 @@
-<ion-header class="ion-no-border">
+<ion-header class="ion-no-border main-header">
   <ion-toolbar class="main-toolbar">
-    <ion-buttons slot="start" color="primary" size="large">
-      <ion-back-button
-        defaultHref="/home"
-        icon="arrow-back-circle-outline"
-      ></ion-back-button>
-    </ion-buttons>
-    <ion-title class="toolbar-title">ข้อมูลเจ้าของหอพัก</ion-title>
+    <div
+      class="header-tool flex justify-between align-middle text-lg font-bold"
+    >
+      <a
+        (click)="goBack()"
+        class="back-btn flex justify-between align-middle ml-[.25rem] p-[.25rem] pl-1 pr-3 w-[5rem] rounded-full bg-slate-100"
+      >
+        <ion-icon
+          name="arrow-back-circle-outline"
+          size="large"
+          color="dark"
+        ></ion-icon>
+        <span class="">กลับ</span>
+      </a>
+      <span class="mt-1 text-white mr-[1rem] text-xl">ข้อมูลเจ้าของหอพัก</span>
+    </div>
   </ion-toolbar>
 </ion-header>
 
@@ -24,9 +33,10 @@
           class="w-full h-full object-cover rounded-[32px]"
         />
         <ion-icon
-          name="business-outline"
+          name="person"
           color="medium"
           *ngIf="!user()?.PROFILE_IMAGE"
+          style="font-size: 10rem"
         ></ion-icon>
       </div>
       <h1 class="page-title">โปรไฟล์เจ้าของหอพัก</h1>
@@ -45,8 +55,8 @@
     </div>
 
     <div class="info-section">
-      <ion-list lines="none" class="minimal-list">
-        <ion-item class="highlight-item">
+      <ion-list lines="none" class="minimal-list 0">
+        <ion-item class="border-b border-gray-300/80">
           <ion-icon
             name="person-outline"
             slot="start"
@@ -60,7 +70,10 @@
           ></ion-input>
         </ion-item>
 
-        <ion-item *ngIf="user()?.FIRST_NAME">
+        <ion-item
+          *ngIf="user()?.FIRST_NAME"
+          class="border-b border-gray-300/80"
+        >
           <ion-icon
             name="person-circle-outline"
             slot="start"
@@ -74,7 +87,7 @@
           ></ion-input>
         </ion-item>
 
-        <ion-item *ngIf="user()?.LAST_NAME">
+        <ion-item *ngIf="user()?.LAST_NAME" class="border-b border-gray-300/80">
           <ion-icon
             name="person-circle-outline"
             slot="start"
@@ -88,13 +101,13 @@
           ></ion-input>
         </ion-item>
 
-        <ion-item>
+        <ion-item class="border-b border-gray-300/80">
           <ion-icon name="mail-outline" slot="start" color="medium"></ion-icon>
           <ion-label position="stacked">อีเมล</ion-label>
           <ion-input type="email" [value]="user()?.EMAIL" readonly></ion-input>
         </ion-item>
 
-        <ion-item>
+        <ion-item class="border-b border-gray-300/80">
           <ion-icon name="call-outline" slot="start" color="medium"></ion-icon>
           <ion-label position="stacked">เบอร์โทรศัพท์</ion-label>
           <ion-input
@@ -106,7 +119,10 @@
       </ion-list>
     </div>
 
-    <div class="action-section" *ngIf="isOwnProfile() || isAdmin()">
+    <div
+      class="action-section"
+      *ngIf="isOwnProfile() || isAdmin() || !adminView"
+    >
       <ion-list lines="none" class="minimal-list action-list">
         <!-- Actions for Owner OR Admin -->
         <ng-container *ngIf="isOwnProfile() || isAdmin()">
