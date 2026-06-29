@@ -84,7 +84,7 @@
         </ion-item>
 
         <ion-item
-          *ngIf="isOwnProfile()"
+          *ngIf="isOwnProfile() && !isAdmin()"
           button
           (click)="deleteAccount()"
           detail="true"
