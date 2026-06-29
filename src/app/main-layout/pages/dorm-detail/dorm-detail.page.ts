@@ -28,6 +28,8 @@ import {
   IonItem,
   IonLabel,
   IonTextarea,
+  IonRefresher,
+  IonRefresherContent,
   ToastController,
   AlertController,
   NavController,
@@ -63,6 +65,8 @@ import {
   personCircleOutline,
   warningOutline,
   constructOutline,
+  navigateOutline,
+  chatbubbleOutline,
 } from 'ionicons/icons';
 
 @Component({
@@ -90,6 +94,8 @@ import {
     IonItem,
     IonLabel,
     IonTextarea,
+    IonRefresher,
+    IonRefresherContent,
     CommonModule,
     FormsModule,
     RouterModule,
@@ -111,6 +117,7 @@ export class DormDetailPage implements OnInit, OnDestroy {
   isPreview = signal<boolean>(false);
   isAdminReq = signal<boolean>(false);
   isEdit = signal<boolean>(false);
+  avgScore = signal<number>(0);
 
   userSub?: Subscription;
   currentUser: any = null;
@@ -149,6 +156,8 @@ export class DormDetailPage implements OnInit, OnDestroy {
       personCircleOutline,
       warningOutline,
       constructOutline,
+      navigateOutline,
+      chatbubbleOutline,
     });
   }
 
@@ -162,7 +171,6 @@ export class DormDetailPage implements OnInit, OnDestroy {
       this.isAdminReq.set(params['adminReq'] === 'true');
       this.isEdit.set(params['isEdit'] === 'true');
     });
-    console.log(this.isAdminReq());
     const idParam = this.route.snapshot.paramMap.get('dorm_id');
     if (idParam) {
       this.dormId = Number(idParam);
@@ -177,13 +185,20 @@ export class DormDetailPage implements OnInit, OnDestroy {
     if (this.userSub) this.userSub.unsubscribe();
   }
 
-  loadAllData() {
-    if (!this.dormId) return;
-    this.isLoading.set(true);
+  handleRefresh(event: any) {
+    this.loadAllData(event);
+  }
+
+  loadAllData(event?: any) {
+    if (!this.dormId) {
+      if (event) event.target.complete();
+      return;
+    }
+    if (!event) this.isLoading.set(true);
     this.hasError.set(false);
 
     // Record dorm view for statistics
-    if (!this.isPreview() && !this.isAdminReq()) {
+    if (!this.isPreview() && !this.isAdminReq() && !event) {
       this.dormSv.recordDormView(this.dormId).subscribe();
     }
 
@@ -239,6 +254,14 @@ export class DormDetailPage implements OnInit, OnDestroy {
 
         if (dormReviews && dormReviews.success) {
           this.reviews.set(dormReviews.data);
+          const sumScore = dormReviews.data.reduce(
+            (sum: any, review: any) => Number(sum) + Number(review.SCORE),
+            0
+          );
+          console.log(dormReviews.data);
+
+          console.log(sumScore, dormReviews.data.length);
+          this.avgScore.set(sumScore / dormReviews.data.length);
         }
 
         if (priceTypesReq) {
@@ -249,11 +272,13 @@ export class DormDetailPage implements OnInit, OnDestroy {
           );
         }
 
-        this.isLoading.set(false);
+        if (!event) this.isLoading.set(false);
+        if (event) event.target.complete();
       },
       error: () => {
         this.hasError.set(true);
-        this.isLoading.set(false);
+        if (!event) this.isLoading.set(false);
+        if (event) event.target.complete();
       },
     });
   }
@@ -513,5 +538,17 @@ export class DormDetailPage implements OnInit, OnDestroy {
 
   goBackToEdit() {
     this.navCtrl.back();
+  }
+
+  goBack() {
+    this.navCtrl.back();
+  }
+
+  goToOwnerProfile() {
+    this.navCtrl.navigateRoot(
+      `/owner-profile/${
+        (this.dorm()?.USER_ID, { queryParams: { adminView: 'true' } })
+      }`
+    );
   }
 }
