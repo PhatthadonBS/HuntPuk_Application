@@ -433,7 +433,7 @@
             <ion-icon
               name="star"
               *ngFor="let i of [1,2,3,4,5]"
-              [class.text-gray-300]="i >= getParsedScore(d.SCORE)"
+              [class.text-gray-300]="i > getParsedScore(avgScore())"
             ></ion-icon>
           </div>
           <p class="text-xs text-gray-500 m-0 mt-1">
