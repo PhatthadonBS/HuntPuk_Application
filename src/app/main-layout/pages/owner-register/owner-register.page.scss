@@ -36,12 +36,15 @@ $accent-color: #000000;
   transform: rotate(20deg) scale(16);
   z-index: -10;
   overflow: hidden;
+  pointer-events: none;
 }
 
 ion-content.minimal-style {
   --background: transparent;
 
   .content-wrapper {
+    position: relative;
+    z-index: 10;
     padding: 2rem 1.5rem;
     margin-top: 1rem;
   }

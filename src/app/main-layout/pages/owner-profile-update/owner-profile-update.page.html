@@ -1,39 +1,66 @@
+<ion-header class="ion-no-border main-header">
+  <ion-toolbar class="main-toolbar">
+    <div
+      class="header-tool flex justify-between align-middle text-lg font-bold"
+    >
+      <a
+        (click)="goBack()"
+        class="back-btn flex justify-between align-middle ml-[.25rem] p-[.25rem] pl-1 pr-3 w-[5rem] rounded-full bg-slate-100"
+      >
+        <ion-icon
+          name="arrow-back-circle-outline"
+          size="large"
+          color="dark"
+        ></ion-icon>
+        <span class="">กลับ</span>
+      </a>
+      <span class="mt-1 text-white mr-[1rem] text-xl"
+        >แก้ไขข้อมูลเจ้าของหอพัก</span
+      >
+    </div>
+  </ion-toolbar>
+</ion-header>
 <ion-content [fullscreen]="true" class="profile-content minimal-style">
-  <div class="background-container"></div>
+  <div class="background"></div>
 
   <div class="content-wrapper">
-    <ion-button fill="clear" class="absolute-back-btn" (click)="goBack()">
-      <ion-icon name="arrow-back-circle-outline" slot="icon-only" color="dark"></ion-icon>
-    </ion-button>
-
-    <div class="profile-header">
+    <div class="profile-header bg-white/80 rounded-2xl mb-[4rem]">
       <div class="profile-upload-wrapper" (click)="presentPhotoOptions()">
-        <div class="preview-container shadow-2xl">
-          <img 
-            [src]="imagePreview() || 'assets/icon.png'" 
-            class="profile-preview" 
-            *ngIf="imagePreview()" 
+        <div class="preview-container">
+          <img
+            [src]="imagePreview() || 'assets/icon.png'"
+            class="profile-preview rounded-xl w-[15rem] h-[15rem] object-cover"
+            *ngIf="imagePreview()"
             (error)="handleImageError()"
           />
           <div class="placeholder-preview" *ngIf="!imagePreview()">
-            <ion-icon name="person-outline" class="text-5xl text-gray-300"></ion-icon>
-          </div>
-          <div class="upload-badge">
-            <ion-icon name="camera-outline"></ion-icon>
+            <ion-icon
+              name="person-outline"
+              class="text-5xl text-gray-300"
+            ></ion-icon>
           </div>
         </div>
       </div>
-      <p class="text-sm font-bold text-gray-500 mt-4 uppercase tracking-widest text-center">แตะเพื่อเปลี่ยนรูปโปรไฟล์</p>
-      <h1 class="page-title mt-4 text-center">แก้ไขข้อมูลเจ้าของหอพัก</h1>
-      <div class="username-badge mt-2 text-center">
-        <p class="user-handle">{{ user()?.USERNAME || 'กำลังโหลด...' }}</p>
+      <div class="text-center text-lg font-bold mt-[1rem]">
+        กดที่รูปเพื่อเปลี่ยนรูป
       </div>
     </div>
 
-    <form [formGroup]="updateForm" (ngSubmit)="confirmUpdate()" class="info-section">
+    <form
+      [formGroup]="updateForm"
+      (ngSubmit)="confirmUpdate()"
+      class="info-section"
+    >
       <ion-list lines="none" class="minimal-list">
-        <ion-item class="highlight-item">
-          <ion-icon name="person-outline" slot="start"></ion-icon>
+        <ion-item
+          class="border-b border-gray-300/80"
+          style="margin-bottom: 0.5rem"
+        >
+          <ion-icon
+            name="person-outline"
+            slot="start"
+            color="medium"
+          ></ion-icon>
           <ion-label position="stacked">ชื่อผู้ใช้</ion-label>
           <ion-input
             type="text"
@@ -42,8 +69,15 @@
           ></ion-input>
         </ion-item>
 
-        <ion-item>
-          <ion-icon name="person-circle-outline" slot="start" class="!mt-[2.3rem]"></ion-icon>
+        <ion-item
+          class="border-b border-gray-300/80"
+          style="margin-bottom: 0.5rem"
+        >
+          <ion-icon
+            name="person-circle-outline"
+            slot="start"
+            color="medium"
+          ></ion-icon>
           <ion-label position="stacked">ชื่อจริง</ion-label>
           <ion-input
             type="text"
@@ -52,8 +86,15 @@
           ></ion-input>
         </ion-item>
 
-        <ion-item>
-          <ion-icon name="person-circle-outline" slot="start" class="!mt-[2.3rem]"></ion-icon>
+        <ion-item
+          class="border-b border-gray-300/80"
+          style="margin-bottom: 0.5rem"
+        >
+          <ion-icon
+            name="person-circle-outline"
+            slot="start"
+            color="medium"
+          ></ion-icon>
           <ion-label position="stacked">นามสกุล</ion-label>
           <ion-input
             type="text"
@@ -62,8 +103,11 @@
           ></ion-input>
         </ion-item>
 
-        <ion-item>
-          <ion-icon name="call-outline" slot="start" class="!mt-[2.3rem]"></ion-icon>
+        <ion-item
+          class="border-b border-gray-300/80"
+          style="margin-bottom: 0.5rem"
+        >
+          <ion-icon name="call-outline" slot="start" color="medium"></ion-icon>
           <ion-label position="stacked">เบอร์โทรศัพท์</ion-label>
           <ion-input
             type="tel"

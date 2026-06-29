@@ -248,7 +248,7 @@ export class DormRegisterPage implements OnInit, OnDestroy {
       lng: [null, Validators.required],
       water_unit: [null, [Validators.required, Validators.min(0)]],
       elect_unit: [null, [Validators.required, Validators.min(0)]],
-      water_lump: [null, [Validators.required, Validators.min(0)]],
+      water_lump: [0, [Validators.required, Validators.min(0)]],
       detail: [''],
       rooms: this.fb.array([]),
       facilities: this.fb.array([]),

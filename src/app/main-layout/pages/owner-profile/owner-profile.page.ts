@@ -324,6 +324,9 @@ export class OwnerProfilePage {
   }
 
   goBack() {
-    this.navCtrl.back();
+    if (this.isAdmin()) {
+      return this.navCtrl.back();
+    }
+    return this.navCtrl.navigateForward(['/']);
   }
 }

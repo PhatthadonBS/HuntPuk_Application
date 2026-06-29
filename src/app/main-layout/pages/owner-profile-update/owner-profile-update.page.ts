@@ -134,25 +134,25 @@ export class OwnerProfileUpdatePage {
 
   async presentPhotoOptions() {
     const actionSheet = await this.actionSheetCtrl.create({
-      header: 'Select Profile Photo',
+      mode: 'md',
+      cssClass: 'minimal-action-sheet',
       buttons: [
         {
-          text: 'Take Photo',
-          icon: 'camera',
+          text: 'ถ่ายภาพ',
+          icon: 'camera-outline',
           handler: () => {
             this.takePicture(CameraSource.Camera);
           }
         },
         {
-          text: 'Choose from Gallery',
+          text: 'เลือกจากอัลบั้ม',
           icon: 'image-outline',
           handler: () => {
             this.takePicture(CameraSource.Photos);
           }
         },
         {
-          text: 'Cancel',
-          icon: 'close',
+          text: 'ยกเลิก',
           role: 'cancel'
         }
       ]
