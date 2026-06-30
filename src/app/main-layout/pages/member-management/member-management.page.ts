@@ -1,49 +1,53 @@
 import { Component, OnInit, signal, computed, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { 
-  IonContent, 
-  IonHeader, 
-  IonTitle, 
-  IonToolbar, 
-  IonButtons, 
-  IonBackButton, 
-  IonSearchbar, 
-  IonButton, 
-  IonIcon, 
-  IonSegment, 
-  IonSegmentButton, 
-  IonLabel, 
-  IonList, 
-  IonItem, 
-  IonCard, 
-  IonCardHeader, 
-  IonCardTitle, 
-  IonCardContent, 
-  IonBadge, 
-  IonFab, 
-  IonFabButton, 
-  AlertController, 
+import {
+  IonContent,
+  IonHeader,
+  IonTitle,
+  IonToolbar,
+  IonButtons,
+  IonBackButton,
+  IonSearchbar,
+  IonButton,
+  IonIcon,
+  IonSegment,
+  IonSegmentButton,
+  IonLabel,
+  IonList,
+  IonItem,
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardContent,
+  IonBadge,
+  IonFabButton,
+  AlertController,
   ToastController,
+  ActionSheetController,
   IonRefresher,
-  IonRefresherContent
+  IonRefresherContent,
+  IonFab,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { 
-  searchOutline, 
-  createOutline, 
-  banOutline, 
+import {
+  searchOutline,
+  createOutline,
+  banOutline,
   checkmarkCircleOutline,
   arrowUpOutline,
   personCircleOutline,
   businessOutline,
   shieldCheckmarkOutline,
-  trashOutline
+  trashOutline,
+  settingsOutline,
+  closeOutline,
+  arrowBackCircleOutline,
 } from 'ionicons/icons';
 import { UserServices } from 'src/app/services/userServices';
 import { UserAllGetRes } from 'src/app/model/user.model';
 import { Router } from '@angular/router';
-import { finalize } from 'rxjs';
+import { finalize, forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-member-management',
@@ -51,32 +55,32 @@ import { finalize } from 'rxjs';
   styleUrls: ['./member-management.page.scss'],
   standalone: true,
   imports: [
-    IonContent, 
-    IonHeader, 
-    IonTitle, 
-    IonToolbar, 
-    IonButtons, 
-    IonBackButton, 
-    IonSearchbar, 
-    IonButton, 
-    IonIcon, 
-    IonSegment, 
-    IonSegmentButton, 
-    IonLabel, 
-    IonList, 
-    IonItem, 
-    IonCard, 
-    IonCardHeader, 
-    IonCardTitle, 
-    IonCardContent, 
-    IonBadge, 
-    IonFab, 
-    IonFabButton, 
-    CommonModule, 
+    IonContent,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    IonButtons,
+    IonBackButton,
+    IonSearchbar,
+    IonButton,
+    IonIcon,
+    IonSegment,
+    IonSegmentButton,
+    IonLabel,
+    IonList,
+    IonItem,
+    IonCard,
+    IonCardHeader,
+    IonCardTitle,
+    IonCardContent,
+    IonBadge,
+    IonFab,
+    IonFabButton,
+    CommonModule,
     FormsModule,
     IonRefresher,
-    IonRefresherContent
-  ]
+    IonRefresherContent,
+  ],
 })
 export class MemberManagementPage implements OnInit {
   @ViewChild(IonContent) content!: IonContent;
@@ -86,19 +90,25 @@ export class MemberManagementPage implements OnInit {
   selectedTab = signal<'member' | 'owner'>('member');
   searchText = signal<string>('');
   isLoading = signal<boolean>(false);
+  showScrollBtn = signal<boolean>(false);
 
   filteredUsers = computed(() => {
-    const list = this.selectedTab() === 'member' ? this.members() : this.owners();
+    const list =
+      this.selectedTab() === 'member' ? this.members() : this.owners();
     const search = this.searchText().toLowerCase().trim();
-    
+
     if (!search) return list;
 
-    return list.filter(u => {
+    return list.filter((u) => {
       if (this.selectedTab() === 'member') {
         return u.USERNAME.toLowerCase().includes(search);
       } else {
-        const fullName = `${u.FIRST_NAME || ''} ${u.LAST_NAME || ''}`.toLowerCase();
-        return fullName.includes(search) || u.USERNAME.toLowerCase().includes(search);
+        const fullName = `${u.FIRST_NAME || ''} ${
+          u.LAST_NAME || ''
+        }`.toLowerCase();
+        return (
+          fullName.includes(search) || u.USERNAME.toLowerCase().includes(search)
+        );
       }
     });
   });
@@ -107,7 +117,8 @@ export class MemberManagementPage implements OnInit {
     private userSv: UserServices,
     private router: Router,
     private alertCtrl: AlertController,
-    private toastCtrl: ToastController
+    private toastCtrl: ToastController,
+    private actionSheetCtrl: ActionSheetController
   ) {
     addIcons({
       searchOutline,
@@ -118,7 +129,10 @@ export class MemberManagementPage implements OnInit {
       businessOutline,
       checkmarkCircleOutline,
       shieldCheckmarkOutline,
-      trashOutline
+      trashOutline,
+      settingsOutline,
+      closeOutline,
+      arrowBackCircleOutline,
     });
   }
 
@@ -135,17 +149,21 @@ export class MemberManagementPage implements OnInit {
 
   fetchData() {
     this.isLoading.set(true);
-    this.userSv.getMembers().subscribe({
-      next: (data) => this.members.set(data),
-      error: (err) => console.error('Error fetching members', err)
-    });
 
-    this.userSv.getDormOwners().pipe(
-      finalize(() => this.isLoading.set(false))
-    ).subscribe({
-      next: (data) => this.owners.set(data),
-      error: (err) => console.error('Error fetching owners', err)
-    });
+    forkJoin({
+      members: this.userSv.getMembers(),
+      owners: this.userSv.getDormOwners(),
+    })
+      .pipe(finalize(() => this.isLoading.set(false)))
+      .subscribe({
+        next: (res) => {
+          this.members.set(res.members);
+          this.owners.set(res.owners);
+
+          console.log(res.owners);
+        },
+        error: (err) => console.error('Error fetching users', err),
+      });
   }
 
   onTabChange(event: any) {
@@ -154,6 +172,10 @@ export class MemberManagementPage implements OnInit {
 
   onSearch(event: any) {
     this.searchText.set(event.detail.value || '');
+  }
+
+  onScroll(event: any) {
+    this.showScrollBtn.set(event.detail.scrollTop > 400);
   }
 
   scrollToTop() {
@@ -168,6 +190,57 @@ export class MemberManagementPage implements OnInit {
     }
   }
 
+  async openManageActionSheet(event: Event, user: UserAllGetRes) {
+    event.stopPropagation();
+
+    const isBanned = user.ACCOUNT_STATUS === 2;
+
+    const actionSheet = await this.actionSheetCtrl.create({
+      mode: 'md',
+      cssClass: 'minimal-action-sheet',
+      header: `จัดการ ${
+        this.selectedTab() === 'member'
+          ? user.USERNAME
+          : user.FIRST_NAME + ' ' + user.LAST_NAME
+      }`,
+      buttons: [
+        {
+          text: 'แก้ไข',
+          icon: 'create-outline',
+          handler: () => {
+            this.editUser(event, user);
+          },
+        },
+        {
+          text: isBanned ? 'ยกเลิกการระงับ' : 'ระงับการใช้งาน',
+          icon: isBanned ? 'shield-checkmark-outline' : 'ban-outline',
+          role: isBanned ? undefined : 'destructive',
+          handler: () => {
+            if (isBanned) {
+              this.unbanUser(event, user);
+            } else {
+              this.banUser(event, user);
+            }
+          },
+        },
+        {
+          text: 'ลบถาวร',
+          icon: 'trash-outline',
+          role: 'destructive',
+          handler: () => {
+            this.hardDeleteUser(event, user);
+          },
+        },
+        {
+          text: 'ยกเลิก',
+          role: 'cancel',
+        },
+      ],
+    });
+
+    await actionSheet.present();
+  }
+
   editUser(event: Event, user: UserAllGetRes) {
     event.stopPropagation();
     if (user.ROLE_TYPE_ID === 1) {
@@ -179,80 +252,94 @@ export class MemberManagementPage implements OnInit {
 
   async banUser(event: Event, user: UserAllGetRes) {
     event.stopPropagation();
-    
+
     const alert = await this.alertCtrl.create({
-      header: 'Confirm Ban',
-      message: `Are you sure you want to ban ${this.selectedTab() === 'member' ? user.USERNAME : user.FIRST_NAME + ' ' + user.LAST_NAME}?`,
+      header: 'ยืนยันการระงับ',
+      message: `คุณแน่ใจหรือไม่ว่าต้องการระงับการใช้งาน ${
+        this.selectedTab() === 'member'
+          ? user.USERNAME
+          : user.FIRST_NAME + ' ' + user.LAST_NAME
+      }?`,
       buttons: [
-        { text: 'Cancel', role: 'cancel' },
+        { text: 'ยกเลิก', role: 'cancel' },
         {
-          text: 'Ban',
+          text: 'ระงับ',
           role: 'destructive',
           handler: () => {
             this.userSv.banAccount(user.USER_ID).subscribe({
               next: () => {
-                this.showToast('User has been banned');
+                this.showToast('ผู้ใช้งานถูกระงับแล้ว');
                 this.fetchData();
               },
-              error: (err) => this.showToast('Failed to ban user: ' + err.message)
+              error: (err) =>
+                this.showToast('ไม่สามารถระงับผู้ใช้งานได้: ' + err.message),
             });
-          }
-        }
-      ]
+          },
+        },
+      ],
     });
     await alert.present();
   }
 
   async unbanUser(event: Event, user: UserAllGetRes) {
     event.stopPropagation();
-    
+
     const alert = await this.alertCtrl.create({
-      header: 'Confirm Unban',
-      message: `Are you sure you want to lift the ban for ${this.selectedTab() === 'member' ? user.USERNAME : user.FIRST_NAME + ' ' + user.LAST_NAME}?`,
+      header: 'ยืนยันการยกเลิกระงับ',
+      message: `คุณแน่ใจหรือไม่ว่าต้องการยกเลิกการระงับสำหรับ ${
+        this.selectedTab() === 'member'
+          ? user.USERNAME
+          : user.FIRST_NAME + ' ' + user.LAST_NAME
+      }?`,
       buttons: [
-        { text: 'Cancel', role: 'cancel' },
+        { text: 'ยกเลิก', role: 'cancel' },
         {
-          text: 'Lift Ban',
+          text: 'ยกเลิกระงับ',
           handler: () => {
             this.userSv.unbanAccount(user.USER_ID).subscribe({
               next: () => {
-                this.showToast('User has been unbanned');
+                this.showToast('ยกเลิกการระงับผู้ใช้งานแล้ว');
                 this.fetchData();
               },
-              error: (err) => this.showToast('Failed to unban user: ' + err.message)
+              error: (err) =>
+                this.showToast('ไม่สามารถยกเลิกการระงับได้: ' + err.message),
             });
-          }
-        }
-      ]
+          },
+        },
+      ],
     });
     await alert.present();
   }
 
   async hardDeleteUser(event: Event, user: UserAllGetRes) {
     event.stopPropagation();
-    
+
     const alert = await this.alertCtrl.create({
-      header: 'Confirm Hard Delete',
-      message: `Are you absolutely sure you want to PERMANENTLY delete ${this.selectedTab() === 'member' ? user.USERNAME : user.FIRST_NAME + ' ' + user.LAST_NAME}? This action cannot be undone and will erase all associated data.`,
+      header: 'ยืนยันการลบถาวร',
+      message: `คุณแน่ใจหรือไม่ว่าต้องการลบ ${
+        this.selectedTab() === 'member'
+          ? user.USERNAME
+          : user.FIRST_NAME + ' ' + user.LAST_NAME
+      } อย่างถาวร? การกระทำนี้ไม่สามารถยกเลิกได้และข้อมูลที่เกี่ยวข้องทั้งหมดจะถูกลบ`,
       buttons: [
-        { text: 'Cancel', role: 'cancel' },
+        { text: 'ยกเลิก', role: 'cancel' },
         {
-          text: 'Delete Permanently',
+          text: 'ลบถาวร',
           role: 'destructive',
           handler: () => {
             this.userSv.hardDeleteAccount(user.USER_ID).subscribe({
               next: () => {
-                this.showToast('User has been permanently deleted');
+                this.showToast('ผู้ใช้งานถูกลบอย่างถาวรแล้ว');
                 this.fetchData();
               },
               error: (err) => {
                 const msg = err.error?.message || err.message;
-                this.showToast('Failed to delete: ' + msg);
-              }
+                this.showToast('ไม่สามารถลบได้: ' + msg);
+              },
             });
-          }
-        }
-      ]
+          },
+        },
+      ],
     });
     await alert.present();
   }
@@ -261,26 +348,34 @@ export class MemberManagementPage implements OnInit {
     const toast = await this.toastCtrl.create({
       message,
       duration: 2000,
-      position: 'bottom'
+      position: 'bottom',
     });
     await toast.present();
   }
 
   getStatusColor(status: number) {
     switch (status) {
-      case 0: return 'success';
-      case 1: return 'warning';
-      case 2: return 'danger';
-      default: return 'medium';
+      case 0:
+        return 'success';
+      case 1:
+        return 'warning';
+      case 2:
+        return 'danger';
+      default:
+        return 'medium';
     }
   }
 
   getStatusText(status: number) {
     switch (status) {
-      case 0: return 'Active';
-      case 1: return 'Inactive';
-      case 2: return 'Banned';
-      default: return 'Unknown';
+      case 0:
+        return 'ใช้งานปกติ';
+      case 1:
+        return 'ไม่ได้ใช้งาน';
+      case 2:
+        return 'ถูกระงับ';
+      default:
+        return 'ไม่ทราบสถานะ';
     }
   }
 }

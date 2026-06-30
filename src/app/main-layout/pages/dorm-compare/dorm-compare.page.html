@@ -266,7 +266,7 @@
 
       <!-- ─── ROW 9: Facilities ─── -->
       <div
-        class="cell title-cell labels-column flex-grow flex justify-start align-middle"
+        class="cell title-cell labels-column flex-grow flex justify-start align-middle pb-[6rem]"
       >
         <ion-icon
           name="checkmark-done-outline"
@@ -276,7 +276,7 @@
         ><span class="text-[16px]">สิ่งอำนวย<br />ความสะดวก</span>
       </div>
       <div
-        class="cell data-cell list-cell flex-grow"
+        class="cell data-cell list-cell flex-grow mb-[5rem]"
         *ngFor="let dorm of selectedDorms()"
       >
         <ul *ngIf="dorm.facilities?.length; else noFacs">
@@ -306,7 +306,6 @@
         <ng-template #noFacs><span class="no-data">—</span></ng-template>
       </div>
     </div>
-    <div class="h-[3rem] w-full"></div>
   </div>
 
   <ion-modal [isOpen]="isModalOpen()" class="minimal-modal select-dorm-modal">
@@ -354,6 +353,7 @@
             <ion-avatar slot="start">
               <img
                 #modalDormImg
+                class="w-full h-full object-cover"
                 [src]="dorm.image || 'https://placehold.co/100x100?text=No+Img'"
                 (error)="modalDormImg.src = 'https://placehold.co/100x100?text=No+Img'"
               />
@@ -366,7 +366,7 @@
         </ion-list>
         <div
           class="ion-padding text-center text-gray-500"
-          *ngIf="!isLoadingModal() && filteredDorms().length === 0"
+          *ngIf="!isLoadingModal() && filteredDorms().length == 0"
         >
           ไม่พบหอพักที่ค้นหา หรือคุณเลือกหอพักทั้งหมดไปแล้ว
         </div>
@@ -439,7 +439,6 @@
   >
     <ion-fab-button
       (click)="openSelectModal()"
-      color="primary"
       [disabled]="selectedDorms().length >= maxDorms()"
     >
       <ion-icon name="add"></ion-icon>

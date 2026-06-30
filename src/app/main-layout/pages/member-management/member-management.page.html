@@ -1,55 +1,111 @@
-<ion-header class="ion-no-border">
+<ion-header class="ion-no-border main-header">
   <ion-toolbar class="main-toolbar">
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/" color="dark"></ion-back-button>
-    </ion-buttons>
-    <ion-title class="toolbar-title text-gray-900">Member Control</ion-title>
+    <div
+      class="header-tool flex justify-between align-middle text-lg font-bold"
+    >
+      <a
+        routerLink="/"
+        class="back-btn flex justify-between align-middle ml-[.25rem] p-[.25rem] pl-1 pr-3 w-[5rem] rounded-full bg-slate-100 no-underline text-black"
+      >
+        <ion-icon name="arrow-back-circle-outline" size="large"></ion-icon>
+        <span class="">กลับ</span>
+      </a>
+      <span class="mt-1 text-white mr-[1rem] text-xl">จัดการสมาชิก</span>
+    </div>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" class="minimal-content">
+<ion-content
+  [fullscreen]="true"
+  class="member-list-content"
+  [scrollEvents]="true"
+  (ionScroll)="onScroll($event)"
+>
   <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
-  <div class="px-5 py-4 bg-white border-b border-gray-100">
-    <div class="minimal-search-container mt-0">
-      <ion-searchbar 
-        placeholder="Search for users..." 
-        [debounce]="300" 
-        (ionInput)="onSearch($event)"
-        class="minimal-searchbar"
-        mode="ios">
-      </ion-searchbar>
-    </div>
 
-    <ion-segment [value]="selectedTab()" (ionChange)="onTabChange($event)" mode="ios" class="mt-4 minimal-segment">
-      <ion-segment-button value="member">
-        <ion-label>Members</ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="owner">
-        <ion-label>Dorm Owners</ion-label>
-      </ion-segment-button>
-    </ion-segment>
-  </div>
-  <div class="px-4 pt-4 pb-20">
-    <div *ngIf="filteredUsers().length === 0 && !isLoading()" class="flex flex-col items-center justify-center py-20 text-center">
-      <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-        <ion-icon name="person-circle-outline" class="text-6xl text-gray-300"></ion-icon>
+  <div class="background-container"></div>
+
+  <div class="content-wrapper">
+    <!-- Search and Tabs wrapper -->
+    <div class="filter-relative-wrapper flex flex-col gap-4">
+      <div class="filter-group-container">
+        <div class="minimal-search-container mt-0">
+          <ion-searchbar
+            placeholder="ค้นหาผู้ใช้งาน..."
+            [debounce]="300"
+            (ionInput)="onSearch($event)"
+            class="minimal-searchbar"
+            mode="ios"
+          >
+          </ion-searchbar>
+        </div>
       </div>
-      <h3 class="text-xl font-bold text-gray-800">No matches found</h3>
-      <p class="text-gray-400 mt-2 px-10">We couldn't find any users matching your search criteria.</p>
+
+      <div class="filter-group-container">
+        <ion-segment
+          [value]="selectedTab()"
+          (ionChange)="onTabChange($event)"
+          mode="ios"
+          class="minimal-segment"
+        >
+          <ion-segment-button value="member">
+            <ion-label>สมาชิก</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="owner">
+            <ion-label>เจ้าของหอพัก</ion-label>
+          </ion-segment-button>
+        </ion-segment>
+      </div>
     </div>
 
-    <div class="flex flex-col gap-4">
-      <div *ngFor="let user of filteredUsers()" (click)="goToDetail(user)" class="minimal-card">
+    <!-- User List -->
+    <div class="results-count-wrapper" *ngIf="filteredUsers().length > 0">
+      <div class="count-badge">
+        <span
+          >พบผู้ใช้งาน <strong>{{ filteredUsers().length }}</strong> คน</span
+        >
+      </div>
+    </div>
+
+    <div class="member-list-container">
+      <div
+        *ngFor="let user of filteredUsers()"
+        (click)="goToDetail(user)"
+        class="minimal-member-card"
+      >
         <div class="minimal-card-inner">
           <div class="flex items-center gap-4">
             <div class="avatar-container">
-              <ion-icon [name]="user.ROLE_TYPE_ID === 1 ? 'person-circle-outline' : 'business-outline'" class="text-3xl text-gray-600"></ion-icon>
-              <div class="role-indicator" [class.is-owner]="user.ROLE_TYPE_ID === 2"></div>
+              <ion-badge
+                [color]="getStatusColor(user.ACCOUNT_STATUS)"
+                mode="ios"
+                class="minimal-badge absolute -top-2 -left-2 shadow-sm z-10 scale-90 origin-top-left"
+              >
+                {{ getStatusText(user.ACCOUNT_STATUS) }}
+              </ion-badge>
+
+              <ion-icon
+                [name]="user.ROLE_TYPE_ID === 1 ? 'person-circle-outline' : 'business-outline'"
+                class="text-3xl text-gray-600"
+                [style.display]="user.PROFILE_IMAGE ? 'none' : 'inline-block'"
+              ></ion-icon>
+
+              <img
+                *ngIf="user.PROFILE_IMAGE"
+                [src]="user.PROFILE_IMAGE"
+                class="w-full h-full object-cover rounded-xl"
+                alt="Profile Image"
+                (error)="$any($event.target).style.display = 'none'; $any($event.target).previousElementSibling.style.display = 'inline-block'"
+              />
+              <div
+                class="role-indicator"
+                [class.is-owner]="user.ROLE_TYPE_ID === 2"
+              ></div>
             </div>
-            
-            <div class="flex-1 min-w-0">
+
+            <div class="flex-1 min-w-0 pl-1">
               <h2 class="text-lg font-bold text-gray-900 truncate m-0">
                 <ng-container *ngIf="selectedTab() === 'member'">
                   {{ user.USERNAME }}
@@ -61,41 +117,47 @@
               <p class="text-sm text-gray-500 truncate">{{ user.EMAIL }}</p>
             </div>
 
-            <div class="status-indicator">
-              <ion-badge [color]="getStatusColor(user.ACCOUNT_STATUS)" mode="ios" class="minimal-badge">
-                {{ getStatusText(user.ACCOUNT_STATUS) }}
-              </ion-badge>
+            <div class="flex flex-col items-end justify-center">
+              <ion-button
+                (click)="openManageActionSheet($event, user)"
+                fill="clear"
+                color="medium"
+                size="small"
+                class="m-0 h-auto p-0 action-btn"
+              >
+                <ion-icon name="settings-outline" slot="start"></ion-icon>
+                จัดการ
+              </ion-button>
             </div>
-          </div>
-
-          <div class="minimal-actions mt-4 pt-4 flex justify-end gap-2 border-t border-gray-100 flex-wrap">
-            <ion-button (click)="editUser($event, user)" fill="clear" color="medium" class="action-btn" size="small">
-              <ion-icon slot="start" name="create-outline"></ion-icon>
-              Edit
-            </ion-button>
-            
-            <ion-button (click)="banUser($event, user)" fill="clear" color="danger" class="action-btn" size="small" *ngIf="user.ACCOUNT_STATUS !== 2">
-              <ion-icon slot="start" name="ban-outline"></ion-icon>
-              Ban
-            </ion-button>
-
-            <ion-button (click)="unbanUser($event, user)" fill="clear" color="success" class="action-btn" size="small" *ngIf="user.ACCOUNT_STATUS === 2">
-              <ion-icon slot="start" name="shield-checkmark-outline"></ion-icon>
-              Unban
-            </ion-button>
-
-            <ion-button (click)="hardDeleteUser($event, user)" fill="clear" color="danger" class="action-btn hard-delete" size="small">
-              <ion-icon slot="start" name="trash-outline"></ion-icon>
-              Delete
-            </ion-button>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- Empty State -->
+    <div
+      class="empty-state"
+      *ngIf="filteredUsers().length === 0 && !isLoading()"
+    >
+      <div class="empty-content">
+        <div class="empty-icon-wrapper">
+          <ion-icon name="person-circle-outline"></ion-icon>
+        </div>
+        <h3>ไม่พบข้อมูล</h3>
+        <p>ไม่พบผู้ใช้งานที่ตรงกับคำค้นหาของคุณ</p>
+      </div>
+    </div>
+
+    <div class="bottom-spacer"></div>
   </div>
 
-  <ion-fab vertical="bottom" horizontal="end" slot="fixed" style="margin-bottom: 70px;">
-    <ion-fab-button (click)="scrollToTop()" color="dark" class="minimal-fab">
+  <ion-fab
+    vertical="bottom"
+    horizontal="end"
+    slot="fixed"
+    *ngIf="showScrollBtn()"
+  >
+    <ion-fab-button (click)="scrollToTop()" class="scroll-top-btn">
       <ion-icon name="arrow-up-outline"></ion-icon>
     </ion-fab-button>
   </ion-fab>
