@@ -50,7 +50,7 @@ import {
 } from 'ionicons/icons';
 import { DormServices } from 'src/app/services/dormServices';
 import { AuthenService } from 'src/app/services/authenService';
-import { DormSummary } from 'src/app/model/dorm.model';
+import { DormSummary, MasterType } from 'src/app/model/dorm.model';
 import { ActivatedRoute } from '@angular/router';
 import { finalize } from 'rxjs';
 import { LoadingUIComponent } from '../../components/loading-ui/loading-ui.component';
@@ -98,6 +98,7 @@ export class MyDormPage implements OnInit {
   isLoading = signal<boolean>(false);
   searchQuery = signal<string>('');
   showScrollBtn = signal<boolean>(false);
+  dormStatuses = signal<MasterType[]>([]);
 
   @ViewChild(IonContent, { static: false }) content!: IonContent;
 
@@ -181,6 +182,20 @@ export class MyDormPage implements OnInit {
     if (this.userRole() === 3) {
       this.loadDormRequests();
     }
+    this.loadDormStatuses();
+  }
+
+  loadDormStatuses() {
+    this.dormSv.getDormStatuses().subscribe({
+      next: (res: any) => {
+        if (res && res.data) {
+          this.dormStatuses.set(res.data);
+        } else if (Array.isArray(res)) {
+          this.dormStatuses.set(res);
+        }
+      },
+      error: (err) => console.error('Failed to load dorm statuses', err)
+    });
   }
 
   segmentChanged(event: any) {
@@ -259,31 +274,26 @@ export class MyDormPage implements OnInit {
   }
 
   async openStatusMenu(dorm: DormSummary) {
+    const dynamicButtons: any[] = this.dormStatuses().map((status) => {
+      let iconName: string | undefined;
+      if (status.id === 1) iconName = 'checkmark-circle-outline';
+      else if (status.id === 2) iconName = 'warning-outline';
+      else if (status.id === 3) iconName = 'close-circle-outline';
+      
+      return {
+        text: status.name,
+        icon: iconName,
+        handler: () => {
+          this.changeStatus(dorm, status.id);
+        }
+      };
+    });
+
     const actionSheet = await this.actionSheetCtrl.create({
       header: 'จัดการสถานะหอพัก',
       cssClass: 'minimal-action-sheet',
       buttons: [
-        {
-          text: 'เปิดให้บริการ',
-          icon: 'checkmark-circle-outline',
-          handler: () => {
-            this.changeStatus(dorm, 1);
-          },
-        },
-        {
-          text: 'ปิดปรับปรุง',
-          icon: 'warning-outline',
-          handler: () => {
-            this.changeStatus(dorm, 2);
-          },
-        },
-        {
-          text: 'ห้องเต็ม',
-          icon: 'close-circle-outline',
-          handler: () => {
-            this.changeStatus(dorm, 3);
-          },
-        },
+        ...dynamicButtons,
         {
           text: 'ลบ',
           role: 'destructive',
