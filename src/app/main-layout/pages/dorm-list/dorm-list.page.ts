@@ -160,9 +160,17 @@ export class DormListPage implements OnInit, OnDestroy {
       dorms = dorms.filter((d) => Number(d.SCORE) >= score);
     }
     if (zoneId) {
-      const zoneObj = this.zones().find((z) => z.ZONE_ID.toString() === zoneId);
+      const targetZoneId = Number(zoneId);
+      const zoneObj = this.zones().find((z) => z.ZONE_ID === targetZoneId);
       if (zoneObj) {
-        dorms = dorms.filter((d) => d.zone === zoneObj.ZONE_NAME);
+        const targetZoneName = zoneObj.ZONE_NAME?.trim();
+        dorms = dorms.filter((d) => {
+          if (d.ZONE_ID !== undefined) {
+            return d.ZONE_ID === targetZoneId;
+          }
+          const dZone = (d.zone || d.ZONE_NAME)?.trim();
+          return dZone === targetZoneName;
+        });
       }
     }
 

@@ -95,6 +95,32 @@ export const routes: Routes = [
             (m) => m.OwnerRequestsPage
           ),
       },
+      {
+        path: 'dashboard',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import('./main-layout/pages/dashboard/dashboard.page').then(
+            (m) => m.DashboardPage
+          ),
+      },
+
+      {
+        path: 'facility-management',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import(
+            './main-layout/pages/facility-management/facility-management.page'
+          ).then((m) => m.FacilityManagementPage),
+      },
+
+      {
+        path: 'type-management',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import(
+            './main-layout/pages/type-management/type-management.page'
+          ).then((m) => m.TypeManagementPage),
+      },
     ],
   },
 
@@ -148,33 +174,6 @@ export const routes: Routes = [
     path: 'register',
     loadComponent: () =>
       import('./register/register.page').then((m) => m.RegisterPage),
-  },
-
-  {
-    path: 'facility-management',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import(
-        './main-layout/pages/facility-management/facility-management.page'
-      ).then((m) => m.FacilityManagementPage),
-  },
-
-  {
-    path: 'dashboard',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./main-layout/pages/dashboard/dashboard.page').then(
-        (m) => m.DashboardPage
-      ),
-  },
-
-  {
-    path: 'type-management',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./main-layout/pages/type-management/type-management.page').then(
-        (m) => m.TypeManagementPage
-      ),
   },
 
   {

@@ -164,6 +164,9 @@ export class DormDetailPage implements OnInit, OnDestroy {
   ngOnInit() {
     this.userSub = this.authSv.user$.subscribe((user) => {
       this.currentUser = user;
+      if (user && this.dormId) {
+        this.checkIfFavorite();
+      }
     });
 
     this.route.queryParams.subscribe((params) => {
@@ -174,6 +177,9 @@ export class DormDetailPage implements OnInit, OnDestroy {
     const idParam = this.route.snapshot.paramMap.get('dorm_id');
     if (idParam) {
       this.dormId = Number(idParam);
+      if (this.currentUser) {
+        this.checkIfFavorite();
+      }
       this.loadAllData();
     } else {
       this.hasError.set(true);
@@ -280,6 +286,19 @@ export class DormDetailPage implements OnInit, OnDestroy {
         if (!event) this.isLoading.set(false);
         if (event) event.target.complete();
       },
+    });
+  }
+
+  checkIfFavorite() {
+    if (!this.currentUser || !this.dormId) return;
+    this.userSv.getMyFavorites(this.currentUser.id).subscribe({
+      next: (res) => {
+        if (res.success) {
+          const isFav = res.data.some((f: any) => f.DORMID === this.dormId);
+          this.isFavorite.set(isFav);
+        }
+      },
+      error: (err) => console.error('Error fetching favorites', err),
     });
   }
 

@@ -65,6 +65,7 @@ export interface DormSummary {
   FRONT_DORM_IMAGE?: string; // used by owner endpoints
   zone?: string;
   ZONE_NAME?: string;
+  ZONE_ID?: number;
   lat: number;
   lng: number;
   start_price: number;

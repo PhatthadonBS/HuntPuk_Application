@@ -1,4 +1,10 @@
-import { Component, OnInit, inject, ViewChild, ElementRef } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  inject,
+  ViewChild,
+  ElementRef,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -18,8 +24,10 @@ import {
   IonCol,
   IonSkeletonText,
   IonButton,
+  IonRefresherContent,
+  IonModal,
+  IonSpinner,
   IonRefresher,
-  IonRefresherContent
 } from '@ionic/angular/standalone';
 import { HttpClient } from '@angular/common/http';
 import { addIcons } from 'ionicons';
@@ -35,6 +43,8 @@ import {
   checkmarkCircleOutline,
   powerOutline,
   banOutline,
+  arrowBackCircleOutline,
+  warningOutline,
 } from 'ionicons/icons';
 import { environment } from 'src/environments/environment';
 import { NavController } from '@ionic/angular/standalone';
@@ -87,6 +97,8 @@ interface DashboardStats {
   popularDormName: string;
   popularDormViews: number;
   topPopularDorms: TopPopularDorm[];
+  allDormViews: TopPopularDorm[];
+  totalDormViews: number;
   zoneBreakdown: ZoneBreakdown[];
   dormStatusBreakdown: DormStatusBreakdown[];
   dormTypeBreakdown: DormTypeBreakdown[];
@@ -106,6 +118,7 @@ interface DashboardStats {
     IonToolbar,
     IonButtons,
     IonBackButton,
+    IonButton,
     IonCard,
     IonCardHeader,
     IonCardTitle,
@@ -118,13 +131,15 @@ interface DashboardStats {
     CommonModule,
     FormsModule,
     IonRefresher,
-    IonRefresherContent
+    IonRefresherContent,
+    IonModal,
+    IonSpinner,
   ],
 })
 export class DashboardPage implements OnInit {
   private http = inject(HttpClient);
   private navCtrl = inject(NavController);
-  
+
   @ViewChild('dormStatusCanvas') dormStatusCanvas!: ElementRef;
   @ViewChild('dormTypeCanvas') dormTypeCanvas!: ElementRef;
   @ViewChild('viewCanvas') viewCanvas!: ElementRef;
@@ -132,14 +147,17 @@ export class DashboardPage implements OnInit {
   stats: DashboardStats | null = null;
   isLoading = true;
   error = false;
-  
+
   isDormModalOpen = false;
   isUserModalOpen = false;
   isZoneModalOpen = false;
   isViewModalOpen = false;
   isPopularModalOpen = false;
+  isAllDormViewsModalOpen = false;
 
   selectedYearForTable: number | null = null;
+  monthlyTableData: any[] = [];
+  isTableLoading = false;
   private charts: Chart[] = [];
 
   constructor() {
@@ -155,11 +173,17 @@ export class DashboardPage implements OnInit {
       checkmarkCircleOutline,
       powerOutline,
       banOutline,
+      arrowBackCircleOutline,
+      warningOutline,
     });
   }
 
   ngOnInit() {
     this.fetchStats();
+  }
+
+  goBack() {
+    this.navCtrl.back();
   }
 
   handleRefresh(event: any) {
@@ -170,91 +194,124 @@ export class DashboardPage implements OnInit {
   }
 
   // --- Modal Controls ---
-  openDormModal() { 
-    this.isDormModalOpen = true; 
-    setTimeout(() => this.renderDormCharts(), 100);
+  openDormModal() {
+    this.isDormModalOpen = true;
   }
-  closeDormModal() { this.isDormModalOpen = false; this.destroyCharts(); }
+  closeDormModal() {
+    this.isDormModalOpen = false;
+    this.destroyCharts();
+  }
 
-  openUserModal() { this.isUserModalOpen = true; }
-  closeUserModal() { this.isUserModalOpen = false; }
+  openUserModal() {
+    this.isUserModalOpen = true;
+  }
+  closeUserModal() {
+    this.isUserModalOpen = false;
+  }
 
-  openZoneModal() { this.isZoneModalOpen = true; }
-  closeZoneModal() { this.isZoneModalOpen = false; }
+  openZoneModal() {
+    this.isZoneModalOpen = true;
+  }
+  closeZoneModal() {
+    this.isZoneModalOpen = false;
+  }
 
-  openViewModal() { 
-    this.isViewModalOpen = true; 
+  openViewModal() {
+    this.isViewModalOpen = true;
     this.selectedYearForTable = null;
-    setTimeout(() => this.renderViewChart(), 100);
   }
-  closeViewModal() { this.isViewModalOpen = false; this.destroyCharts(); }
+  closeViewModal() {
+    this.isViewModalOpen = false;
+    this.destroyCharts();
+  }
 
-  openPopularModal() { this.isPopularModalOpen = true; }
-  closePopularModal() { this.isPopularModalOpen = false; }
+  openPopularModal() {
+    this.isPopularModalOpen = true;
+  }
+  closePopularModal() {
+    this.isPopularModalOpen = false;
+  }
+
+  openAllDormViewsModal() {
+    this.isAllDormViewsModalOpen = true;
+  }
+
+  closeAllDormViewsModal() {
+    this.isAllDormViewsModalOpen = false;
+  }
 
   goToFilteredDorms(zoneId: number) {
     this.closeZoneModal();
-    this.navCtrl.navigateForward('/dorms', { queryParams: { zone: zoneId } });
+    setTimeout(() => {
+      this.navCtrl.navigateForward('/dorms', { queryParams: { zone: zoneId } });
+    }, 300);
   }
 
   goToDormDetail(dormId: number) {
     this.closePopularModal();
-    this.navCtrl.navigateForward(`/dorm-detail/${dormId}`);
+    this.closeAllDormViewsModal();
+    setTimeout(() => {
+      this.navCtrl.navigateForward(`/dorm-detail/${dormId}`);
+    }, 300);
   }
 
   private destroyCharts() {
-    this.charts.forEach(c => c.destroy());
+    this.charts.forEach((c) => c.destroy());
     this.charts = [];
   }
 
   // --- Chart Rendering Methods ---
   renderDormCharts() {
     if (!this.stats || !this.dormStatusCanvas || !this.dormTypeCanvas) return;
-    
+
     const statusCtx = this.dormStatusCanvas.nativeElement;
     const statusChart = new Chart(statusCtx, {
       type: 'doughnut',
       data: {
-        labels: this.stats.dormStatusBreakdown.map(d => d.statusName),
-        datasets: [{
-          data: this.stats.dormStatusBreakdown.map(d => d.count),
-          backgroundColor: ['#10b981', '#ef4444', '#f59e0b', '#3b82f6'],
-        }]
+        labels: this.stats.dormStatusBreakdown.map((d) => d.statusName),
+        datasets: [
+          {
+            data: this.stats.dormStatusBreakdown.map((d) => d.count),
+            backgroundColor: ['#10b981', '#ef4444', '#f59e0b', '#3b82f6'],
+          },
+        ],
       },
-      options: { 
-        responsive: true, 
-        plugins: { 
+      options: {
+        responsive: true,
+        plugins: {
           legend: { position: 'bottom' },
           datalabels: {
             color: '#fff',
             font: { weight: 'bold', size: 14 },
-            formatter: (value) => value > 0 ? value : ''
-          }
-        } 
-      }
+            formatter: (value) => (value > 0 ? value : ''),
+          },
+        },
+      },
     });
 
     const typeCtx = this.dormTypeCanvas.nativeElement;
     const typeChart = new Chart(typeCtx, {
       type: 'doughnut',
       data: {
-        labels: this.stats.dormTypeBreakdown.map(d => d.typeName),
-        datasets: [{
-          data: this.stats.dormTypeBreakdown.map(d => d.count),
-          backgroundColor: ['#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'],
-        }]
+        labels: this.stats.dormTypeBreakdown.map((d) => d.typeName),
+        datasets: [
+          {
+            data: this.stats.dormTypeBreakdown.map((d) => d.count),
+            backgroundColor: ['#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'],
+          },
+        ],
       },
-      options: { 
-        responsive: true, 
-        plugins: { 
+      options: {
+        responsive: true,
+        plugins: {
           legend: { position: 'bottom' },
           datalabels: {
             color: '#fff',
             font: { weight: 'bold', size: 14 },
-            formatter: (value) => value > 0 ? value : ''
-          }
-        } 
-      }
+            formatter: (value) => (value > 0 ? value : ''),
+          },
+        },
+      },
     });
 
     this.charts.push(statusChart, typeChart);
@@ -262,53 +319,89 @@ export class DashboardPage implements OnInit {
 
   renderViewChart() {
     if (!this.stats || !this.viewCanvas) return;
-    
+
     // Group views by year
     const yearMap = new Map<number, number>();
-    this.stats.viewsPerMonthBreakdown.forEach(v => {
+    this.stats.viewsPerMonthBreakdown.forEach((v) => {
       const current = yearMap.get(v.year) || 0;
       yearMap.set(v.year, current + v.count);
     });
 
     const labels = Array.from(yearMap.keys()).sort();
-    const data = labels.map(year => yearMap.get(year));
+    const data = labels.map((year) => yearMap.get(year));
 
     const ctx = this.viewCanvas.nativeElement;
     const viewChart = new Chart(ctx, {
       type: 'doughnut',
       data: {
-        labels: labels.map(y => y.toString()),
-        datasets: [{
-          label: 'Yearly Views',
-          data: data as number[],
-          backgroundColor: ['#0ea5e9', '#8b5cf6', '#14b8a6', '#f59e0b', '#ef4444'],
-        }]
+        labels: labels.map((y) => y.toString()),
+        datasets: [
+          {
+            label: 'ยอดเข้าชมรายปี',
+            data: data as number[],
+            backgroundColor: [
+              '#0ea5e9',
+              '#8b5cf6',
+              '#14b8a6',
+              '#f59e0b',
+              '#ef4444',
+            ],
+          },
+        ],
       },
-      options: { 
+      options: {
         responsive: true,
         plugins: { legend: { position: 'bottom' } },
         onClick: (event, elements, chart) => {
           if (elements.length > 0) {
             const index = elements[0].index;
             const clickedYear = labels[index];
-            this.selectedYearForTable = clickedYear;
+            if (this.selectedYearForTable !== clickedYear) {
+              this.isTableLoading = true;
+              this.selectedYearForTable = clickedYear;
+
+              // Use setTimeout to allow the loading UI to render before heavy computation
+              setTimeout(() => {
+                this.generateMonthlyTableData();
+                this.isTableLoading = false;
+              }, 50);
+            }
           }
-        }
-      }
+        },
+      },
     });
     this.charts.push(viewChart);
   }
 
   // --- Table Data Helpers ---
-  getMonthlyTableData() {
-    if (!this.stats || !this.selectedYearForTable) return [];
-    return this.stats.viewsPerMonthBreakdown.filter(v => v.year === this.selectedYearForTable);
+  generateMonthlyTableData() {
+    if (!this.stats || !this.selectedYearForTable) {
+      this.monthlyTableData = [];
+      return;
+    }
+
+    const yearData = this.stats.viewsPerMonthBreakdown.filter(
+      (v) => v.year === this.selectedYearForTable
+    );
+
+    const allMonths = [];
+    for (let m = 1; m <= 12; m++) {
+      const existing = yearData.find((v) => v.month === m);
+      allMonths.push({
+        year: this.selectedYearForTable,
+        month: m,
+        monthName: this.getMonthName(m),
+        count: existing ? existing.count : 0,
+      });
+    }
+
+    this.monthlyTableData = allMonths;
   }
 
   getMonthName(monthNumber: number): string {
     const date = new Date();
     date.setMonth(monthNumber - 1);
-    return date.toLocaleString('default', { month: 'long' });
+    return date.toLocaleString('th-TH', { month: 'long' });
   }
 
   fetchStats() {
