@@ -267,7 +267,9 @@ export class DormDetailPage implements OnInit, OnDestroy {
           console.log(dormReviews.data);
 
           console.log(sumScore, dormReviews.data.length);
-          this.avgScore.set(dormReviews.data.length > 0 ? sumScore / dormReviews.data.length : 0);
+          this.avgScore.set(
+            dormReviews.data.length > 0 ? sumScore / dormReviews.data.length : 0
+          );
         }
 
         if (priceTypesReq) {
@@ -414,7 +416,7 @@ export class DormDetailPage implements OnInit, OnDestroy {
   getParsedScore(score: number | string | undefined): number {
     if (score === undefined || score === null) return 0;
     const parsed = Number(score);
-    return isNaN(parsed) ? 0 : Math.round(parsed);
+    return isNaN(parsed) ? 0 : Math.floor(parsed);
   }
 
   handleFacImageError(index: number) {

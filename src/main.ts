@@ -5,6 +5,7 @@ import {
   withPreloading,
   PreloadAllModules,
   withRouterConfig,
+  withComponentInputBinding,
 } from '@angular/router';
 import {
   IonicRouteStrategy,
@@ -36,6 +37,7 @@ bootstrapApplication(AppComponent, {
     provideRouter(
       routes,
       withPreloading(PreloadAllModules),
+      withComponentInputBinding(),
       withRouterConfig({
         onSameUrlNavigation: 'reload',
       })

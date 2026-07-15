@@ -71,3 +71,5 @@ Thumbs.db
 src/Huntpuk_fontend_context.txt
 GEMINI.md
 frontend_context.txt
+src/environments/environment.ts
+src/environments/environment.proc.ts

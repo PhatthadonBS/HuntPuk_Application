@@ -49,12 +49,12 @@
     </ion-button>
 
     <div class="image-container">
-      <img
+      <ion-img
         #dormImg
         [src]="dorm.image || 'https://placehold.co/600x400?text=No+Image'"
         class="dorm-image"
-        (error)="dormImg.src = 'https://placehold.co/600x400?text=No+Image'"
-      />
+        (ionError)="dormImg.src = 'https://placehold.co/600x400?text=No+Image'"
+      ></ion-img>
       <div
         class="full-status-badge"
         *ngIf="dorm.DORM_STATUS_ID && dorm.DORM_STATUS_ID !== 1"

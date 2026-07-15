@@ -12,9 +12,9 @@ export class SplashScreenComponent implements OnInit {
   isVisible = signal<boolean>(true);
 
   ngOnInit() {
-    // Keep splash screen for 2.5 seconds
+    // Keep splash screen for 2 seconds
     setTimeout(() => {
       this.isVisible.set(false);
-    }, 5000);
+    }, 2000);
   }
 }

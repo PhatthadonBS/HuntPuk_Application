@@ -30,6 +30,7 @@ import {
   IonRow,
   IonCol,
   IonIcon,
+  IonImg,
   ToastController,
 } from '@ionic/angular/standalone';
 import { CommonModule } from '@angular/common';
@@ -63,6 +64,9 @@ import {
   chevronDown,
 } from 'ionicons/icons';
 import { environment } from 'src/environments/environment';
+import { GoogleMapService } from 'src/app/services/google-map-service';
+
+declare var google: any;
 
 @Component({
   selector: 'app-home',
@@ -90,6 +94,7 @@ import { environment } from 'src/environments/environment';
     IonRow,
     IonCol,
     IonIcon,
+    IonImg,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -98,8 +103,10 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
   @ViewChild('map', { static: false }) mapEl!: ElementRef<HTMLElement>;
 
   newMap!: GoogleMap;
+  dirService: any;
   currentMarkerIds: string[] = [];
   currentCircleIds: string[] = [];
+  currentPolylineIds: string[] = [];
   pinMarkerId: string | null = null;
 
   private markerMap = new Map<string, DormSummary>();
@@ -170,7 +177,8 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
     private zone: NgZone,
     private renderer: Renderer2,
     private toastCtrl: ToastController,
-    public mainLayout: MainLayoutPage
+    public mainLayout: MainLayoutPage,
+    private gMapSv: GoogleMapService
   ) {
     addIcons({
       star,
@@ -273,6 +281,7 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
         this.newMap = null;
         this.currentMarkerIds = [];
         this.currentCircleIds = [];
+        this.currentPolylineIds = [];
         this.pinMarkerId = null;
         this.markerMap.clear();
         this.pendingMarkersUpdate = null;
@@ -312,6 +321,7 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
         this.newMap = null;
         this.currentMarkerIds = [];
         this.currentCircleIds = [];
+        this.currentPolylineIds = [];
         this.pinMarkerId = null;
         this.markerMap.clear();
         this.pendingMarkersUpdate = null;
@@ -460,6 +470,11 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
       this.pinMarkerId = null;
     }
 
+    if (this.newMap && this.currentPolylineIds.length > 0) {
+      this.newMap.removePolylines(this.currentPolylineIds).catch((e) => console.error(e));
+      this.currentPolylineIds = [];
+    }
+
     if (reload) {
       this.selectedZone.set(null);
       this.searchQuery.set('');
@@ -557,6 +572,9 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
       if (!this.newMap) {
         if (!this.mapEl?.nativeElement) return;
 
+        await this.gMapSv.load();
+        this.dirService = new google.maps.DirectionsService();
+
         this.newMap = await GoogleMap.create({
           id: 'my-map',
           element: this.mapEl.nativeElement,
@@ -564,8 +582,23 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
           config: {
             center: { lat: this.DEFAULT_LAT, lng: this.DEFAULT_LNG },
             zoom: 14,
-            disableDefaultUI: false,
+            disableDefaultUI: true,
             clickableIcons: false,
+            styles: [
+              { elementType: 'labels', stylers: [{ visibility: 'off' }] },
+              { featureType: 'poi', stylers: [{ visibility: 'off' }] },
+              { featureType: 'transit', stylers: [{ visibility: 'off' }] },
+              {
+                featureType: 'administrative',
+                elementType: 'labels',
+                stylers: [{ visibility: 'off' }],
+              },
+              {
+                featureType: 'road',
+                elementType: 'labels',
+                stylers: [{ visibility: 'off' }],
+              },
+            ],
           },
         });
 
@@ -694,9 +727,15 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
           .catch((e) => console.error('Error removing markers:', e));
       }
 
-      this.currentMarkerIds = [];
-      this.markerMap.clear();
+      if (this.currentPolylineIds.length > 0) {
+        await this.newMap
+          .removePolylines(this.currentPolylineIds)
+          .catch((e) => console.error('Error removing polylines:', e));
+      }
 
+      this.currentMarkerIds = [];
+      this.currentPolylineIds = [];
+      this.markerMap.clear();
       const markersData = dormsToDisplay.map((dorm) => ({
         coordinate: { lat: dorm.lat, lng: dorm.lng },
         iconUrl: 'assets/icon/home.png',
@@ -711,6 +750,51 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
         this.currentMarkerIds.forEach((id, idx) => {
           this.markerMap.set(id, dormsToDisplay[idx]);
         });
+
+        const pin = this.pinnedLocation();
+        if (pin && this.dirService) {
+          const newPolylineIds: string[] = [];
+          for (const dorm of dormsToDisplay) {
+            const req = {
+              origin: pin,
+              destination: { lat: dorm.lat, lng: dorm.lng },
+              travelMode: google.maps.TravelMode.DRIVING,
+            };
+
+            try {
+              const result = await new Promise<any>((resolve, reject) => {
+                this.dirService.route(req, (res: any, status: any) => {
+                  if (status === 'OK') resolve(res);
+                  else reject(status);
+                });
+              });
+
+              if (result && result.routes && result.routes[0]) {
+                const route = result.routes[0];
+                const path = route.overview_path.map((p: any) => ({
+                  lat: typeof p.lat === 'function' ? p.lat() : p.lat,
+                  lng: typeof p.lng === 'function' ? p.lng() : p.lng
+                }));
+
+                const r = Math.floor(Math.random() * 256);
+                const g = Math.floor(Math.random() * 256);
+                const b = Math.floor(Math.random() * 256);
+                const randomHexColor = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+
+                const polylineIds = await this.newMap.addPolylines([{
+                  path: path,
+                  strokeColor: randomHexColor,
+                  strokeWeight: 4,
+                  strokeOpacity: 0.7
+                }]);
+                newPolylineIds.push(...(polylineIds || []));
+              }
+            } catch (err) {
+              console.error('DirectionsService route error:', err);
+            }
+          }
+          this.currentPolylineIds = newPolylineIds;
+        }
       }
     } catch (error) {
       console.error('Error updating map markers:', error);

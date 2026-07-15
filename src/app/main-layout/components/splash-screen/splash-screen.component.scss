@@ -7,7 +7,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  animation: fadeOut 0.5s ease-in 2.2s forwards;
+  animation: fadeOut 0.5s ease-in 1.5s forwards;
 }
 
 .logo-wrapper {
@@ -27,7 +27,7 @@
   justify-content: center;
   align-items: center;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  animation: pulseScale 1.5s infinite ease-in-out;
+  animation: pulseScale 1s infinite ease-in-out;
 }
 
 .logo-animation {
@@ -68,7 +68,7 @@
     width: 50%;
     background: #374151;
     border-radius: 2px;
-    animation: loadingMove 1.5s infinite linear;
+    animation: loadingMove 0.8s infinite linear;
   }
 }
 
