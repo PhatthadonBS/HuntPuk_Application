@@ -93,6 +93,16 @@ capacitor-google-map {
       color: #333333;
     }
 
+    &.action-sheet-destructive {
+      color: #e63946;
+      --button-color: #e63946;
+      border-top: 1px solid rgba(0, 0, 0, 0.08);
+
+      .action-sheet-icon {
+        color: #e63946;
+      }
+    }
+
     &.action-sheet-cancel {
       font-weight: 600;
       color: #e63946;
@@ -114,6 +124,17 @@ capacitor-google-map {
 
   .custom-font-btn {
     font-size: 16px !important;
+  }
+
+  .action-sheet-selected-status {
+    --button-color: #d97706 !important;
+    --background: rgba(251, 191, 36, 0.08) !important;
+    color: #d97706 !important;
+    font-weight: 700 !important;
+
+    .action-sheet-icon {
+      color: #d97706 !important;
+    }
   }
 
   /* Example of how to style the Header specifically for this Action Sheet */

@@ -274,20 +274,25 @@ export class MyDormPage implements OnInit {
   }
 
   async openStatusMenu(dorm: DormSummary) {
-    const dynamicButtons: any[] = this.dormStatuses().map((status) => {
-      let iconName: string | undefined;
-      if (status.id === 1) iconName = 'checkmark-circle-outline';
-      else if (status.id === 2) iconName = 'warning-outline';
-      else if (status.id === 3) iconName = 'close-circle-outline';
-      
-      return {
-        text: status.name,
-        icon: iconName,
-        handler: () => {
-          this.changeStatus(dorm, status.id);
-        }
-      };
-    });
+    const dynamicButtons: any[] = this.dormStatuses()
+      .filter((status) => !(status.id === 4 && this.userRole() !== 3))
+      .map((status) => {
+        let iconName: string | undefined;
+        if (status.id === 1) iconName = 'checkmark-circle-outline';
+        else if (status.id === 2) iconName = 'warning-outline';
+        else if (status.id === 3) iconName = 'close-circle-outline';
+        else if (status.id === 4) iconName = 'alert-circle-outline';
+        
+        const isCurrent = status.id === dorm.DORM_STATUS_ID;
+        return {
+          text: status.name,
+          icon: iconName,
+          cssClass: isCurrent ? 'action-sheet-selected-status' : undefined,
+          handler: () => {
+            this.changeStatus(dorm, status.id);
+          }
+        };
+      });
 
     const actionSheet = await this.actionSheetCtrl.create({
       header: 'จัดการสถานะหอพัก',
@@ -298,6 +303,7 @@ export class MyDormPage implements OnInit {
           text: 'ลบ',
           role: 'destructive',
           icon: 'trash-outline',
+          
           handler: () => {
             this.deleteDorm(dorm);
           },
