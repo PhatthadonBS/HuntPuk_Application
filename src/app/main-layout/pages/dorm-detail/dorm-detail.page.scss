@@ -113,3 +113,68 @@
   transform: rotate(20deg) scale(15);
   pointer-events: none;
 }
+
+/* Dots Indicator Styling */
+.dots-container {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 6px 8px;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+.dot-track {
+  display: flex;
+  align-items: center;
+  transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  will-change: transform;
+}
+
+.pagination-dot {
+  width: 8px;
+  height: 8px;
+  margin: 0 3px;
+  background-color: rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
+              background-color 0.3s ease,
+              opacity 0.3s ease;
+  transform: scale(1);
+  opacity: 1;
+
+  &.active {
+    background-color: #ffcc00;
+    transform: scale(1.25);
+    opacity: 1;
+  }
+
+  &.normal {
+    background-color: rgba(255, 255, 255, 0.8);
+    transform: scale(1);
+    opacity: 0.9;
+  }
+
+  &.small-dot {
+    background-color: rgba(255, 255, 255, 0.6);
+    transform: scale(0.6);
+    opacity: 0.7;
+  }
+
+  &.hidden-dot {
+    background-color: rgba(255, 255, 255, 0);
+    transform: scale(0);
+    opacity: 0;
+  }
+}

@@ -3,6 +3,7 @@ import {
   OnInit,
   OnDestroy,
   signal,
+  computed,
   ViewChild,
   ElementRef,
 } from '@angular/core';
@@ -113,6 +114,21 @@ export class DormDetailPage implements OnInit, OnDestroy {
   isLoading = signal<boolean>(true);
   isFavorite = signal<boolean>(false);
   hasError = signal<boolean>(false);
+
+  currentImageIndex = signal<number>(0);
+
+  galleryLength = computed(() => {
+    return this.dorm()?.gallery?.length || 0;
+  });
+
+  dotStart = computed(() => {
+    const idx = this.currentImageIndex();
+    const len = this.galleryLength();
+    if (len <= 5) return 0;
+    if (idx <= 2) return 0;
+    if (idx >= len - 3) return len - 5;
+    return idx - 2;
+  });
 
   isPreview = signal<boolean>(false);
   isAdminReq = signal<boolean>(false);
@@ -433,6 +449,52 @@ export class DormDetailPage implements OnInit, OnDestroy {
         container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
       }
     }
+  }
+
+  onScroll(event: Event) {
+    const container = event.target as HTMLElement;
+    if (container) {
+      const width = container.clientWidth;
+      if (width > 0) {
+        const index = Math.round(container.scrollLeft / width);
+        if (index !== this.currentImageIndex()) {
+          this.currentImageIndex.set(index);
+        }
+      }
+    }
+  }
+
+  getContainerWidth(): number {
+    const len = this.galleryLength();
+    const count = Math.min(len, 5);
+    return count * 8 + (count - 1) * 6 + 16;
+  }
+
+  getDotClass(index: number): string {
+    const activeIdx = this.currentImageIndex();
+    const start = this.dotStart();
+    const len = this.galleryLength();
+
+    if (index === activeIdx) {
+      return 'active';
+    }
+
+    if (len <= 5) {
+      return 'normal';
+    }
+
+    if (index < start || index > start + 4) {
+      return 'hidden-dot';
+    }
+
+    if (index === start && start > 0) {
+      return 'small-dot';
+    }
+    if (index === start + 4 && start + 4 < len - 1) {
+      return 'small-dot';
+    }
+
+    return 'normal';
   }
 
   async finalConfirm() {

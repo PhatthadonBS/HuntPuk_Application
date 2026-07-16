@@ -63,7 +63,7 @@
 
       <!-- Slide Left Button -->
       <button
-        class="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white/80 rounded-full flex items-center justify-center shadow-md active:bg-gray-100 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+        class="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white/80 rounded-full flex items-center justify-center shadow-md active:bg-gray-100"
         (click)="scrollGallery('left')"
         *ngIf="d.gallery && d.gallery.length > 1"
       >
@@ -73,7 +73,7 @@
         ></ion-icon>
       </button>
 
-      <div class="gallery-scroll-container" #galleryContainer>
+      <div class="gallery-scroll-container" #galleryContainer (scroll)="onScroll($event)">
         <!-- Display fallback if no images exist -->
         <div class="gallery-item" *ngIf="!d.gallery || d.gallery.length === 0">
           <img
@@ -93,9 +93,27 @@
         </div>
       </div>
 
+      <!-- Dots Indicator -->
+      <div
+        class="dots-container"
+        *ngIf="d.gallery && d.gallery.length > 1"
+        [style.width.px]="getContainerWidth()"
+      >
+        <div
+          class="dot-track"
+          [style.transform]="'translateX(' + (-dotStart() * 14) + 'px)'"
+        >
+          <div
+            *ngFor="let imgUrl of d.gallery; let i = index"
+            class="pagination-dot"
+            [ngClass]="getDotClass(i)"
+          ></div>
+        </div>
+      </div>
+
       <!-- Slide Right Button -->
       <button
-        class="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white/80 rounded-full flex items-center justify-center shadow-md active:bg-gray-100 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+        class="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white/80 rounded-full flex items-center justify-center shadow-md active:bg-gray-100"
         (click)="scrollGallery('right')"
         *ngIf="d.gallery && d.gallery.length > 1"
       >
