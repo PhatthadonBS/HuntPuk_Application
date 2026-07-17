@@ -33,6 +33,11 @@ import {
   trashOutline,
   lockClosedOutline,
   businessOutline,
+  logoFacebook,
+  logoInstagram,
+  logoTwitter,
+  chatbubbleEllipsesOutline,
+  paperPlaneOutline,
 } from 'ionicons/icons';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UserServices } from 'src/app/services/userServices';
@@ -100,6 +105,11 @@ export class OwnerProfilePage {
       ellipsisHorizontalOutline,
       lockClosedOutline,
       businessOutline,
+      logoFacebook,
+      logoInstagram,
+      logoTwitter,
+      chatbubbleEllipsesOutline,
+      paperPlaneOutline,
     });
   }
 

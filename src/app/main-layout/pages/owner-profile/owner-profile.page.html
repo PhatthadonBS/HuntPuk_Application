@@ -134,6 +134,104 @@
     </div>
 
     <div
+      class="info-section mt-4"
+      *ngIf="
+        user()?.FACEBOOK ||
+        user()?.LINE ||
+        user()?.INSTAGRAM ||
+        user()?.TELEGRAM ||
+        user()?.X
+      "
+    >
+      <h3 class="px-4 py-2 text-md font-bold text-gray-700">
+        ช่องทางการติดต่อเพิ่มเติม
+      </h3>
+      <ion-list lines="none" class="minimal-list 0">
+        <ion-item
+          *ngIf="user()?.FACEBOOK"
+          class="border-b border-gray-300/80"
+          style="margin-bottom: -1rem"
+        >
+          <img
+            src="/assets/icon/facebook.png"
+            slot="start"
+            class="w-9 h-9 object-contain mt-[2rem] mr-4 -ml-2 opacity-50"
+          />
+          <ion-label position="stacked">Facebook</ion-label>
+          <ion-input
+            type="text"
+            [value]="user()?.FACEBOOK"
+            readonly
+          ></ion-input>
+        </ion-item>
+
+        <ion-item
+          *ngIf="user()?.LINE"
+          class="border-b border-gray-300/80"
+          style="margin-bottom: -1rem"
+        >
+          <img
+            src="/assets/icon/line.png"
+            slot="start"
+            class="w-11 h-11 object-contain mt-[1.5rem] -ml-[.75rem] mr-[1rem] opacity-50"
+          />
+          <ion-label position="stacked">Line ID</ion-label>
+          <ion-input type="text" [value]="user()?.LINE" readonly></ion-input>
+        </ion-item>
+
+        <ion-item
+          *ngIf="user()?.INSTAGRAM"
+          class="border-b border-gray-300/80"
+          style="margin-bottom: -1rem"
+        >
+          <img
+            src="/assets/icon/instagram.png"
+            slot="start"
+            class="w-9 h-9 object-containmt-[2rem] mr-4 -ml-[.5rem] mt-[2rem] opacity-50"
+          />
+          <ion-label position="stacked">Instagram</ion-label>
+          <ion-input
+            type="text"
+            [value]="user()?.INSTAGRAM"
+            readonly
+          ></ion-input>
+        </ion-item>
+
+        <ion-item
+          *ngIf="user()?.X"
+          class="border-b border-gray-300/80"
+          style="margin-bottom: -1rem"
+        >
+          <img
+            src="/assets/icon/twitter.png"
+            slot="start"
+            class="w-9 h-9 object-contain mt-[2rem] mr-[1rem] -ml-[.5rem] opacity-50"
+          />
+          <ion-label position="stacked">X (Twitter)</ion-label>
+          <ion-input type="text" [value]="user()?.X" readonly></ion-input>
+        </ion-item>
+
+        <ion-item
+          *ngIf="user()?.TELEGRAM"
+          class="border-b border-gray-300/80"
+          style="margin-bottom: -1rem"
+        >
+          <img
+            src="/assets/icon/telegram.png"
+            slot="start"
+            class="w-9 h-9 object-contain -ml-[.4rem] mr-4 mt-[2rem] opacity-50"
+          />
+          <ion-label position="stacked">Telegram</ion-label>
+          <ion-input
+            type="text"
+            [value]="user()?.TELEGRAM"
+            readonly
+          ></ion-input>
+        </ion-item>
+      </ion-list>
+    </div>
+
+    <div
       class="action-section"
       *ngIf="isOwnProfile() || isAdmin() || !adminView"
     >
