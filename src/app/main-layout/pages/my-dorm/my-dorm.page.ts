@@ -194,7 +194,7 @@ export class MyDormPage implements OnInit {
           this.dormStatuses.set(res);
         }
       },
-      error: (err) => console.error('Failed to load dorm statuses', err)
+      error: (err) => console.error('Failed to load dorm statuses', err),
     });
   }
 
@@ -282,7 +282,7 @@ export class MyDormPage implements OnInit {
         else if (status.id === 2) iconName = 'warning-outline';
         else if (status.id === 3) iconName = 'close-circle-outline';
         else if (status.id === 4) iconName = 'alert-circle-outline';
-        
+
         const isCurrent = status.id === dorm.DORM_STATUS_ID;
         return {
           text: status.name,
@@ -290,7 +290,7 @@ export class MyDormPage implements OnInit {
           cssClass: isCurrent ? 'action-sheet-selected-status' : undefined,
           handler: () => {
             this.changeStatus(dorm, status.id);
-          }
+          },
         };
       });
 
@@ -303,7 +303,7 @@ export class MyDormPage implements OnInit {
           text: 'ลบ',
           role: 'destructive',
           icon: 'trash-outline',
-          
+
           handler: () => {
             this.deleteDorm(dorm);
           },
@@ -337,14 +337,25 @@ export class MyDormPage implements OnInit {
   async deleteDorm(dorm: DormSummary) {
     const alert = await this.alertCtrl.create({
       header: 'ลบหอพัก?',
-      message: `คุณแน่ใจหรือไม่ว่าต้องการลบ "${dorm.DORM_NAME}"? การกระทำนี้ไม่สามารถย้อนกลับได้`,
+      message: `คุณแน่ใจหรือไม่ว่าต้องการลบ "${dorm.DORM_NAME}"? \nการกระทำนี้ไม่สามารถย้อนกลับได้\nกรุณาพิมพ์ \"ยืนยันลบหอพัก\" เพื่อยืนยัน`,
       cssClass: 'danger-alert',
+      inputs: [
+        {
+          name: 'confirmText',
+          type: 'text',
+          placeholder: 'พิมพ์ ยืนยันลบหอพัก',
+        },
+      ],
       buttons: [
         { text: 'ยกเลิก', role: 'cancel' },
         {
           text: 'ลบ',
           role: 'destructive',
-          handler: () => {
+          handler: (data) => {
+            if (data.confirmText !== 'ยืนยันลบหอพัก') {
+              this.showToast('พิมพ์คำยืนยันไม่ถูกต้อง', 'danger');
+              return false;
+            }
             this.isLoading.set(true);
             this.dormSv
               .removeDorm(dorm.DORM_ID)
@@ -359,6 +370,7 @@ export class MyDormPage implements OnInit {
                   this.showToast('ลบหอพักไม่สำเร็จ', 'danger');
                 },
               });
+            return true;
           },
         },
       ],
