@@ -1,4 +1,4 @@
-import { FormControl } from "@angular/forms";
+import { FormControl } from '@angular/forms';
 
 export interface DecodedToken {
   id: number;
@@ -29,6 +29,11 @@ export interface UserUpdatePostReq {
   phone_number: string | null;
   first_name?: string | null;
   last_name?: string | null;
+  facebook?: string | null;
+  line?: string | null;
+  instagram?: string | null;
+  x?: string | null;
+  telegram?: string | null;
 }
 
 export interface UserRegPostReqForm {
@@ -44,6 +49,11 @@ export interface UserUpdatePostReqForm {
   phone_number: FormControl<string | null>;
   first_name?: FormControl<string | null>;
   last_name?: FormControl<string | null>;
+  facebook?: FormControl<string | null>;
+  line?: FormControl<string | null>;
+  instagram?: FormControl<string | null>;
+  x?: FormControl<string | null>;
+  telegram?: FormControl<string | null>;
 }
 
 export interface UserDormOwnerReqPostReq {

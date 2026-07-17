@@ -182,20 +182,20 @@ ion-content.minimal-style {
     padding: 1rem 1.5rem;
 
     .save-btn {
-      --background: #{$base-dark};
-      --background-activated: #000000;
+      --background: #111111;
       --color: #ffffff;
       --border-radius: 16px;
-      height: 56px;
-      font-size: 1.1rem;
-      font-weight: 700;
+      --box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      height: 54px;
+      font-weight: 600;
+      font-size: 1.05rem;
       margin: 0;
-      text-transform: none;
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      letter-spacing: 0.02em;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
 
       &:active {
-        opacity: 0.9;
         transform: scale(0.98);
+        --box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
       }
 
       &[disabled] {
