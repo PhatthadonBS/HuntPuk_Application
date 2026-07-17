@@ -89,12 +89,12 @@
 
         <div class="input-group">
           <label>ที่อยู่ <span class="text-red-500">*</span></label>
-          <ion-textarea
+          <textarea
             rows="3"
             placeholder="ระบุเลขที่บ้าน ถนน ตำบล..."
             formControlName="address"
-            class="custom-input"
-          ></ion-textarea>
+            class="custom-textarea"
+          ></textarea>
         </div>
 
         <div class="input-group">
@@ -503,12 +503,12 @@
           <ion-icon name="information-circle-outline"></ion-icon>
           ข้อมูลเพิ่มเติม
         </h2>
-        <ion-textarea
+        <textarea
           rows="5"
           placeholder="ระบุรายละเอียดเพิ่มเติมที่คุณต้องการบอกลูกค้า..."
           formControlName="detail"
-          class="custom-input mb-4"
-        ></ion-textarea>
+          class="custom-textarea mb-4"
+        ></textarea>
 
         <ng-container *ngIf="isAdmin()">
           <h2 class="section-title mt-4">

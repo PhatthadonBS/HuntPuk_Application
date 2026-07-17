@@ -192,6 +192,8 @@ export class DormRegisterPage implements OnInit, OnDestroy {
   isMapModalOpen = signal<boolean>(false);
   map: any = null;
   private marker: any = null;
+  zoneMarkers: any[] = [];
+  zoneCircles: any[] = [];
   tempLocation = signal<{ lat: number; lng: number } | null>(null);
 
   // New Facility Request
@@ -789,6 +791,16 @@ export class DormRegisterPage implements OnInit, OnDestroy {
         zoom: 15,
         disableDefaultUI: true,
         clickableIcons: false,
+        styles: [
+          {
+            featureType: 'poi',
+            stylers: [{ visibility: 'off' }],
+          },
+          {
+            featureType: 'transit',
+            stylers: [{ visibility: 'off' }],
+          },
+        ],
       });
 
       if (this.tempLocation()) {
@@ -800,6 +812,8 @@ export class DormRegisterPage implements OnInit, OnDestroy {
         this.tempLocation.set(latLng);
         this.renderMarker(latLng);
       });
+
+      this.renderZoneMarkers();
     } catch (e) {
       console.error('Map init failed', e);
     }
@@ -818,13 +832,81 @@ export class DormRegisterPage implements OnInit, OnDestroy {
     const loc = this.tempLocation();
     if (loc) {
       this.dormForm.patchValue({ lat: loc.lat, lng: loc.lng });
+
+      const currentAddress = this.dormForm.get('address')?.value;
+      if (!currentAddress || currentAddress.trim() === '') {
+        try {
+          if (typeof google !== 'undefined' && google.maps && google.maps.Geocoder) {
+            const geocoder = new google.maps.Geocoder();
+            geocoder.geocode({ location: loc }, (results: any, status: any) => {
+              if (status === 'OK' && results && results.length > 0) {
+                const formattedAddress = results[0].formatted_address;
+                this.dormForm.patchValue({ address: formattedAddress });
+                this.cdr.detectChanges();
+              }
+            });
+          }
+        } catch (e) {
+          console.error('Geocoder failed', e);
+        }
+      }
     }
     this.closeMapModal();
   }
 
   destroyMap() {
+    if (this.zoneMarkers) {
+      this.zoneMarkers.forEach((m) => m.setMap(null));
+    }
+    if (this.zoneCircles) {
+      this.zoneCircles.forEach((c) => c.setMap(null));
+    }
+    this.zoneMarkers = [];
+    this.zoneCircles = [];
     this.map = null;
     this.marker = null;
+  }
+
+  renderZoneMarkers() {
+    this.zones().forEach((zone) => {
+      if (zone.lat && zone.lng) {
+        const marker = new google.maps.Marker({
+          position: { lat: Number(zone.lat), lng: Number(zone.lng) },
+          map: this.map,
+          label: {
+            text: zone.ZONE_NAME,
+            color: '#4285F4',
+            fontSize: '14px',
+            fontWeight: 'bold',
+            className: 'zone-marker-label',
+          },
+          icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: 8,
+            fillColor: '#4285F4',
+            fillOpacity: 1,
+            strokeColor: '#ffffff',
+            strokeWeight: 2,
+            labelOrigin: new google.maps.Point(0, 2.5),
+          },
+          clickable: false,
+        });
+        this.zoneMarkers.push(marker);
+
+        const circle = new google.maps.Circle({
+          strokeColor: '#eab308', // yellow-500
+          strokeOpacity: 0.8,
+          strokeWeight: 2,
+          fillColor: '#fef08a', // yellow-200
+          fillOpacity: 0.25,
+          map: this.map,
+          center: { lat: Number(zone.lat), lng: Number(zone.lng) },
+          radius: 500,
+          clickable: false,
+        });
+        this.zoneCircles.push(circle);
+      }
+    });
   }
 
   openOwnerModal() {
