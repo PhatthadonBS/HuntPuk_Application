@@ -36,23 +36,60 @@
 
   <ng-container *ngIf="showFilter || showCompare">
     <div class="row-2">
-      <ion-button
-        *ngIf="showFilter"
-        class="action-btn filter-btn"
-        (click)="goToFilter()"
-      >
-        <ion-icon name="filter-outline" slot="start"></ion-icon>
-        ตัวกรอง
-      </ion-button>
+      <div class="btn-tooltip-wrapper" *ngIf="showFilter">
+        <ion-button
+          class="action-btn filter-btn"
+          title="กรอง"
+          (click)="goToFilter()"
+          (touchstart)="startPress('filter')"
+          (touchend)="endPress()"
+          (mousedown)="startPress('filter')"
+          (mouseup)="endPress()"
+          (mouseleave)="endPress()"
+        >
+          <ion-icon name="funnel-outline" slot="start"></ion-icon>
+        </ion-button>
+        <div class="custom-tooltip" *ngIf="activeTooltip === 'filter'">
+          กรอง
+        </div>
+      </div>
 
-      <ion-button
-        *ngIf="showCompare"
-        class="action-btn compare-btn"
-        (click)="goToCompare()"
-      >
-        <ion-icon name="git-compare-outline" slot="start"></ion-icon>
-        เปรียบเทียบ
-      </ion-button>
+      <div class="btn-tooltip-wrapper" *ngIf="showSortByName">
+        <ion-button
+          class="action-btn sort-btn"
+          title="เรียงตามตัวอักษร"
+          (click)="toggleSortByName()"
+          (touchstart)="startPress('sort')"
+          (touchend)="endPress()"
+          (mousedown)="startPress('sort')"
+          (mouseup)="endPress()"
+          (mouseleave)="endPress()"
+        >
+          <ion-icon name="swap-horizontal-outline" slot="start"></ion-icon>
+          {{ sortByName === "desc" ? "ฮ-ก" : "ก-ฮ" }}
+        </ion-button>
+        <div class="custom-tooltip" *ngIf="activeTooltip === 'sort'">
+          เรียงตามตัวอักษร
+        </div>
+      </div>
+
+      <div class="btn-tooltip-wrapper" *ngIf="showCompare">
+        <ion-button
+          class="action-btn compare-btn"
+          title="เปรียบเทียบ"
+          (click)="goToCompare()"
+          (touchstart)="startPress('compare')"
+          (touchend)="endPress()"
+          (mousedown)="startPress('compare')"
+          (mouseup)="endPress()"
+          (mouseleave)="endPress()"
+        >
+          <ion-img src="assets/icon/compare.png" slot="start"></ion-img>
+        </ion-button>
+        <div class="custom-tooltip" *ngIf="activeTooltip === 'compare'">
+          เปรียบเทียบ
+        </div>
+      </div>
     </div>
   </ng-container>
 </div>
@@ -83,7 +120,7 @@
           </select>
         </div>
 
-        <div class="custom-field">
+        <div class="custom-field" *ngIf="role()">
           <label class="field-label">คะแนนรีวิว</label>
           <select [(ngModel)]="selectedScore" class="native-input-elem">
             <option [ngValue]="null">ทุกคะแนน</option>
@@ -107,7 +144,7 @@
                 class="native-input-elem"
               />
             </div>
-            <span class="price-divider">-</span>
+            <span class="price-divider pb-5">-</span>
             <div class="custom-field flex-1">
               <label class="field-label">สูงสุด</label>
               <input
@@ -115,6 +152,50 @@
                 [(ngModel)]="maxPrice"
                 placeholder="เช่น 5000"
                 class="native-input-elem"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Sorting Selection -->
+        <div class="custom-field" *ngIf="role() && showSortByPrice">
+          <label class="field-label">เรียงตามราคา (เริ่มต้น/เดือน)</label>
+          <select [(ngModel)]="sortByPrice" class="native-input-elem">
+            <option value="">ไม่ระบุ</option>
+            <option value="asc">น้อยไปมาก</option>
+            <option value="desc">มากไปน้อย</option>
+          </select>
+        </div>
+
+        <div class="custom-field" *ngIf="role() && showSortByName">
+          <label class="field-label">เรียงตามชื่อ</label>
+          <select [(ngModel)]="sortByName" class="native-input-elem">
+            <option value="">ไม่ระบุ</option>
+            <option value="asc">ก - ฮ</option>
+            <option value="desc">ฮ - ก</option>
+          </select>
+        </div>
+
+        <!-- Water and Electric Rate Filters -->
+        <div class="price-range-container" *ngIf="role()">
+          <div class="price-inputs">
+            <div class="custom-field flex-1">
+              <label class="field-label">ค่าน้ำ (บาท/หน่วย หรือ เหมา)</label>
+              <input
+                type="number"
+                [(ngModel)]="maxWater"
+                placeholder="เช่น 100"
+                class="native-input-elem"
+              />
+            </div>
+            <span class="price-divider"></span>
+            <div class="custom-field flex-1 mt-[0.5rem]">
+              <label class="field-label">ค่าไฟ (บาท/หน่วย)</label>
+              <input
+                type="number"
+                [(ngModel)]="maxElect"
+                placeholder="เช่น 8"
+                class="native-input-elem mt-2"
               />
             </div>
           </div>

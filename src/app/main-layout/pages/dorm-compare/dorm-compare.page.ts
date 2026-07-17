@@ -30,10 +30,16 @@ import {
   IonFab,
   IonFabButton,
   NavController,
+  ToastController,
 } from '@ionic/angular/standalone';
 import { DormServices } from 'src/app/services/dormServices';
 import { AuthenService } from 'src/app/services/authenService';
-import { DormSummary, DormDetail, DormZone } from 'src/app/model/dorm.model';
+import {
+  DormSummary,
+  DormDetail,
+  DormZone,
+  FilterParams,
+} from 'src/app/model/dorm.model';
 import { environment } from 'src/environments/environment';
 import { LoadingUIComponent } from '../../components/loading-ui/loading-ui.component';
 import { addIcons } from 'ionicons';
@@ -68,10 +74,7 @@ import {
 } from 'ionicons/icons';
 import { GoogleMapService } from 'src/app/services/google-map-service';
 import { Subscription } from 'rxjs';
-import {
-  FilterGroupComponent,
-  FilterParams,
-} from '../../components/filter-group/filter-group.component';
+import { FilterGroupComponent } from '../../components/filter-group/filter-group.component';
 
 declare var google: any;
 
@@ -140,16 +143,49 @@ export class DormComparePage implements OnInit, OnDestroy {
 
   filteredDorms = computed(() => {
     const currentSelectedIds = this.selectedDorms().map((d) => d.DORM_ID);
-    return this.allDorms().filter(
+    const dorms = this.allDorms().filter(
       (d) => !currentSelectedIds.includes(d.DORM_ID)
     );
+
+    const sortName = this.filterParams().sortByName;
+    if (sortName === 'asc') {
+      dorms.sort((a, b) => a.DORM_NAME.localeCompare(b.DORM_NAME, 'th'));
+    } else if (sortName === 'desc') {
+      dorms.sort((a, b) => b.DORM_NAME.localeCompare(a.DORM_NAME, 'th'));
+    }
+
+    const sort = this.filterParams().sortByPrice;
+
+    if (sort === 'asc') {
+      dorms.sort((a, b) => {
+        if (a.start_price === 0 && b.start_price !== 0) return 1;
+        if (b.start_price === 0 && a.start_price !== 0) return -1;
+        return a.start_price - b.start_price;
+      });
+    } else if (sort === 'desc') {
+      dorms.sort((a, b) => b.start_price - a.start_price);
+    }
+
+    const tempSelected = this.tempSelectedDormIds();
+    if (tempSelected.length > 0) {
+      dorms.sort((a, b) => {
+        const aSelected = tempSelected.includes(a.DORM_ID);
+        const bSelected = tempSelected.includes(b.DORM_ID);
+        if (aSelected && !bSelected) return -1;
+        if (!aSelected && bSelected) return 1;
+        return 0;
+      });
+    }
+
+    return dorms;
   });
 
   constructor(
     private dormSv: DormServices,
     private authSv: AuthenService,
     private gMapSv: GoogleMapService,
-    private navctrl: NavController
+    private navctrl: NavController,
+    private toastCtrl: ToastController
   ) {
     addIcons({
       addOutline,
@@ -309,7 +345,11 @@ export class DormComparePage implements OnInit, OnDestroy {
     Promise.all(fetchPromises)
       .then((results) => {
         const newDorms = results.filter((d) => d !== null) as CompareDorm[];
-        this.selectedDorms.update((dorms) => [...dorms, ...newDorms]);
+        this.selectedDorms.update((current) => {
+          const combined = [...current, ...newDorms];
+          combined.sort((a, b) => a.DORM_NAME.localeCompare(b.DORM_NAME, 'th'));
+          return combined;
+        });
         this.isLoadingDetail.set(false);
       })
       .catch((err) => {
@@ -532,83 +572,27 @@ export class DormComparePage implements OnInit, OnDestroy {
             this.polylines.push(polyline);
 
             // ==================================
-            // Info Window
+            // Toast Notification
             // ==================================
-            const infoWindow = new google.maps.InfoWindow();
+            polyline.addListener('click', async () => {
+              const distanceStr =
+                leg.distance?.value > 1000
+                  ? (leg.distance?.value / 1000).toFixed(2) + ' กม.'
+                  : leg.distance?.value + ' เมตร';
 
-            polyline.addListener('click', (e: google.maps.MapMouseEvent) => {
-              if (!e.latLng) return;
-
-              infoWindow.setPosition(e.latLng);
-
-              infoWindow.setContent(`
-                <div style="
-                  padding: 12px;
-                  min-width: 180px;
-                  font-family: 'Prompt', sans-serif;
-                  position: relative;
-                ">
-                  <button id="close-iw" style="
-                    position: absolute;
-                    top: 0;
-                    right: 0;
-                    background: #edf2f7;
-                    border: none;
-                    border-radius: 50%;
-                    width: 26px;
-                    height: 26px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    cursor: pointer;
-                    color: #4a5568;
-                    font-size: 14px;
-                    transition: background 0.2s;
-                  ">✕</button>
-                  <div style="
-                    font-weight: 700;
-                    font-size: 18px;
-                    margin-bottom: 4px;
-                    color: #1a202c;
-                    padding-right: 24px;
-                  ">
-                    ${dorm.DORM_NAME}
-                  </div>
-                  <div style="
-                    font-size: 14px;
-                    color: #4a5568;
-                    display: flex;
-                    align-items: center;
-                    gap: 4px;
-                    margin-bottom: 8px;
-                  ">
-                    <span style="color: #3182ce;">📍</span> ระยะทางถึงจุดอ้างอิง
-                  </div>
-                  <div style="
-                    font-size: 22px;
-                    font-weight: 800;
-                    color: #3182ce;
-                  ">
-                    ${
-                      leg.distance?.value > 1000
-                        ? (leg.distance?.value / 1000).toFixed(2) + ' กม.'
-                        : leg.distance?.value + ' เมตร'
-                    }
-                  </div>
-                </div>
-              `);
-
-              infoWindow.open(this.map);
-
-              // Handle custom close button click
-              google.maps.event.addListenerOnce(infoWindow, 'domready', () => {
-                const closeBtn = document.getElementById('close-iw');
-                if (closeBtn) {
-                  closeBtn.onclick = () => {
-                    infoWindow.close();
-                  };
-                }
+              const toast = await this.toastCtrl.create({
+                message: `${dorm.DORM_NAME} ระยะทาง ${distanceStr}`,
+                duration: 3000,
+                position: 'bottom',
+                color: 'dark',
+                buttons: [
+                  {
+                    icon: 'close',
+                    role: 'cancel',
+                  },
+                ],
               });
+              await toast.present();
             });
           }
         });
@@ -786,10 +770,6 @@ export class DormComparePage implements OnInit, OnDestroy {
   }
 
   goBack() {
-    if (this.authSv.currentUserValue?.role == 3) {
-      this.navctrl.back();
-    }
-
-    this.navctrl.navigateRoot('/');
+    this.navctrl.back();
   }
 }

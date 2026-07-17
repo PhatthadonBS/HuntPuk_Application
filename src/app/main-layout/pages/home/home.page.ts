@@ -36,7 +36,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { NavigationEnd, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { DormSummary, DormZone } from 'src/app/model/dorm.model';
+import { DormSummary, DormZone, FilterParams } from 'src/app/model/dorm.model';
 import { DormServices, DormQueryParams } from 'src/app/services/dormServices';
 import { UserServices } from 'src/app/services/userServices';
 import { AuthenService } from 'src/app/services/authenService';
@@ -44,10 +44,7 @@ import { LoadingUIComponent } from '../../components/loading-ui/loading-ui.compo
 import { filter, finalize, Subscription } from 'rxjs';
 import { GoogleMap } from '@capacitor/google-maps';
 import { Capacitor } from '@capacitor/core';
-import {
-  FilterGroupComponent,
-  FilterParams,
-} from '../../components/filter-group/filter-group.component';
+import { FilterGroupComponent } from '../../components/filter-group/filter-group.component';
 import { MainLayoutPage } from '../../main-layout.page';
 import { addIcons } from 'ionicons';
 import {
@@ -121,10 +118,30 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
   dorms = computed(() => {
     const raw = this.allDorms();
     const favs = this.favIds();
-    return raw.map((d) => ({
+    let result = raw.map((d) => ({
       ...d,
       isFavorite: favs.includes(d.DORM_ID),
     }));
+
+    const sortName = this.sortByName();
+    if (sortName === 'asc') {
+      result.sort((a, b) => a.DORM_NAME.localeCompare(b.DORM_NAME, 'th'));
+    } else if (sortName === 'desc') {
+      result.sort((a, b) => b.DORM_NAME.localeCompare(a.DORM_NAME, 'th'));
+    }
+
+    const sort = this.sortByPrice();
+    if (sort === 'asc') {
+      result.sort((a, b) => {
+        if (a.start_price === 0 && b.start_price !== 0) return 1;
+        if (b.start_price === 0 && a.start_price !== 0) return -1;
+        return a.start_price - b.start_price;
+      });
+    } else if (sort === 'desc') {
+      result.sort((a, b) => b.start_price - a.start_price);
+    }
+
+    return result;
   });
 
   selectedDormRaw = signal<DormSummary | null>(null);
@@ -147,9 +164,14 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
   maxPrice = signal<number | null>(null);
   selectedZone = signal<string | null>(null);
   selectedScore = signal<number | null>(null);
+  maxWater = signal<number | null>(null);
+  maxElect = signal<number | null>(null);
+  sortByPrice = signal<string>('');
+  sortByName = signal<string>('');
 
   isPinMode = signal(false);
   pinnedLocation = signal<{ lat: number; lng: number } | null>(null);
+  zoneLabel = signal<string>('');
   selectedRadius = signal<number>(0.5);
   currentRadius: number = 0.5;
   readonly radiusOptions = [
@@ -221,6 +243,10 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
     this.maxPrice.set(null);
     this.selectedZone.set(null);
     this.selectedScore.set(null);
+    this.maxWater.set(null);
+    this.maxElect.set(null);
+    this.sortByPrice.set('');
+    this.sortByName.set('asc');
   }
 
   isOpenMenu() {
@@ -339,6 +365,9 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
     if (this.minPrice() !== null) params.minPrice = this.minPrice();
     if (this.maxPrice() !== null) params.maxPrice = this.maxPrice();
     if (this.selectedScore() !== null) params.score = this.selectedScore();
+    if (this.maxWater() !== null) params.maxWater = this.maxWater();
+    if (this.maxElect() !== null) params.maxElect = this.maxElect();
+    if (this.sortByPrice()) params.sortByPrice = this.sortByPrice();
 
     const selectedZoneId = this.selectedZone();
     const pin = this.pinnedLocation();
@@ -385,6 +414,34 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
 
               if (pin || selectedZoneId) {
                 await this.updateMapCircle(centerLat, centerLng, currentRadius);
+
+                if (selectedZoneId && !pin) {
+                  if (this.pinMarkerId) {
+                    await this.newMap
+                      .removeMarker(this.pinMarkerId)
+                      .catch(() => {});
+                  }
+
+                  const zoneObj = this.zones().find(
+                    (z) => z.ZONE_ID.toString() === selectedZoneId.toString()
+                  );
+                  const zoneName = zoneObj ? zoneObj.ZONE_NAME : 'โซนที่เลือก';
+
+                  // Show the floating label
+                  this.zoneLabel.set(zoneName);
+
+                  const ids = await this.newMap.addMarkers([
+                    {
+                      coordinate: { lat: centerLat, lng: centerLng },
+                      title: zoneName,
+                      iconUrl: 'assets/icon/map-pin.png',
+                      iconSize: { width: 40, height: 40 },
+                      iconAnchor: { x: 20, y: 40 },
+                      zIndex: 10,
+                    },
+                  ]);
+                  this.pinMarkerId = ids[0];
+                }
               } else {
                 const hasDorms = res.data && res.data.length > 0;
                 const isFiltering =
@@ -432,6 +489,11 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
     this.maxPrice.set(params.maxPrice !== undefined ? params.maxPrice : null);
     this.selectedZone.set(params.zone || null);
     this.selectedScore.set(params.score !== undefined ? params.score : null);
+    this.maxWater.set(params.maxWater !== undefined ? params.maxWater : null);
+    this.maxElect.set(params.maxElect !== undefined ? params.maxElect : null);
+    this.sortByPrice.set(params.sortByPrice || '');
+    this.sortByName.set(params.sortByName || 'asc');
+    this.zoneLabel.set('');
 
     this.clearPin(false);
 
@@ -440,7 +502,11 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
       this.minPrice() === null &&
       this.maxPrice() === null &&
       this.selectedScore() === null &&
-      !this.selectedZone()
+      !this.selectedZone() &&
+      this.maxWater() === null &&
+      this.maxElect() === null &&
+      !this.sortByPrice() &&
+      this.sortByName() === 'asc'
     ) {
       this.sheetOpen.set(false);
       this.selectedDormRaw.set(null);
@@ -462,6 +528,7 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
 
   clearPin(reload = true) {
     this.pinnedLocation.set(null);
+    this.zoneLabel.set('');
     this.isPinMode.set(reload ? false : this.isPinMode());
     this.mainLayout.hideFooter.set(this.isPinMode());
 
@@ -471,7 +538,9 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
     }
 
     if (this.newMap && this.currentPolylineIds.length > 0) {
-      this.newMap.removePolylines(this.currentPolylineIds).catch((e) => console.error(e));
+      this.newMap
+        .removePolylines(this.currentPolylineIds)
+        .catch((e) => console.error(e));
       this.currentPolylineIds = [];
     }
 
@@ -607,12 +676,26 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
           .enableCurrentLocation(false)
           .catch((e) => console.error(e));
 
-        await this.newMap.setOnMapClickListener(async (data) => {
-          this.zone.run(async () => {
+        await this.newMap.setOnMapClickListener((event) => {
+          this.zone.run(() => {
             if (this.isPinMode()) {
-              await this.handlePinAction(data.latitude, data.longitude);
+              this.handlePinAction(event.latitude, event.longitude);
             } else {
               this.sheetOpen.set(false);
+            }
+          });
+        });
+
+        await this.newMap.setOnCameraMoveStartedListener(() => {
+          if (this.zoneLabel()) {
+            this.zone.run(() => this.zoneLabel.set(''));
+          }
+        });
+
+        await this.newMap.setOnPolylineClickListener(async (data) => {
+          this.zone.run(() => {
+            if (data.tag) {
+              this.showToast(data.tag, 'primary');
             }
           });
         });
@@ -773,20 +856,31 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
                 const route = result.routes[0];
                 const path = route.overview_path.map((p: any) => ({
                   lat: typeof p.lat === 'function' ? p.lat() : p.lat,
-                  lng: typeof p.lng === 'function' ? p.lng() : p.lng
+                  lng: typeof p.lng === 'function' ? p.lng() : p.lng,
                 }));
 
-                const r = Math.floor(Math.random() * 256);
-                const g = Math.floor(Math.random() * 256);
-                const b = Math.floor(Math.random() * 256);
-                const randomHexColor = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+                const r = Math.floor(Math.random() * 256 + 100);
+                const g = Math.floor(Math.random() * 256 + 100);
+                const b = Math.floor(Math.random() * 256 + 100);
+                const randomHexColor = `#${r.toString(16).padStart(2, '0')}${g
+                  .toString(16)
+                  .padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
 
-                const polylineIds = await this.newMap.addPolylines([{
-                  path: path,
-                  strokeColor: randomHexColor,
-                  strokeWeight: 4,
-                  strokeOpacity: 0.7
-                }]);
+                const distanceMeters =
+                  route.legs && route.legs.length > 0 && route.legs[0].distance
+                    ? route.legs[0].distance.value
+                    : 0;
+
+                const polylineIds = await this.newMap.addPolylines([
+                  {
+                    path: path,
+                    strokeColor: randomHexColor,
+                    strokeWeight: 4,
+                    strokeOpacity: 0.7,
+                    clickable: true,
+                    tag: `หอพัก${dorm.DORM_NAME} ระยะทาง ${distanceMeters} เมตร`,
+                  },
+                ]);
                 newPolylineIds.push(...(polylineIds || []));
               }
             } catch (err) {
@@ -816,6 +910,10 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
       maxPrice: this.maxPrice(),
       zone: this.selectedZone() || undefined,
       score: this.selectedScore() !== null ? this.selectedScore() : undefined,
+      maxWater: this.maxWater(),
+      maxElect: this.maxElect(),
+      sortByPrice: this.sortByPrice(),
+      sortByName: this.sortByName(),
     };
   }
 

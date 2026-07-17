@@ -105,9 +105,42 @@ $border-color: rgba(255, 255, 255, 0.4);
   justify-content: start; /* Center the buttons */
   gap: 12px;
 
+  .btn-tooltip-wrapper {
+    position: relative;
+    display: inline-block;
+  }
+
+  .custom-tooltip {
+    position: absolute;
+    bottom: -32px; /* Position below the button */
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.85);
+    color: white;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    white-space: nowrap;
+    z-index: 100;
+    pointer-events: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    animation: fadeIn 0.2s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -5px);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+  }
+
   .action-btn {
     width: fit-content;
-    min-width: 100px; /* More compact */
+    min-width: 50px; /* More compact */
     margin: 0;
     height: 38px; /* Shorter buttons */
     --border-radius: 12px;
@@ -118,8 +151,13 @@ $border-color: rgba(255, 255, 255, 0.4);
     font-size: 0.85rem;
 
     ion-icon {
-      font-size: 1rem;
+      font-size: 1.3rem;
       margin-right: 4px;
+    }
+
+    ion-img {
+      width: 1.4rem;
+      height: 1.2rem;
     }
   }
 }
@@ -146,6 +184,7 @@ $border-color: rgba(255, 255, 255, 0.4);
     top: 20%;
     width: 90vw;
     max-width: 380px;
+    max-height: 70vh;
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(30px);
     -webkit-backdrop-filter: blur(30px);
@@ -155,7 +194,7 @@ $border-color: rgba(255, 255, 255, 0.4);
     flex-direction: column;
     pointer-events: auto;
     border: 1px solid rgba(255, 255, 255, 0.5);
-    overflow: hidden;
+    overflow-y: scroll;
   }
 
   .close-sheet-btn {
@@ -236,8 +275,6 @@ select.native-input-elem {
 }
 
 .price-range-container {
-  margin-bottom: 32px;
-
   .section-title {
     font-weight: 700;
     color: $dark-text;

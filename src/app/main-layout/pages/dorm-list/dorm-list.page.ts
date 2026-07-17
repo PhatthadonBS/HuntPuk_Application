@@ -43,7 +43,7 @@ import {
 import { DormServices } from 'src/app/services/dormServices';
 import { UserServices } from 'src/app/services/userServices';
 import { AuthenService } from 'src/app/services/authenService';
-import { DormSummary, DormZone } from 'src/app/model/dorm.model';
+import { DormSummary, DormZone, FilterParams } from 'src/app/model/dorm.model';
 import { addIcons } from 'ionicons';
 import {
   filterOutline,
@@ -63,10 +63,7 @@ import {
 import { environment } from 'src/environments/environment';
 import { ActivatedRoute } from '@angular/router';
 import { NavController } from '@ionic/angular';
-import {
-  FilterGroupComponent,
-  FilterParams,
-} from '../../components/filter-group/filter-group.component';
+import { FilterGroupComponent } from '../../components/filter-group/filter-group.component';
 import { MainLayoutPage } from '../../main-layout.page';
 import { LoadingUIComponent } from '../../components/loading-ui/loading-ui.component';
 import { finalize, Subscription, forkJoin, of } from 'rxjs';
@@ -124,6 +121,10 @@ export class DormListPage implements OnInit, OnDestroy {
   maxPrice = signal<number | null>(null);
   selectedScore = signal<number | null>(null);
   selectedZoneId = signal<string | null>(null); // Store Zone ID as string
+  maxWater = signal<number | null>(null);
+  maxElect = signal<number | null>(null);
+  sortByPrice = signal<string>('');
+  sortByName = signal<string>('');
   initialParams = signal<FilterParams | null>(null);
   autoOpenFilter = signal<boolean>(false);
   showScrollBtn = signal<boolean>(false);
@@ -141,6 +142,10 @@ export class DormListPage implements OnInit, OnDestroy {
     const zoneId = this.selectedZoneId();
     const score = this.selectedScore();
     const favs = this.favIds();
+    const maxW = this.maxWater();
+    const maxE = this.maxElect();
+    const sort = this.sortByPrice();
+    const sortName = this.sortByName();
 
     dorms = dorms.map((d) => ({
       ...d,
@@ -172,6 +177,37 @@ export class DormListPage implements OnInit, OnDestroy {
           return dZone === targetZoneName;
         });
       }
+    }
+
+    if (maxW !== null) {
+      dorms = dorms.filter((d: any) => {
+        const wUnit = d.WATER_UNIT !== undefined && d.WATER_UNIT !== null ? Number(d.WATER_UNIT) : null;
+        const wLump = d.WATER_LUMP !== undefined && d.WATER_LUMP !== null ? Number(d.WATER_LUMP) : null;
+        return (wUnit !== null && wUnit <= maxW) || (wLump !== null && wLump <= maxW);
+      });
+    }
+
+    if (maxE !== null) {
+      dorms = dorms.filter((d: any) => {
+        const eUnit = d.ELECT_UNIT !== undefined && d.ELECT_UNIT !== null ? Number(d.ELECT_UNIT) : null;
+        return eUnit !== null && eUnit <= maxE;
+      });
+    }
+
+    if (sortName === 'asc') {
+      dorms.sort((a, b) => a.DORM_NAME.localeCompare(b.DORM_NAME, 'th'));
+    } else if (sortName === 'desc') {
+      dorms.sort((a, b) => b.DORM_NAME.localeCompare(a.DORM_NAME, 'th'));
+    }
+
+    if (sort === 'asc') {
+      dorms.sort((a, b) => {
+        if (a.start_price === 0 && b.start_price !== 0) return 1;
+        if (b.start_price === 0 && a.start_price !== 0) return -1;
+        return a.start_price - b.start_price;
+      });
+    } else if (sort === 'desc') {
+      dorms.sort((a, b) => b.start_price - a.start_price);
     }
 
     return dorms;
@@ -300,14 +336,21 @@ export class DormListPage implements OnInit, OnDestroy {
     this.maxPrice.set(params.maxPrice ?? null);
     this.selectedScore.set(params.score ?? null);
     this.selectedZoneId.set(params.zone || null);
-
-    // Ensure the filter modal state stays in sync if it gets re-opened
+    this.maxWater.set(params.maxWater !== undefined ? params.maxWater : null);
+    this.maxElect.set(params.maxElect !== undefined ? params.maxElect : null);
+    this.sortByPrice.set(params.sortByPrice || '');
+    this.sortByName.set(params.sortByName || 'asc');
+    this.content?.scrollToTop(300);
     this.initialParams.set({
       search: params.search,
       minPrice: params.minPrice,
       maxPrice: params.maxPrice,
       score: params.score,
       zone: params.zone,
+      maxWater: this.maxWater(),
+      maxElect: this.maxElect(),
+      sortByPrice: this.sortByPrice(),
+      sortByName: this.sortByName(),
     });
   }
 
@@ -317,6 +360,11 @@ export class DormListPage implements OnInit, OnDestroy {
     this.maxPrice.set(null);
     this.selectedScore.set(null);
     this.selectedZoneId.set(null);
+    this.maxWater.set(null);
+    this.maxElect.set(null);
+    this.sortByPrice.set('');
+    this.sortByName.set('asc');
+    this.initialParams.set(null);
   }
 
   goToDormDetail(id: number) {

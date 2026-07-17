@@ -85,7 +85,21 @@
         <h3 class="text-center">{{ dorm.DORM_NAME }}</h3>
       </div>
 
-      <!-- ─── ROW 2: Score ─── -->
+      <!-- ─── ROW 2: Dorm Type ─── -->
+      <div
+        class="cell title-cell labels-column flex justify-start align-middle"
+      >
+        <ion-icon name="information-circle-outline" class="row-icon" size="medium"></ion-icon
+        ><span class="text-[16px]">ประเภท</span>
+      </div>
+      <div
+        class="cell data-cell type-cell"
+        *ngFor="let dorm of selectedDorms()"
+      >
+        <span class="text-[16px]">{{ dorm.DORM_TYPE_NAME || '-' }}</span>
+      </div>
+
+      <!-- ─── ROW 3: Score ─── -->
       <div
         class="cell title-cell labels-column flex justify-start align-middle"
       >
@@ -102,7 +116,7 @@
         >
       </div>
 
-      <!-- ─── ROW 3: Start Price ─── -->
+      <!-- ─── ROW 4: Start Price ─── -->
       <div
         class="cell title-cell labels-column flex justify-start align-middle"
       >
@@ -119,7 +133,7 @@
         >
       </div>
 
-      <!-- ─── ROW 4: Water ─── -->
+      <!-- ─── ROW 5: Water ─── -->
       <div
         class="cell title-cell labels-column flex justify-start align-middle"
       >
@@ -150,7 +164,7 @@
         <ng-template #noWater><span class="no-data">—</span></ng-template>
       </div>
 
-      <!-- ─── ROW 5: Electricity ─── -->
+      <!-- ─── ROW 6: Electricity ─── -->
       <div
         class="cell title-cell labels-column flex justify-start align-middle"
       >
@@ -171,7 +185,7 @@
         <ng-template #noElec><span class="no-data">—</span></ng-template>
       </div>
 
-      <!-- ─── ROW 6: Zone ─── -->
+      <!-- ─── ROW 7: Zone ─── -->
       <div
         class="cell title-cell labels-column flex justify-start align-middle"
       >
@@ -185,7 +199,7 @@
         <span class="text-[16px]">{{ dorm.ZONE_NAME }}</span>
       </div>
 
-      <!-- ─── ROW 7: Distance ─── -->
+      <!-- ─── ROW 8: Distance ─── -->
       <div
         class="cell title-cell distance-label-cell labels-column flex justify-start align-middle"
       >

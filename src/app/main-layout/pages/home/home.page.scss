@@ -27,6 +27,35 @@
   }
 }
 
+.floating-zone-label {
+  position: absolute;
+  top: 200%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  pointer-events: none;
+  animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+  .label-content {
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    ion-icon {
+      color: #ffcc00;
+      font-size: 1.2rem;
+    }
+
+    span {
+      font-weight: 700;
+      color: #333333;
+      font-size: 0.95rem;
+      white-space: nowrap;
+    }
+  }
+}
+
 .pin-mode-overlay {
   position: absolute;
   top: 40px;
@@ -400,5 +429,40 @@
   to {
     transform: translateY(0);
     opacity: 1;
+  }
+}
+
+.shortcut-pin-wrapper {
+  pointer-events: auto;
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.shortcut-pin-btn {
+  --background: rgba(255, 255, 255, 0.92);
+  --color: #333333;
+  --border-radius: 20px;
+  --box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  font-weight: 700;
+  font-size: 0.85rem;
+  height: 38px;
+  margin: 0;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  --padding-start: 16px;
+  --padding-end: 16px;
+
+  &:hover,
+  &:active {
+    --background: #ffcc00;
+    --color: #333333;
+  }
+
+  ion-icon {
+    font-size: 1.15rem;
+    color: #ffcc00;
+    margin-right: 6px;
   }
 }

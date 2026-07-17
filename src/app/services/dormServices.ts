@@ -22,6 +22,9 @@ export interface DormQueryParams {
   lat?: number;
   lng?: number;
   radius?: number; // in kilometers
+  maxWater?: number | null;
+  maxElect?: number | null;
+  sortByPrice?: string;
 }
 
 @Injectable({
@@ -115,6 +118,23 @@ export class DormServices {
       if (params.lng) httpParams = httpParams.set('lng', params.lng.toString());
       if (params.radius)
         httpParams = httpParams.set('radius', params.radius.toString());
+      if (
+        params.maxWater !== undefined &&
+        params.maxWater !== null &&
+        !isNaN(params.maxWater)
+      ) {
+        httpParams = httpParams.set('maxWater', params.maxWater.toString());
+      }
+      if (
+        params.maxElect !== undefined &&
+        params.maxElect !== null &&
+        !isNaN(params.maxElect)
+      ) {
+        httpParams = httpParams.set('maxElect', params.maxElect.toString());
+      }
+      if (params.sortByPrice) {
+        httpParams = httpParams.set('sortByPrice', params.sortByPrice);
+      }
     }
 
     return this.http.get<DormAllGetRes>(url, { params: httpParams }).pipe(

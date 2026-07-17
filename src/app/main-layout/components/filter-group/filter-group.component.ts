@@ -7,6 +7,8 @@ import {
   OnChanges,
   SimpleChanges,
   OnDestroy,
+  Signal,
+  signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -14,11 +16,12 @@ import { Router } from '@angular/router';
 import { addIcons } from 'ionicons';
 import {
   searchOutline,
-  filterOutline,
   gitCompareOutline,
   closeOutline,
   arrowBackOutline,
   locationOutline,
+  swapHorizontalOutline,
+  funnelOutline,
 } from 'ionicons/icons';
 import {
   IonSearchbar,
@@ -28,8 +31,9 @@ import {
   IonList,
   IonItem,
   IonLabel,
+  IonImg,
 } from '@ionic/angular/standalone';
-import { DormSummary, DormZone } from 'src/app/model/dorm.model';
+import { DormSummary, DormZone, FilterParams } from 'src/app/model/dorm.model';
 import { NavController } from '@ionic/angular';
 import {
   Subject,
@@ -40,14 +44,7 @@ import {
   of,
 } from 'rxjs';
 import { DormServices } from 'src/app/services/dormServices';
-
-export interface FilterParams {
-  search?: string;
-  minPrice?: number | null;
-  maxPrice?: number | null;
-  zone?: string;
-  score?: number | null;
-}
+import { AuthenService } from 'src/app/services/authenService';
 
 @Component({
   selector: 'app-filter-group',
@@ -64,6 +61,7 @@ export interface FilterParams {
     IonList,
     IonItem,
     IonLabel,
+    IonImg,
   ],
 })
 export class FilterGroupComponent implements OnInit, OnChanges, OnDestroy {
@@ -74,6 +72,8 @@ export class FilterGroupComponent implements OnInit, OnChanges, OnDestroy {
   @Input() showAutoComplete: boolean = true;
   @Input() initialParams: FilterParams | null = null;
   @Input() openFilterOnLoad: boolean = false;
+  @Input() showSortByPrice: boolean = true;
+  @Input() showSortByName: boolean = true;
   @Output() filterApplied = new EventEmitter<FilterParams>();
   @Output() searchFocus = new EventEmitter<void>();
   @Output() searchBlur = new EventEmitter<void>();
@@ -90,6 +90,15 @@ export class FilterGroupComponent implements OnInit, OnChanges, OnDestroy {
   maxPrice: number | null = null;
   selectedZone: string = '';
   selectedScore: number | null = null;
+  maxWater: number | null = null;
+  maxElect: number | null = null;
+  sortByPrice: string = 'acs';
+  sortByName: string = 'asc';
+
+  private pressTimeout: any;
+  activeTooltip: string = '';
+
+  role = signal<number | null>(null);
 
   private searchSubject = new Subject<void>();
   private autocompleteSubject = new Subject<string>();
@@ -98,21 +107,24 @@ export class FilterGroupComponent implements OnInit, OnChanges, OnDestroy {
   constructor(
     private router: Router,
     private navCtrl: NavController,
-    private dormService: DormServices
+    private dormService: DormServices,
+    private authSv: AuthenService
   ) {
     addIcons({
       searchOutline,
-      filterOutline,
+      funnelOutline,
       gitCompareOutline,
       closeOutline,
       arrowBackOutline,
       locationOutline,
+      swapHorizontalOutline,
     });
   }
 
   ngOnInit() {
     // Read from initial params on init
     this.syncFromInitialParams();
+    this.role.set(this.authSv.currentUserValue?.role || null);
 
     if (this.openFilterOnLoad) {
       this.isFilterModalOpen = true;
@@ -163,6 +175,10 @@ export class FilterGroupComponent implements OnInit, OnChanges, OnDestroy {
           ? this.initialParams.zone.toString()
           : '';
         this.selectedScore = this.parseNumber(this.initialParams.score);
+        this.maxWater = this.parseNumber(this.initialParams.maxWater);
+        this.maxElect = this.parseNumber(this.initialParams.maxElect);
+        this.sortByPrice = this.initialParams.sortByPrice || '';
+        this.sortByName = this.initialParams.sortByName || '';
       }
     }
   }
@@ -176,12 +192,20 @@ export class FilterGroupComponent implements OnInit, OnChanges, OnDestroy {
         ? this.initialParams.zone.toString()
         : '';
       this.selectedScore = this.parseNumber(this.initialParams.score);
+      this.maxWater = this.parseNumber(this.initialParams.maxWater);
+      this.maxElect = this.parseNumber(this.initialParams.maxElect);
+      this.sortByPrice = this.initialParams.sortByPrice || '';
+      this.sortByName = this.initialParams.sortByName || '';
     } else {
       this.searchQuery = '';
       this.minPrice = null;
       this.maxPrice = null;
       this.selectedZone = '';
       this.selectedScore = null;
+      this.maxWater = null;
+      this.maxElect = null;
+      this.sortByPrice = '';
+      this.sortByName = '';
     }
   }
 
@@ -190,6 +214,10 @@ export class FilterGroupComponent implements OnInit, OnChanges, OnDestroy {
     this.minPrice = this.parseNumber(params.minPrice);
     this.maxPrice = this.parseNumber(params.maxPrice);
     this.selectedScore = this.parseNumber(params.score);
+    this.maxWater = this.parseNumber(params.maxWater);
+    this.maxElect = this.parseNumber(params.maxElect);
+    this.sortByPrice = params.sortByPrice || '';
+    this.sortByName = params.sortByName || '';
 
     if (params.zone) {
       this.selectedZone = params.zone.toString();
@@ -282,6 +310,22 @@ export class FilterGroupComponent implements OnInit, OnChanges, OnDestroy {
       params.score = this.selectedScore;
     }
 
+    if (this.maxWater !== null && this.maxWater !== undefined) {
+      params.maxWater = this.maxWater;
+    }
+
+    if (this.maxElect !== null && this.maxElect !== undefined) {
+      params.maxElect = this.maxElect;
+    }
+
+    if (this.sortByPrice) {
+      params.sortByPrice = this.sortByPrice;
+    }
+
+    if (this.sortByName) {
+      params.sortByName = this.sortByName;
+    }
+
     this.filterApplied.emit(params);
   }
 
@@ -291,6 +335,10 @@ export class FilterGroupComponent implements OnInit, OnChanges, OnDestroy {
     this.selectedZone = '';
     this.selectedScore = null;
     this.searchQuery = '';
+    this.maxWater = null;
+    this.maxElect = null;
+    this.sortByPrice = '';
+    this.sortByName = '';
 
     // Do not close the modal, allow the user to see the fields reset to their default values.
     // They can then close the modal using the close button or by applying filters.
@@ -303,5 +351,24 @@ export class FilterGroupComponent implements OnInit, OnChanges, OnDestroy {
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  toggleSortByName() {
+    this.sortByName = this.sortByName === 'asc' ? 'desc' : 'asc';
+    this.emitFilters();
+  }
+
+  startPress(tooltipId: string) {
+    this.pressTimeout = setTimeout(() => {
+      this.activeTooltip = tooltipId;
+    }, 500); // 500ms for long press
+  }
+
+  endPress() {
+    if (this.pressTimeout) {
+      clearTimeout(this.pressTimeout);
+      this.pressTimeout = null;
+    }
+    this.activeTooltip = '';
   }
 }

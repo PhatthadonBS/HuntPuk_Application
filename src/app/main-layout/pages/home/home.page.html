@@ -9,7 +9,24 @@
       [zones]="zones()"
       [initialParams]="getFilterParams()"
       (filterApplied)="handleFilterApplied($event)"
+      [showSortByPrice]="false"
+      [showSortByName]="false"
     ></app-filter-group>
+
+    <!-- Shortcut Pin Button -->
+    <div class="shortcut-pin-wrapper">
+      <ion-button class="shortcut-pin-btn" (click)="togglePinMode()">
+        <ion-icon name="pin-outline" slot="start" color="dark"></ion-icon>
+        กดเพื่อปักหมุดค้นหา
+      </ion-button>
+    </div>
+
+    <!-- Floating Zone Label -->
+    <div class="floating-zone-label" *ngIf="zoneLabel()">
+      <div class="label-content">
+        <span>{{ zoneLabel() }}</span>
+      </div>
+    </div>
   </div>
 
   <div class="pin-mode-overlay" *ngIf="isPinMode()">

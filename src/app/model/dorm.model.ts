@@ -70,9 +70,9 @@ export interface DormSummary {
   lng: number;
   start_price: number;
   update_at?: string;
-  DORM_STATUS_ID: number;
-  DORM_STATUS_NAME: string;
-  REQ_STATUS: number;
+  DORM_STATUS_ID?: number;
+  DORM_STATUS_NAME?: string;
+  REQ_STATUS?: number;
   isFavorite?: boolean;
 }
 
@@ -85,6 +85,7 @@ export interface DormDetail {
   ZONE_ID: number;
   ZONE_NAME: string;
   DORM_TYPE_ID: number;
+  DORM_TYPE_NAME?: string;
   lat: number;
   lng: number;
   start_price: number;
@@ -166,4 +167,16 @@ export interface ReviewGetRes {
   success: boolean;
   count: number;
   data: ReviewItem[];
+}
+
+export interface FilterParams {
+  search?: string;
+  minPrice?: number | null;
+  maxPrice?: number | null;
+  zone?: string;
+  score?: number | null;
+  maxWater?: number | null;
+  maxElect?: number | null;
+  sortByPrice?: string;
+  sortByName?: string;
 }

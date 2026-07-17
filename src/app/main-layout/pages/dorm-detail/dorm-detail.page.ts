@@ -280,9 +280,6 @@ export class DormDetailPage implements OnInit, OnDestroy {
             (sum: any, review: any) => Number(sum) + Number(review.SCORE),
             0
           );
-          console.log(dormReviews.data);
-
-          console.log(sumScore, dormReviews.data.length);
           this.avgScore.set(
             dormReviews.data.length > 0 ? sumScore / dormReviews.data.length : 0
           );

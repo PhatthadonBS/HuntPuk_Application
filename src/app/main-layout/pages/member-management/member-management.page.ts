@@ -159,8 +159,6 @@ export class MemberManagementPage implements OnInit {
         next: (res) => {
           this.members.set(res.members);
           this.owners.set(res.owners);
-
-          console.log(res.owners);
         },
         error: (err) => console.error('Error fetching users', err),
       });
