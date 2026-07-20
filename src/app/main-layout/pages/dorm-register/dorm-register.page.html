@@ -267,10 +267,13 @@
           </div>
         </div>
 
-        <h3 class="sub-title">
+        <h3 class="sub-title" *ngIf="!isAdmin()">
           เพิ่มสิ่งอำนวยความสะดวกใหม่ ({{ customFacReqCount() }}/3)
         </h3>
-        <div class="custom-fac-form p-3" *ngIf="customFacReqCount() < 3">
+        <div
+          class="custom-fac-form p-3"
+          *ngIf="customFacReqCount() < 3 && !isAdmin()"
+        >
           <div class="flex gap-4 items-end">
             <div
               class="fac-icon-upload mb-4"
