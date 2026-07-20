@@ -341,11 +341,10 @@
               <ion-icon name="close-circle"></ion-icon>
             </ion-button>
           </div>
-
           <div
             class="image-box"
             (click)="selectImage('LICENSE')"
-            *ngIf="!isEditMode()"
+            *ngIf="dormStatus() != 1"
           >
             <img
               *ngIf="images['LICENSE'].preview"
@@ -473,7 +472,7 @@
               (error)="handleImageError($event)"
             />
             <div class="placeholder" *ngIf="!images['BALCONY'].preview">
-              <span class="!text-sm">ระเบียง</span>
+              <span class="!text-sm">ระเบียง (ไม่บังคับ)</span>
             </div>
             <ion-button
               fill="clear"
