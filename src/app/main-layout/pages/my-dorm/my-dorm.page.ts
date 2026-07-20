@@ -346,6 +346,7 @@ export class MyDormPage implements OnInit {
           placeholder: 'พิมพ์ DELETE',
         },
       ],
+
       buttons: [
         { text: 'ยกเลิก', role: 'cancel' },
         {

@@ -283,8 +283,9 @@ export class OwnerProfilePage {
 
   async deleteAccount() {
     const alert = await this.alertController.create({
-      header: 'ยืนยันการลบบัญชี',
-      message: 'พิมพ์คำว่า "DELETE" เพื่อยืนยันการลบบัญชีของคุณ',
+      header: 'ยืนยันการลบบัญชี?',
+      message: `คุณแน่ใจหรือไม่ว่าต้องการลบบัญชีผู้ใช้ของคุณ? การกระทำนี้ไม่สามารถย้อนกลับได้ กรุณาพิมพ์ DELETE เพื่อยืนยัน`,
+      cssClass: 'danger-alert',
       inputs: [
         {
           name: 'confirmText',
@@ -296,11 +297,10 @@ export class OwnerProfilePage {
         {
           text: 'ยกเลิก',
           role: 'cancel',
-          cssClass: 'secondary',
         },
         {
           text: 'ลบบัญชี',
-          cssClass: 'danger',
+          role: 'destructive',
           handler: (data) => {
             if (data.confirmText === 'DELETE') {
               const uid = this.user()?.USER_ID;
