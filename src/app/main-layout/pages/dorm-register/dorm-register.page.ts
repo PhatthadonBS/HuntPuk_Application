@@ -77,6 +77,7 @@ import {
   personCircleOutline,
   cameraOutline,
   imageOutline,
+  imagesOutline,
 } from 'ionicons/icons';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { DormServices } from 'src/app/services/dormServices';
@@ -183,10 +184,17 @@ export class DormRegisterPage implements OnInit, OnDestroy {
     CEILING: { file: null, preview: null },
     WALL: { file: null, preview: null },
     FLOOR: { file: null, preview: null },
+    BED: { file: null, preview: null },
     BATHROOM: { file: null, preview: null },
     BALCONY: { file: null, preview: null },
   };
-  otherImages = signal<ImageState[]>([]);
+  otherImages = signal<ImageState[]>([
+    { file: null, preview: null },
+    { file: null, preview: null },
+    { file: null, preview: null },
+    { file: null, preview: null },
+    { file: null, preview: null },
+  ]);
 
   // Map Modal
   isMapModalOpen = signal<boolean>(false);
@@ -238,6 +246,7 @@ export class DormRegisterPage implements OnInit, OnDestroy {
       personCircleOutline,
       cameraOutline,
       imageOutline,
+      imagesOutline,
     });
 
     this.dormForm = this.fb.group({
@@ -462,6 +471,7 @@ export class DormRegisterPage implements OnInit, OnDestroy {
             if (d.ceiling_img) this.images['CEILING'].preview = d.ceiling_img;
             if (d.wall_img) this.images['WALL'].preview = d.wall_img;
             if (d.floor_img) this.images['FLOOR'].preview = d.floor_img;
+            if (d.bed_img) this.images['BED'].preview = d.bed_img;
             if (d.bathroom_img)
               this.images['BATHROOM'].preview = d.bathroom_img;
             if (d.balcony_img) this.images['BALCONY'].preview = d.balcony_img;
@@ -470,12 +480,11 @@ export class DormRegisterPage implements OnInit, OnDestroy {
               const validGallery = d.gallery.filter(
                 (url: string) => url && url.trim() !== ''
               );
-              this.otherImages.set(
-                validGallery.map((url: string) => ({
-                  file: null,
-                  preview: url,
-                }))
-              );
+              const filledGallery: ImageState[] = Array(5).fill(null).map(() => ({ file: null, preview: null }));
+              validGallery.forEach((url: string, i: number) => {
+                if (i < 5) filledGallery[i] = { file: null, preview: url };
+              });
+              this.otherImages.set(filledGallery);
             }
 
             this.loadCustomFacReqCount();
@@ -603,70 +612,133 @@ export class DormRegisterPage implements OnInit, OnDestroy {
 
   async selectImage(key: string, isOther = false, index: number = -1) {
     try {
-      if (isOther && index === -1) {
-        // Multi-select for "Other" images
-        const currentCount = this.otherImages().length;
-        if (currentCount >= 5) {
-          this.showToast('อัปโหลดรูปภาพอื่นๆ ได้สูงสุด 5 รูป', 'warning');
-          return;
-        }
+      const buttons: any[] = [
+        {
+          text: 'ถ่ายภาพ',
+          icon: 'camera-outline',
+          handler: () => {
+            this.processImageSelection(key, isOther, index, CameraSource.Camera);
+          },
+        },
+        {
+          text: 'เลือกจากอัลบั้ม',
+          icon: 'image-outline',
+          handler: () => {
+            this.processImageSelection(key, isOther, index, CameraSource.Photos);
+          },
+        },
+      ];
 
-        const result = await Camera.pickImages({
-          quality: 90,
-          limit: 5 - currentCount,
+      if (isOther) {
+        buttons.push({
+          text: 'เลือกหลายรูป (เรียงตามลำดับช่องว่าง)',
+          icon: 'images-outline',
+          handler: async () => {
+            const emptySlots = this.otherImages().filter((img) => !img.preview).length;
+            if (emptySlots === 0) {
+              this.showToast('คุณอัปโหลดครบ 5 รูปแล้ว', 'warning');
+              return;
+            }
+
+            const result = await Camera.pickImages({
+              quality: 90,
+              limit: emptySlots,
+            });
+
+            if (result.photos.length > 0) {
+              const newImgs = [...this.otherImages()];
+              let photoIndex = 0;
+
+              // First try to fill the clicked slot if it's empty
+              if (index >= 0 && !newImgs[index].preview && photoIndex < result.photos.length) {
+                const photo = result.photos[photoIndex++];
+                const dataUrl = await this.getBase64FromPath(photo.webPath);
+                const file = await this.dataUrlToFile(
+                  dataUrl,
+                  `other_${Date.now()}.webp`
+                );
+                newImgs[index] = { file, preview: dataUrl };
+              }
+
+              // Fill remaining empty slots
+              for (let i = 0; i < 5; i++) {
+                if (!newImgs[i].preview && photoIndex < result.photos.length) {
+                  const photo = result.photos[photoIndex++];
+                  const dataUrl = await this.getBase64FromPath(photo.webPath);
+                  const file = await this.dataUrlToFile(
+                    dataUrl,
+                    `other_${Date.now()}.webp`
+                  );
+                  newImgs[i] = { file, preview: dataUrl };
+                }
+              }
+
+              this.otherImages.set(newImgs);
+              this.cdr.detectChanges();
+            }
+          },
         });
+      } else {
+        const componentKeys = ['CEILING', 'WALL', 'FLOOR', 'BED', 'BATHROOM', 'BALCONY'];
+        if (componentKeys.includes(key)) {
+          buttons.push({
+            text: 'เลือกหลายรูป (เติมช่องว่างรูปห้องที่เหลือ)',
+            icon: 'images-outline',
+            handler: async () => {
+              const emptyKeys = componentKeys.filter((k) => !this.images[k].preview);
+              if (emptyKeys.length === 0) {
+                this.showToast('คุณอัปโหลดรูปภายในห้องครบแล้ว', 'warning');
+                return;
+              }
 
-        if (result.photos.length > 0) {
-          for (const photo of result.photos) {
-            const dataUrl = await this.getBase64FromPath(photo.webPath);
-            const file = await this.dataUrlToFile(
-              dataUrl,
-              `other_${Date.now()}.webp`
-            );
-            this.otherImages.update((imgs) => [
-              ...imgs,
-              { file, preview: dataUrl },
-            ]);
-          }
+              const result = await Camera.pickImages({
+                quality: 90,
+                limit: emptyKeys.length,
+              });
+
+              if (result.photos.length > 0) {
+                let photoIndex = 0;
+
+                // First try to fill the clicked key if it's empty
+                if (!this.images[key].preview && photoIndex < result.photos.length) {
+                  const photo = result.photos[photoIndex++];
+                  const dataUrl = await this.getBase64FromPath(photo.webPath);
+                  const file = await this.dataUrlToFile(
+                    dataUrl,
+                    `${key}_${Date.now()}.webp`
+                  );
+                  this.images[key] = { file, preview: dataUrl };
+                }
+
+                // Fill remaining empty component slots
+                for (const k of componentKeys) {
+                  if (!this.images[k].preview && photoIndex < result.photos.length) {
+                    const photo = result.photos[photoIndex++];
+                    const dataUrl = await this.getBase64FromPath(photo.webPath);
+                    const file = await this.dataUrlToFile(
+                      dataUrl,
+                      `${k}_${Date.now()}.webp`
+                    );
+                    this.images[k] = { file, preview: dataUrl };
+                  }
+                }
+
+                this.cdr.detectChanges();
+              }
+            },
+          });
         }
-        this.cdr.detectChanges();
-        return;
       }
 
-      // Single select for specific slots or replacement
+      buttons.push({
+        text: 'ยกเลิก',
+        role: 'cancel',
+      });
+
       const actionSheet = await this.actionSheetCtrl.create({
         mode: 'md',
         cssClass: 'minimal-action-sheet',
-        buttons: [
-          {
-            text: 'ถ่ายภาพ',
-            icon: 'camera-outline',
-            handler: () => {
-              this.processImageSelection(
-                key,
-                isOther,
-                index,
-                CameraSource.Camera
-              );
-            },
-          },
-          {
-            text: 'เลือกจากอัลบั้ม',
-            icon: 'image-outline',
-            handler: () => {
-              this.processImageSelection(
-                key,
-                isOther,
-                index,
-                CameraSource.Photos
-              );
-            },
-          },
-          {
-            text: 'ยกเลิก',
-            role: 'cancel',
-          },
-        ],
+        buttons: buttons,
       });
       await actionSheet.present();
     } catch (e) {
@@ -730,7 +802,7 @@ export class DormRegisterPage implements OnInit, OnDestroy {
   removeImage(type: string, isOther = false, index?: number) {
     if (isOther && index !== undefined) {
       const current = [...this.otherImages()];
-      current.splice(index, 1);
+      current[index] = { file: null, preview: null };
       this.otherImages.set(current);
     } else if (type === 'CUSTOM_FAC') {
       this.customFacIcon = { file: null, preview: null };
@@ -1044,10 +1116,17 @@ export class DormRegisterPage implements OnInit, OnDestroy {
       formData.append('WALL_IMG', this.images['WALL'].file);
     if (this.images['FLOOR'].file)
       formData.append('FLOOR_IMG', this.images['FLOOR'].file);
+    if (this.images['BED'].file)
+      formData.append('BED_IMG', this.images['BED'].file);
     if (this.images['BATHROOM'].file)
       formData.append('BATHROOM_IMG', this.images['BATHROOM'].file);
     if (this.images['BALCONY'].file)
       formData.append('BALCONY_IMG', this.images['BALCONY'].file);
+
+    const remainingGallery = this.otherImages()
+      .filter((img) => img.preview && img.preview.startsWith('http'))
+      .map((img) => img.preview);
+    formData.append('remainingGallery', JSON.stringify(remainingGallery));
 
     this.otherImages().forEach((img) => {
       if (img.file) formData.append('OTHER_IMG', img.file);

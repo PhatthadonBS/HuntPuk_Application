@@ -426,6 +426,26 @@
             </ion-button>
           </div>
 
+          <div class="image-box" (click)="selectImage('BED')">
+            <img
+              *ngIf="images['BED'].preview"
+              [src]="images['BED'].preview"
+              (error)="handleImageError($event)"
+            />
+            <div class="placeholder" *ngIf="!images['BED'].preview">
+              <span class="!text-sm">เตียงนอน</span>
+            </div>
+            <ion-button
+              fill="clear"
+              color="danger"
+              class="remove-img"
+              *ngIf="images['BED'].preview"
+              (click)="$event.stopPropagation(); removeImage('BED')"
+            >
+              <ion-icon name="close-circle"></ion-icon>
+            </ion-button>
+          </div>
+
           <div class="image-box" (click)="selectImage('BATHROOM')">
             <img
               *ngIf="images['BATHROOM'].preview"
@@ -472,27 +492,25 @@
           <div
             class="image-box"
             *ngFor="let img of otherImages(); let i = index"
+            (click)="!img.preview ? selectImage('OTHER', true, i) : null"
           >
             <img
               *ngIf="img.preview"
               [src]="img.preview"
               (error)="handleImageError($event)"
             />
+            <div class="placeholder" *ngIf="!img.preview">
+              <span class="!text-sm">รูปที่ {{ i + 1 }}</span>
+            </div>
             <ion-button
               fill="clear"
               color="danger"
               class="remove-img"
-              (click)="removeImage('OTHER', true, i)"
+              *ngIf="img.preview"
+              (click)="$event.stopPropagation(); removeImage('OTHER', true, i)"
             >
               <ion-icon name="close-circle"></ion-icon>
             </ion-button>
-          </div>
-          <div
-            class="image-box add-btn"
-            *ngIf="otherImages().length < 5"
-            (click)="selectImage('OTHER', true)"
-          >
-            <ion-icon name="add"></ion-icon>
           </div>
         </div>
       </div>

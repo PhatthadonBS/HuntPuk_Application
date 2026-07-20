@@ -101,6 +101,7 @@ export interface DormDetail {
   ceiling_img?: string;
   wall_img?: string;
   floor_img?: string;
+  bed_img?: string;
   bathroom_img?: string;
   balcony_img?: string;
   rooms: { 
