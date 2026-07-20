@@ -9,12 +9,13 @@
       [zones]="zones()"
       [initialParams]="getFilterParams()"
       (filterApplied)="handleFilterApplied($event)"
+      (searchQueryChange)="searchQuery.set($event)"
       [showSortByPrice]="false"
       [showSortByName]="false"
     ></app-filter-group>
 
     <!-- Shortcut Pin Button -->
-    <div class="shortcut-pin-wrapper">
+    <div class="shortcut-pin-wrapper" *ngIf="!searchQuery() && !isOpenMenu() && currentUser?.role">
       <ion-button class="shortcut-pin-btn" (click)="togglePinMode()">
         <ion-icon name="pin-outline" slot="start" color="dark"></ion-icon>
         กดเพื่อปักหมุดค้นหา
@@ -134,6 +135,7 @@
   </div>
 
   <ion-button
+    *ngIf="currentUser?.role"
     class="pin-circle-btn"
     [class.active]="isPinMode() || pinnedLocation()"
     (click)="isPinMode() || pinnedLocation() ? clearPin() : togglePinMode()"

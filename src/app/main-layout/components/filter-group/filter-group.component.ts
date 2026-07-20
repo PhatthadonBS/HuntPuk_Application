@@ -78,7 +78,19 @@ export class FilterGroupComponent implements OnInit, OnChanges, OnDestroy {
   @Output() searchFocus = new EventEmitter<void>();
   @Output() searchBlur = new EventEmitter<void>();
 
-  searchQuery: string = '';
+  private _searchQuery: string = '';
+  @Output() searchQueryChange = new EventEmitter<string>();
+
+  get searchQuery(): string {
+    return this._searchQuery;
+  }
+
+  set searchQuery(value: string) {
+    if (this._searchQuery !== value) {
+      this._searchQuery = value;
+      this.searchQueryChange.emit(value);
+    }
+  }
   suggestions: DormSummary[] = [];
   showSuggestions: boolean = false;
 
@@ -132,7 +144,7 @@ export class FilterGroupComponent implements OnInit, OnChanges, OnDestroy {
 
     // Main Search Debounce (2 seconds as requested)
     this.searchSubject
-      .pipe(debounceTime(300), takeUntil(this.destroy$))
+      .pipe(debounceTime(500), takeUntil(this.destroy$))
       .subscribe(() => {
         this.emitFilters();
       });
@@ -226,7 +238,9 @@ export class FilterGroupComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  onInput() {
+  onInput(event: any) {
+    const val = event?.target?.value ?? event?.detail?.value ?? '';
+    this.searchQuery = val;
     this.showSuggestions = true;
     this.autocompleteSubject.next(this.searchQuery);
     this.searchSubject.next(); // Also trigger main search after delay

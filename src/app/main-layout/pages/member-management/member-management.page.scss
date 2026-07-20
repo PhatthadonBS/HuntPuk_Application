@@ -100,7 +100,8 @@ $border-light: rgba(255, 255, 255, 0.4);
   .results-count-wrapper {
     margin-bottom: 0.5rem;
     display: flex;
-    justify-content: flex-start;
+    justify-content: space-between;
+    align-items: center;
 
     .count-badge {
       display: flex;
@@ -122,6 +123,33 @@ $border-light: rgba(255, 255, 255, 0.4);
           font-weight: 900;
           font-size: 1.1rem;
         }
+      }
+    }
+
+    .reg-btn {
+      --background: #333333;
+      --background-activated: #444444;
+      --color: #ffffff;
+      --border-radius: 999px;
+      --box-shadow: 0 4px 16px rgba(255, 204, 0, 0.45),
+        0 1px 3px rgba(0, 0, 0, 0.12);
+      font-weight: 800;
+      font-size: 0.82rem;
+      letter-spacing: 0.01em;
+      height: 38px;
+      margin: 0;
+      --padding-start: 14px;
+      --padding-end: 16px;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+      &:active {
+        transform: scale(0.96) translateY(1px);
+        --box-shadow: 0 2px 8px rgba(255, 204, 0, 0.3);
+      }
+
+      ion-icon {
+        font-size: 1rem;
+        margin-right: 5px;
       }
     }
   }
@@ -213,7 +241,7 @@ $border-light: rgba(255, 255, 255, 0.4);
     --color: #333333;
     --box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
     border-radius: 50%;
-    margin-bottom: 6rem; 
+    margin-bottom: 6rem;
     margin-right: 0.9rem;
 
     ion-icon {
@@ -274,4 +302,3 @@ $border-light: rgba(255, 255, 255, 0.4);
     }
   }
 }
-

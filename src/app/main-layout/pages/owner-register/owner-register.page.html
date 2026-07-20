@@ -14,9 +14,9 @@
         ></ion-icon>
         <span class="">กลับ</span>
       </a>
-      <span class="mt-1 text-white mr-[1rem] text-xl"
-        >ขอสิทธิ์เป็นเจ้าของหอ</span
-      >
+      <span class="mt-1 text-white mr-[1rem] text-xl">
+        {{ authSv.currentUserValue?.role === 3 ? 'เพิ่มเจ้าของหอ' : 'ขอสิทธิ์เป็นเจ้าของหอ' }}
+      </span>
     </div>
   </ion-toolbar>
 </ion-header>
@@ -83,11 +83,11 @@
       <span class="text-[16px]">ข้อมูลการติดต่อ</span>
     </div>
     <div class="minimal-form-card">
-      <div class="custom-input-group readonly">
+      <div class="custom-input-group" [class.readonly]="authSv.currentUserValue?.role !== 3">
         <label class="custom-label">อีเมล</label>
         <div class="custom-input-wrapper">
-          <ion-input [(ngModel)]="email" readonly></ion-input>
-          <ion-icon name="checkmark-circle-outline" color="success"></ion-icon>
+          <ion-input [(ngModel)]="email" [readonly]="authSv.currentUserValue?.role !== 3" placeholder="กรอกอีเมลเจ้าของหอพัก"></ion-input>
+          <ion-icon name="checkmark-circle-outline" color="success" *ngIf="authSv.currentUserValue?.role !== 3"></ion-icon>
         </div>
       </div>
       <div class="h-px bg-gray-100 mx-4"></div>

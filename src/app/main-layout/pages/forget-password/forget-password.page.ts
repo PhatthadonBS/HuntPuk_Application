@@ -28,6 +28,7 @@ import {
   keyOutline,
   lockClosedOutline,
   arrowBackCircleOutline,
+  shieldCheckmarkOutline,
 } from 'ionicons/icons';
 import { UserOtpVerifyPostRes } from 'src/app/model/user.model';
 import { LoadingUIComponent } from '../../components/loading-ui/loading-ui.component';
@@ -60,6 +61,11 @@ export class ForgetPasswordPage implements OnInit {
     this._email = val;
     if (this.emailForm && val) {
       this.emailForm.patchValue({ email: val });
+      // Admin bypass: skip OTP and jump to reset step
+      if (this.isAdminBypass()) {
+        this.step.set(3);
+        return;
+      }
       if (this.emailForm.valid && this.step() === 1) {
         this.requestOTP();
       }
@@ -79,6 +85,7 @@ export class ForgetPasswordPage implements OnInit {
   errMsg = signal<string | null>(null);
   succMsg = signal<string | null>(null);
   isVerifyingOTP = signal<boolean>(false);
+  isAdminBypass = signal<boolean>(false);
 
   constructor(
     private fb: FormBuilder,
@@ -92,15 +99,26 @@ export class ForgetPasswordPage implements OnInit {
       keyOutline,
       lockClosedOutline,
       arrowBackCircleOutline,
+      shieldCheckmarkOutline,
     });
   }
 
   ngOnInit() {
+    // Check if admin is bypassing OTP
+    const currentUser = this.authSv.currentUserValue;
+    if (currentUser?.role === 3 && this._email) {
+      this.isAdminBypass.set(true);
+      this.isVerifyingOTP.set(true); // treat as verified
+    }
+
     this.emailForm = this.fb.group({
       email: [this._email || '', [Validators.required, Validators.email]],
     });
 
-    if (this._email && this.emailForm.valid) {
+    if (this.isAdminBypass()) {
+      // Admin with target email: skip straight to reset step
+      this.step.set(3);
+    } else if (this._email && this.emailForm.valid) {
       this.requestOTP();
     }
 
@@ -180,13 +198,22 @@ export class ForgetPasswordPage implements OnInit {
     this.isLoading.set(true);
     const email = this.emailForm.value.email;
     const password = this.passwordForm.value.newPassword;
-    let verify = this.isVerifyingOTP();
+    // Admin bypass: always treat as verified; otherwise use OTP verify result
+    const verify = this.isAdminBypass() ? true : this.isVerifyingOTP();
     this.userSv.resetPassword({ email, password, verify }).subscribe({
       next: () => {
-        this.succMsg.set('เปลี่ยนรหัสผ่านสำเร็จ');
+        this.succMsg.set(
+          this.isAdminBypass()
+            ? 'เปลี่ยนรหัสผ่านสำเร็จ'
+            : 'เปลี่ยนรหัสผ่านสำเร็จ'
+        );
         this.isLoading.set(false);
         setTimeout(() => {
-          this.navCtrl.navigateRoot('/login');
+          if (this.isAdminBypass()) {
+            this.navCtrl.back();
+          } else {
+            this.navCtrl.navigateRoot('/login');
+          }
         }, 1500);
       },
       error: (err) => {
@@ -197,11 +224,6 @@ export class ForgetPasswordPage implements OnInit {
   }
 
   goBack() {
-    const currentStep = this.step();
-    if (currentStep > 1) {
-      this.step.set(currentStep - 1);
-    } else {
-      this.navCtrl.back();
-    }
+    this.navCtrl.back();
   }
 }

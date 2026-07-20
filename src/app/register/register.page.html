@@ -4,7 +4,7 @@
 
   <div class="content-wrapper">
     <div class="header-container">
-      <h1>สมัครสมาชิก</h1>
+      <h1>{{ authSv.currentUserValue?.role === 3 ? 'เพิ่มสมาชิก' : 'สมัครสมาชิก' }}</h1>
     </div>
     
     <form

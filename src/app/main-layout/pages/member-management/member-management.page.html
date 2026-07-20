@@ -67,6 +67,11 @@
           >พบผู้ใช้งาน <strong>{{ filteredUsers().length }}</strong> คน</span
         >
       </div>
+      <ion-button fill="solid" class="reg-btn" (click)="goToRegister()">
+        <ion-icon name="person-add-outline" slot="start"></ion-icon>
+        <ion-label *ngIf="selectedTab() === 'member'">สมาชิก</ion-label>
+        <ion-label *ngIf="selectedTab() === 'owner'">เจ้าของหอพัก</ion-label>
+      </ion-button>
     </div>
 
     <div class="member-list-container">

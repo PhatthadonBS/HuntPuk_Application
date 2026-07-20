@@ -112,7 +112,11 @@ export class DormDetailPage implements OnInit, OnDestroy {
   reviews = signal<ReviewItem[]>([]);
   priceTypes = signal<any[]>([]);
   isLoading = signal<boolean>(true);
-  isFavorite = signal<boolean>(false);
+  isFavorite = computed(() => {
+    const id = this.dormId;
+    if (!id) return false;
+    return this.userSv.favIds().includes(id);
+  });
   hasError = signal<boolean>(false);
 
   currentImageIndex = signal<number>(0);
@@ -305,16 +309,8 @@ export class DormDetailPage implements OnInit, OnDestroy {
   }
 
   checkIfFavorite() {
-    if (!this.currentUser || !this.dormId) return;
-    this.userSv.getMyFavorites(this.currentUser.id).subscribe({
-      next: (res) => {
-        if (res.success) {
-          const isFav = res.data.some((f: any) => f.DORMID === this.dormId);
-          this.isFavorite.set(isFav);
-        }
-      },
-      error: (err) => console.error('Error fetching favorites', err),
-    });
+    if (!this.currentUser) return;
+    this.userSv.loadFavIds(this.currentUser.id);
   }
 
   getPrice(room: any, typeId: number): number | null {
@@ -371,18 +367,11 @@ export class DormDetailPage implements OnInit, OnDestroy {
   toggleFavorite() {
     if (!this.currentUser || !this.dormId) return;
 
-    // Optimistic update
     const current = this.isFavorite();
-    this.isFavorite.set(!current);
-
     if (current) {
-      this.userSv.removeFavorite(this.dormId).subscribe({
-        error: () => this.isFavorite.set(true), // revert on error
-      });
+      this.userSv.removeFavorite(this.dormId).subscribe();
     } else {
-      this.userSv.addFavorite(this.dormId).subscribe({
-        error: () => this.isFavorite.set(false), // revert on error
-      });
+      this.userSv.addFavorite(this.dormId).subscribe();
     }
   }
 

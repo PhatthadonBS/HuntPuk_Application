@@ -30,9 +30,10 @@ import {
   arrowBackCircleOutline,
   mail,
 } from 'ionicons/icons';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { UserRegPostReq, UserRegPostReqForm } from 'src/app/model/user.model';
 import { UserServices } from 'src/app/services/userServices';
+import { AuthenService } from 'src/app/services/authenService';
 import { delay, finalize, take, timeout, timer } from 'rxjs';
 import { LoadingUIComponent } from '../main-layout/components/loading-ui/loading-ui.component';
 import { OTPVerifyComponent } from '../main-layout/components/otp-verify/otp-verify.component';
@@ -67,12 +68,22 @@ export class RegisterPage {
   succMsg = signal<string | null>(null);
   uDataAfterNL = signal<UserRegPostReq | null>(null);
   nextBtnHidden = signal<boolean>(false);
+  roleParam = signal<string | null>(null);
+
   constructor(
     private fb: FormBuilder,
     private userSv: UserServices,
     private router: Router,
-    private navCtrl: NavController
+    private navCtrl: NavController,
+    private route: ActivatedRoute,
+    public authSv: AuthenService
   ) {
+    this.route.queryParams.subscribe((params) => {
+      if (params['role']) {
+        this.roleParam.set(params['role']);
+      }
+    });
+
     addIcons({
       person,
       call,
@@ -139,7 +150,13 @@ export class RegisterPage {
           next: (res) => {
             sessionStorage.setItem('reg1', JSON.stringify(res));
             this.uDataAfterNL.set(res);
-            this.openOTP_popup();
+            const isAdminCreating = this.authSv.currentUserValue?.role === 3;
+            if (isAdminCreating) {
+              res.role = this.roleParam() || 'member';
+              this.getVerify(true);
+            } else {
+              this.openOTP_popup();
+            }
           },
           error: (err: any) => {
             if (err.name === 'TimeoutError') {
@@ -167,8 +184,9 @@ export class RegisterPage {
     this.registerForm.disable();
     this.nextBtnHidden.set(true);
     if (this.uDataAfterNL()) {
+      const isAdminCreating = this.authSv.currentUserValue?.role === 3;
       this.userSv
-        .register2(this.uDataAfterNL()!, status, false)
+        .register2(this.uDataAfterNL()!, status, isAdminCreating)
         .pipe(
           take(1),
           finalize(() => {
@@ -176,12 +194,19 @@ export class RegisterPage {
           })
         )
         .subscribe({
-          next: () => {
+          next: (res: any) => {
             this.succMsg.set('ลงทะเบียนสำเร็จ');
             sessionStorage.removeItem('reg1');
 
             timer(2000).subscribe(() => {
-              return this.router.navigateByUrl('/login');
+              if (isAdminCreating) {
+                if (this.roleParam() === 'owner' && res?.user_id) {
+                  return this.router.navigate(['/owner-register', res.user_id]);
+                }
+                return this.router.navigateByUrl('/member-management');
+              } else {
+                return this.router.navigateByUrl('/login');
+              }
             });
           },
           error: (err: any) => {

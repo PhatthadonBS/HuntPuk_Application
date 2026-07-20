@@ -10,6 +10,7 @@ import {
   Renderer2,
   effect,
   computed,
+  untracked,
 } from '@angular/core';
 import {
   IonContent,
@@ -113,7 +114,7 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
   private isDestroyingMap = false;
 
   private allDorms = signal<DormSummary[]>([]);
-  favIds = signal<number[]>([]);
+  favIds = this.userSv.favIds;
 
   dorms = computed(() => {
     const raw = this.allDorms();
@@ -216,9 +217,10 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
     });
 
     effect(() => {
-      const dormsToDisplay = this.dorms();
+      this.allDorms();
       const ready = this.mapReady();
       if (ready) {
+        const dormsToDisplay = untracked(() => this.dorms());
         this.updateMapMarkers(dormsToDisplay);
       }
     });
@@ -274,14 +276,7 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
 
   loadFavIds() {
     if (!this.currentUser) return;
-    this.userSv.getMyFavorites(this.currentUser.id).subscribe({
-      next: (res) => {
-        if (res.success) {
-          this.favIds.set(res.data.map((f: any) => f.DORMID));
-        }
-      },
-      error: (err) => console.error('Error fetching favorites', err),
-    });
+    this.userSv.loadFavIds(this.currentUser.id);
   }
 
   async forceReload() {

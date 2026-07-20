@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
-import { catchError, Observable, shareReplay, take } from 'rxjs';
+import { Injectable, signal } from '@angular/core';
+import { catchError, Observable, shareReplay, take, tap } from 'rxjs';
 import { UserAllGetRes, UserDataGetRes, UserDormOwnerGetRes, UserRegPostReq, UserUpdatePostReq } from '../model/user.model';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
@@ -9,6 +9,7 @@ import { environment } from 'src/environments/environment';
 })
 export class UserServices {
   private endPoint: string = environment.ENDPOINT;
+  favIds = signal<number[]>([]);
 
   constructor(private http: HttpClient) {}
 
@@ -31,9 +32,9 @@ export class UserServices {
     datum: UserRegPostReq,
     status: boolean,
     isAdmin: boolean
-  ): Observable<UserRegPostReq> {
+  ): Observable<any> {
     const url = `${this.endPoint}/user/registerSec2`;
-    return this.http.post<UserRegPostReq>(url, {
+    return this.http.post<any>(url, {
       userData: datum,
       verify: status,
       admin: isAdmin,
@@ -60,14 +61,44 @@ export class UserServices {
     return this.http.put(url, data);
   }
 
+  loadFavIds(uid: number) {
+    this.getMyFavorites(uid).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.favIds.set(res.data.map((f: any) => f.DORMID));
+        }
+      },
+      error: (err) => console.error('Error loading favorites', err),
+    });
+  }
+
   addFavorite(dorm_id: number): Observable<any> {
     const url = `${this.endPoint}/other/addFavorite`;
-    return this.http.post(url, { dorm_id });
+    const current = this.favIds();
+    if (!current.includes(dorm_id)) {
+      this.favIds.set([...current, dorm_id]);
+    }
+    return this.http.post(url, { dorm_id }).pipe(
+      catchError((err) => {
+        this.favIds.set(this.favIds().filter((id) => id !== dorm_id));
+        throw err;
+      })
+    );
   }
 
   removeFavorite(dorm_id: number): Observable<any> {
     const url = `${this.endPoint}/other/delFavorite`;
-    return this.http.request('delete', url, { body: { dorm_id } });
+    const current = this.favIds();
+    this.favIds.set(current.filter((id) => id !== dorm_id));
+    return this.http.request('delete', url, { body: { dorm_id } }).pipe(
+      catchError((err) => {
+        const cur = this.favIds();
+        if (!cur.includes(dorm_id)) {
+          this.favIds.set([...cur, dorm_id]);
+        }
+        throw err;
+      })
+    );
   }
 
   getMyFavorites(uid: number): Observable<{success: boolean, data: any[]}> {

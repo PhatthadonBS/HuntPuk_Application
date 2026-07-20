@@ -22,6 +22,7 @@ export interface UserRegPostReq {
   email: string;
   password: string;
   phone: string;
+  role?: string;
 }
 
 export interface UserUpdatePostReq {

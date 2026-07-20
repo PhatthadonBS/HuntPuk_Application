@@ -3,11 +3,11 @@
     <div class="search-wrapper" *ngIf="showSearch">
       <ion-searchbar
         [(ngModel)]="searchQuery"
-        placeholder="ค้นหาชื่อหอพัก..."
+        placeholder="ค้นหาชื่อหอพัก หรือ โซน..."
         mode="ios"
         class="custom-search"
         (keyup.enter)="onEnter()"
-        (ionInput)="onInput()"
+        (ionInput)="onInput($event)"
         (ionClear)="onClear()"
         (ionFocus)="onFocus()"
         (ionBlur)="onBlur()"

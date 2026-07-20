@@ -39,6 +39,7 @@ import {
   ToastController,
   IonRefresher,
   IonRefresherContent,
+  ViewWillEnter,
 } from '@ionic/angular/standalone';
 import { DormServices } from 'src/app/services/dormServices';
 import { UserServices } from 'src/app/services/userServices';
@@ -109,7 +110,7 @@ import { finalize, Subscription, forkJoin, of } from 'rxjs';
     IonRefresherContent,
   ],
 })
-export class DormListPage implements OnInit, OnDestroy {
+export class DormListPage implements OnInit, OnDestroy, ViewWillEnter {
   @ViewChild(IonContent, { static: false }) content?: IonContent;
 
   allDorms = signal<DormSummary[]>([]);
@@ -132,7 +133,7 @@ export class DormListPage implements OnInit, OnDestroy {
   env = environment;
   private userSub?: Subscription;
   currentUser: any = null;
-  favIds = signal<number[]>([]);
+  favIds = this.userSv.favIds;
 
   filteredDorms = computed(() => {
     let dorms = this.allDorms();
@@ -239,6 +240,12 @@ export class DormListPage implements OnInit, OnDestroy {
     });
   }
 
+  ionViewWillEnter() {
+    if (this.currentUser) {
+      this.loadFavIds();
+    }
+  }
+
   ngOnInit() {
     this.userSub = this.authSv.user$.subscribe((user) => {
       this.currentUser = user;
@@ -286,14 +293,7 @@ export class DormListPage implements OnInit, OnDestroy {
 
   loadFavIds() {
     if (!this.currentUser) return;
-    this.userSv.getMyFavorites(this.currentUser.id).subscribe({
-      next: (res) => {
-        if (res.success) {
-          this.favIds.set(res.data.map((f: any) => f.DORMID));
-        }
-      },
-      error: (err) => console.error('Error fetching favorites', err),
-    });
+    this.userSv.loadFavIds(this.currentUser.id);
   }
 
   loadDorms() {
@@ -425,6 +425,10 @@ export class DormListPage implements OnInit, OnDestroy {
 
   onSearchBlur() {
     this.mainLayout.hideFooter.set(false);
+  }
+
+  trackByDormId(index: number, dorm: DormSummary): number {
+    return dorm.DORM_ID;
   }
 
   goBack() {

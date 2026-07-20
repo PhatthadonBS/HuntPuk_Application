@@ -71,6 +71,66 @@ ion-content.minimal-style {
     flex-direction: column;
   }
 
+  // ── Profile Image Uploader ──
+  .profile-upload-wrapper {
+    cursor: pointer;
+  }
+
+  .preview-container {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.95);
+    border: 4px solid #ffffff;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+
+    .profile-preview {
+      border-radius: 50%;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .placeholder-preview {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: #f3f4f6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      ion-icon {
+        font-size: 2.8rem;
+        color: #9ca3af;
+      }
+    }
+  }
+
+  .upload-badge {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    background: $accent-yellow;
+    color: #1a1a1a;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2.5px solid #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+    ion-icon {
+      font-size: 1rem;
+    }
+  }
+
   .profile-header {
     display: flex;
     flex-direction: column;

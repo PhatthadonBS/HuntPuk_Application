@@ -43,6 +43,8 @@ import {
   settingsOutline,
   closeOutline,
   arrowBackCircleOutline,
+  personAddOutline,
+  keyOutline,
 } from 'ionicons/icons';
 import { UserServices } from 'src/app/services/userServices';
 import { UserAllGetRes } from 'src/app/model/user.model';
@@ -133,6 +135,8 @@ export class MemberManagementPage implements OnInit {
       settingsOutline,
       closeOutline,
       arrowBackCircleOutline,
+      personAddOutline,
+      keyOutline,
     });
   }
 
@@ -178,6 +182,14 @@ export class MemberManagementPage implements OnInit {
 
   scrollToTop() {
     this.content.scrollToTop(500);
+  }
+
+  goToRegister() {
+    if (this.selectedTab() === 'member') {
+      this.router.navigate(['/register']);
+    } else {
+      this.router.navigate(['/owner-register']);
+    }
   }
 
   goToDetail(user: UserAllGetRes) {
@@ -227,6 +239,15 @@ export class MemberManagementPage implements OnInit {
           role: 'destructive',
           handler: () => {
             this.hardDeleteUser(event, user);
+          },
+        },
+        {
+          text: 'เปลี่ยนรหัสผ่าน',
+          icon: 'key-outline',
+          handler: () => {
+            this.router.navigate(['/forgotPasswd'], {
+              queryParams: { email: user.EMAIL },
+            });
           },
         },
         {

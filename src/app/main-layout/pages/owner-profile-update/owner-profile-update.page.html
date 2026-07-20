@@ -24,191 +24,235 @@
   <div class="background"></div>
 
   <div class="content-wrapper">
-    <div class="profile-header bg-white/80 rounded-2xl mb-[4rem]">
+    <!-- Profile Image Uploader -->
+    <div class="flex flex-col items-center mb-8">
       <div class="profile-upload-wrapper" (click)="presentPhotoOptions()">
         <div class="preview-container">
           <img
             [src]="imagePreview() || 'assets/icon.png'"
-            class="profile-preview rounded-xl w-[15rem] h-[15rem] object-cover"
+            class="profile-preview"
             *ngIf="imagePreview()"
             (error)="handleImageError()"
           />
           <div class="placeholder-preview" *ngIf="!imagePreview()">
-            <ion-icon
-              name="person-outline"
-              class="text-5xl text-gray-300"
-            ></ion-icon>
+            <ion-icon name="person-outline"></ion-icon>
+          </div>
+          <div class="upload-badge">
+            <ion-icon name="camera-outline"></ion-icon>
           </div>
         </div>
       </div>
-      <div class="text-center text-lg font-bold mt-[1rem]">
-        กดที่รูปเพื่อเปลี่ยนรูป
-      </div>
+      <p
+        class="text-[16px] font-medium text-black mt-3 uppercase tracking-wider text-center"
+      >
+        อัปโหลดรูปโปรไฟล์
+      </p>
     </div>
 
-    <form
-      [formGroup]="updateForm"
-      (ngSubmit)="confirmUpdate()"
-    >
+    <form [formGroup]="updateForm" (ngSubmit)="confirmUpdate()">
       <div class="info-section">
         <ion-list lines="none" class="minimal-list">
-        <ion-item
-          class="border-b border-gray-300/80"
-          style="margin-bottom: 0.5rem"
-        >
-          <ion-icon
-            name="person-outline"
-            slot="start"
-            color="medium"
-          ></ion-icon>
-          <ion-label position="stacked">ชื่อผู้ใช้</ion-label>
-          <ion-input
-            type="text"
-            placeholder="Username"
-            formControlName="username"
-          ></ion-input>
-        </ion-item>
+          <ion-item
+            class="border-b border-gray-300/80"
+            style="margin-bottom: 0.5rem"
+          >
+            <ion-icon
+              name="person-outline"
+              slot="start"
+              color="medium"
+            ></ion-icon>
+            <ion-label position="stacked">ชื่อผู้ใช้</ion-label>
+            <ion-input
+              type="text"
+              placeholder="Username"
+              formControlName="username"
+            ></ion-input>
+          </ion-item>
 
-        <ion-item
-          class="border-b border-gray-300/80"
-          style="margin-bottom: 0.5rem"
-        >
-          <ion-icon
-            name="person-circle-outline"
-            slot="start"
-            color="medium"
-          ></ion-icon>
-          <ion-label position="stacked">ชื่อจริง</ion-label>
-          <ion-input
-            type="text"
-            placeholder="First Name"
-            formControlName="first_name"
-          ></ion-input>
-        </ion-item>
+          <ion-item
+            class="border-b border-gray-300/80"
+            style="margin-bottom: 0.5rem"
+          >
+            <ion-icon
+              name="person-circle-outline"
+              slot="start"
+              color="medium"
+            ></ion-icon>
+            <ion-label position="stacked">ชื่อจริง</ion-label>
+            <ion-input
+              type="text"
+              placeholder="First Name"
+              formControlName="first_name"
+            ></ion-input>
+          </ion-item>
 
-        <ion-item
-          class="border-b border-gray-300/80"
-          style="margin-bottom: 0.5rem"
-        >
-          <ion-icon
-            name="person-circle-outline"
-            slot="start"
-            color="medium"
-          ></ion-icon>
-          <ion-label position="stacked">นามสกุล</ion-label>
-          <ion-input
-            type="text"
-            placeholder="Last Name"
-            formControlName="last_name"
-          ></ion-input>
-        </ion-item>
+          <ion-item
+            class="border-b border-gray-300/80"
+            style="margin-bottom: 0.5rem"
+          >
+            <ion-icon
+              name="person-circle-outline"
+              slot="start"
+              color="medium"
+            ></ion-icon>
+            <ion-label position="stacked">นามสกุล</ion-label>
+            <ion-input
+              type="text"
+              placeholder="Last Name"
+              formControlName="last_name"
+            ></ion-input>
+          </ion-item>
 
-        <ion-item
-          class="border-b border-gray-300/80"
-          style="margin-bottom: 0.5rem"
-        >
-          <ion-icon name="call-outline" slot="start" color="medium"></ion-icon>
-          <ion-label position="stacked">เบอร์โทรศัพท์</ion-label>
-          <ion-input
-            type="tel"
-            placeholder="0xx-xxx-xxxx"
-            formControlName="phone_number"
-          ></ion-input>
-        </ion-item>
+          <ion-item
+            class="border-b border-gray-300/80"
+            style="margin-bottom: 0.5rem"
+          >
+            <ion-icon
+              name="call-outline"
+              slot="start"
+              color="medium"
+            ></ion-icon>
+            <ion-label position="stacked">เบอร์โทรศัพท์</ion-label>
+            <ion-input
+              type="tel"
+              placeholder="0xx-xxx-xxxx"
+              formControlName="phone_number"
+            ></ion-input>
+          </ion-item>
         </ion-list>
       </div>
 
       <div class="info-section mt-4">
-        <div class="px-4 py-2 flex flex-col justify-start items-start mb-2 mt-2">
+        <div
+          class="px-4 py-2 flex flex-col justify-start items-start mb-2 mt-2"
+        >
           <div class="flex align-middle text-gray-700 font-bold text-[16px]">
-            <ion-icon name="globe-outline" class="mr-2 mt-[2px] text-[20px]"></ion-icon>
+            <ion-icon
+              name="globe-outline"
+              class="mr-2 mt-[2px] text-[20px]"
+            ></ion-icon>
             <span>ช่องทางการติดต่อเพิ่มเติม</span>
           </div>
-          <div class="text-[14px] text-yellow-500 flex mt-1 ml-[1.6rem] font-medium">
+          <div
+            class="text-[14px] text-yellow-500 flex mt-1 ml-[1.6rem] font-medium"
+          >
             <span class="text-red-500 mr-1">***</span> ถ้าไม่มี ให้เว้นว่างไว้
           </div>
         </div>
         <ion-list lines="none" class="minimal-list">
-        <ion-item
-          class="border-b border-gray-300/80"
-        >
-          <img src="/assets/icon/facebook.png" slot="start" class="w-9 h-9 object-contain mt-[2rem] mr-4 -ml-2 opacity-50" />
-          <ion-label position="stacked">Facebook</ion-label>
-          <ion-input
-            type="text"
-            placeholder="Facebook"
-            formControlName="facebook"
-          ></ion-input>
-        </ion-item>
-        <div class="px-4 text-gray-500 flex items-center mb-4 mt-2">
-          <ion-icon name="information-circle-outline" class="mr-1 text-[16px]"></ion-icon>
-          <span class="text-[12px]">คำแนะนำ: คัดลอกลิงก์โปรไฟล์และวางที่นี่</span>
-        </div>
+          <ion-item class="border-b border-gray-300/80">
+            <img
+              src="/assets/icon/facebook.png"
+              slot="start"
+              class="w-9 h-9 object-contain mt-[2rem] mr-4 -ml-2 opacity-50"
+            />
+            <ion-label position="stacked">Facebook</ion-label>
+            <ion-input
+              type="text"
+              placeholder="Facebook"
+              formControlName="facebook"
+            ></ion-input>
+          </ion-item>
+          <div class="px-4 text-gray-500 flex items-center mb-4 mt-2">
+            <ion-icon
+              name="information-circle-outline"
+              class="mr-1 text-[16px]"
+            ></ion-icon>
+            <span class="text-[12px]"
+              >คำแนะนำ: คัดลอกลิงก์โปรไฟล์และวางที่นี่</span
+            >
+          </div>
 
-        <ion-item
-          class="border-b border-gray-300/80"
-        >
-          <img src="/assets/icon/line.png" slot="start" class="w-11 h-11 object-contain mt-[1.5rem] -ml-[.75rem] mr-[1rem] opacity-50" />
-          <ion-label position="stacked">Line ID</ion-label>
-          <ion-input
-            type="text"
-            placeholder="Line ID"
-            formControlName="line"
-          ></ion-input>
-        </ion-item>
-        <div class="px-4 text-gray-500 flex items-center mb-4 mt-2">
-          <ion-icon name="information-circle-outline" class="mr-1 text-[16px]"></ion-icon>
-          <span class="text-[12px]">คำแนะนำ: กรอกไอดีไลน์ของคุณ</span>
-        </div>
+          <ion-item class="border-b border-gray-300/80">
+            <img
+              src="/assets/icon/line.png"
+              slot="start"
+              class="w-11 h-11 object-contain mt-[1.5rem] -ml-[.75rem] mr-[1rem] opacity-50"
+            />
+            <ion-label position="stacked">Line ID</ion-label>
+            <ion-input
+              type="text"
+              placeholder="Line ID"
+              formControlName="line"
+            ></ion-input>
+          </ion-item>
+          <div class="px-4 text-gray-500 flex items-center mb-4 mt-2">
+            <ion-icon
+              name="information-circle-outline"
+              class="mr-1 text-[16px]"
+            ></ion-icon>
+            <span class="text-[12px]">คำแนะนำ: กรอกไอดีไลน์ของคุณ</span>
+          </div>
 
-        <ion-item
-          class="border-b border-gray-300/80"
-        >
-          <img src="/assets/icon/instagram.png" slot="start" class="w-9 h-9 object-contain mt-[2rem] mr-4 -ml-[.5rem] opacity-50" />
-          <ion-label position="stacked">Instagram</ion-label>
-          <ion-input
-            type="text"
-            placeholder="Instagram"
-            formControlName="instagram"
-          ></ion-input>
-        </ion-item>
-        <div class="px-4 text-gray-500 flex items-center mb-4 mt-2">
-          <ion-icon name="information-circle-outline" class="mr-1 text-[16px]"></ion-icon>
-          <span class="text-[12px]">คำแนะนำ: คัดลอกลิงก์โปรไฟล์และวางที่นี่</span>
-        </div>
+          <ion-item class="border-b border-gray-300/80">
+            <img
+              src="/assets/icon/instagram.png"
+              slot="start"
+              class="w-9 h-9 object-contain mt-[2rem] mr-4 -ml-[.5rem] opacity-50"
+            />
+            <ion-label position="stacked">Instagram</ion-label>
+            <ion-input
+              type="text"
+              placeholder="Instagram"
+              formControlName="instagram"
+            ></ion-input>
+          </ion-item>
+          <div class="px-4 text-gray-500 flex items-center mb-4 mt-2">
+            <ion-icon
+              name="information-circle-outline"
+              class="mr-1 text-[16px]"
+            ></ion-icon>
+            <span class="text-[12px]"
+              >คำแนะนำ: คัดลอกลิงก์โปรไฟล์และวางที่นี่</span
+            >
+          </div>
 
-        <ion-item
-          class="border-b border-gray-300/80"
-        >
-          <img src="/assets/icon/twitter.png" slot="start" class="w-9 h-9 object-contain mt-[2rem] mr-[1rem] -ml-[.5rem] opacity-50" />
-          <ion-label position="stacked">X (Twitter)</ion-label>
-          <ion-input
-            type="text"
-            placeholder="X (Twitter)"
-            formControlName="x"
-          ></ion-input>
-        </ion-item>
-        <div class="px-4 text-gray-500 flex items-center mb-4 mt-2">
-          <ion-icon name="information-circle-outline" class="mr-1 text-[16px]"></ion-icon>
-          <span class="text-[12px]">คำแนะนำ: คัดลอกลิงก์โปรไฟล์ X ของคุณ</span>
-        </div>
+          <ion-item class="border-b border-gray-300/80">
+            <img
+              src="/assets/icon/twitter.png"
+              slot="start"
+              class="w-9 h-9 object-contain mt-[2rem] mr-[1rem] -ml-[.5rem] opacity-50"
+            />
+            <ion-label position="stacked">X (Twitter)</ion-label>
+            <ion-input
+              type="text"
+              placeholder="X (Twitter)"
+              formControlName="x"
+            ></ion-input>
+          </ion-item>
+          <div class="px-4 text-gray-500 flex items-center mb-4 mt-2">
+            <ion-icon
+              name="information-circle-outline"
+              class="mr-1 text-[16px]"
+            ></ion-icon>
+            <span class="text-[12px]"
+              >คำแนะนำ: คัดลอกลิงก์โปรไฟล์ X ของคุณ</span
+            >
+          </div>
 
-        <ion-item
-          class="border-b border-gray-300/80"
-        >
-          <img src="/assets/icon/telegram.png" slot="start" class="w-9 h-9 object-contain mt-[2rem] mr-4 -ml-[.4rem] opacity-50" />
-          <ion-label position="stacked">Telegram</ion-label>
-          <ion-input
-            type="text"
-            placeholder="Telegram"
-            formControlName="telegram"
-          ></ion-input>
-        </ion-item>
-        <div class="px-4 text-gray-500 flex items-center mb-4 mt-2">
-          <ion-icon name="information-circle-outline" class="mr-1 text-[16px]"></ion-icon>
-          <span class="text-[12px]">คำแนะนำ: ใช้เบอร์โทรศัพท์ที่ผูกกับบัญชีเทเลแกรม</span>
-        </div>
-      </ion-list>
+          <ion-item class="border-b border-gray-300/80">
+            <img
+              src="/assets/icon/telegram.png"
+              slot="start"
+              class="w-9 h-9 object-contain mt-[2rem] mr-4 -ml-[.4rem] opacity-50"
+            />
+            <ion-label position="stacked">Telegram</ion-label>
+            <ion-input
+              type="text"
+              placeholder="Telegram"
+              formControlName="telegram"
+            ></ion-input>
+          </ion-item>
+          <div class="px-4 text-gray-500 flex items-center mb-4 mt-2">
+            <ion-icon
+              name="information-circle-outline"
+              class="mr-1 text-[16px]"
+            ></ion-icon>
+            <span class="text-[12px]"
+              >คำแนะนำ: ใช้เบอร์โทรศัพท์ที่ผูกกับบัญชีเทเลแกรม</span
+            >
+          </div>
+        </ion-list>
       </div>
 
       <div class="save-section">

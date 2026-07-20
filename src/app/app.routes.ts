@@ -134,6 +134,14 @@ export const routes: Routes = [
   },
 
   {
+    path: 'owner-register',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./main-layout/pages/owner-register/owner-register.page').then(
+        (m) => m.OwnerRegisterPage
+      ),
+  },
+  {
     path: 'owner-register/:user_id',
     canActivate: [authGuard],
     loadComponent: () =>

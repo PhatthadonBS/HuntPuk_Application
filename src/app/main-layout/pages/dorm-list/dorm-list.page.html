@@ -49,7 +49,7 @@
     </div>
 
     <div class="dorm-list-container">
-      <div class="minimal-dorm-card" *ngFor="let dorm of filteredDorms()">
+      <div class="minimal-dorm-card" *ngFor="let dorm of filteredDorms(); trackBy: trackByDormId">
         <!-- Row 1: Image Section -->
         <div class="image-container">
           <img

@@ -38,6 +38,7 @@ import {
 } from 'ionicons/icons';
 import { UserServices } from 'src/app/services/userServices';
 import { AuthenService } from 'src/app/services/authenService';
+import { ActivatedRoute } from '@angular/router';
 import { UserDataGetRes } from 'src/app/model/user.model';
 import { LoadingUIComponent } from '../../components/loading-ui/loading-ui.component';
 import { finalize } from 'rxjs';
@@ -92,14 +93,17 @@ export class OwnerRegisterPage implements OnInit {
 
   isLoading = signal<boolean>(false);
   currentUser = signal<UserDataGetRes | null>(null);
+  targetUserId: number | null = null;
+  isExistingOwner = signal<boolean>(false);
 
   constructor(
     private userSv: UserServices,
-    private authSv: AuthenService,
+    public authSv: AuthenService,
     private toastCtrl: ToastController,
     private navCtrl: NavController,
     private actionSheetCtrl: ActionSheetController,
-    private alertCtrl: AlertController
+    private alertCtrl: AlertController,
+    private route: ActivatedRoute
   ) {
     addIcons({
       personOutline,
@@ -117,22 +121,51 @@ export class OwnerRegisterPage implements OnInit {
   }
 
   ngOnInit() {
+    const idParam = this.route.snapshot.paramMap.get('user_id');
+    if (idParam) {
+      this.targetUserId = Number(idParam);
+    }
     this.fetchUserProfile();
   }
 
   fetchUserProfile() {
     const user = this.authSv.currentUserValue;
     if (user) {
+      const isAdmin = user.role === 3;
+      if (isAdmin && !this.targetUserId) {
+        this.firstName.set('');
+        this.lastName.set('');
+        this.email.set('');
+        this.phone.set('');
+        this.facebook.set('');
+        this.instagram.set('');
+        this.telegram.set('');
+        this.line.set('');
+        this.twitter.set('');
+        this.imagePreview.set(null);
+        this.selectedFile = null;
+        return;
+      }
+
       this.isLoading.set(true);
-      this.userSv.getUserByID(user.id).subscribe({
+      const uidToFetch = this.targetUserId || user.id;
+      this.userSv.getUserByID(uidToFetch).subscribe({
         next: (data: any) => {
           this.currentUser.set(data);
-          this.email.set(data.EMAIL);
-          this.phone.set(data.PHONE_NUMBER);
+          this.email.set(data.EMAIL || '');
+          this.phone.set(data.PHONE_NUMBER || '');
 
           if (data.FIRST_NAME) this.firstName.set(data.FIRST_NAME);
           if (data.LAST_NAME) this.lastName.set(data.LAST_NAME);
           if (data.PROFILE_IMAGE) this.imagePreview.set(data.PROFILE_IMAGE);
+          if (data.FACEBOOK) this.facebook.set(data.FACEBOOK);
+          if (data.INSTAGRAM) this.instagram.set(data.INSTAGRAM);
+          if (data.TELEGRAM) this.telegram.set(data.TELEGRAM);
+          if (data.LINE) this.line.set(data.LINE);
+          if (data.X) this.twitter.set(data.X);
+
+          // Mark as existing owner if DORM_OWNERS record exists
+          this.isExistingOwner.set(!!data.FIRST_NAME);
 
           this.isLoading.set(false);
         },
@@ -219,23 +252,28 @@ export class OwnerRegisterPage implements OnInit {
   }
 
   async onSubmit(override: boolean = false) {
-    if (
-      !this.firstName() ||
-      !this.lastName() ||
-      (!this.selectedFile && !override)
-    ) {
-      this.showToast(
-        'กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วนและเลือกรูปโปรไฟล์',
-        'warning'
-      );
-      return;
-    }
-
     const user = this.authSv.currentUserValue;
     if (!user) return;
 
+    const isAdmin = user.role === 3;
+    const uidToSubmit = this.targetUserId || user.id;
+
+    // Admin creating a brand-new owner (no existing profile loaded) → POST
+    const useCreateFlow = isAdmin && !this.isExistingOwner() && !this.targetUserId;
+
+    if (!this.firstName() || !this.lastName()) {
+      this.showToast('กรุณากรอกชื่อและนามสกุลให้ครบถ้วน', 'warning');
+      return;
+    }
+
+    if (useCreateFlow && !this.selectedFile && !override) {
+      this.showToast('กรุณาเลือกรูปโปรไฟล์', 'warning');
+      return;
+    }
+
     const formData = new FormData();
-    formData.append('user_id', user.id.toString());
+    formData.append('user_id', uidToSubmit.toString());
+    formData.append('email', this.email());
     formData.append('first_name', this.firstName());
     formData.append('last_name', this.lastName());
     formData.append('facebook', this.facebook());
@@ -246,50 +284,80 @@ export class OwnerRegisterPage implements OnInit {
     if (this.selectedFile) {
       formData.append('file', this.selectedFile);
     }
-    if (override) {
-      formData.append('override', 'true');
-    }
 
     this.isLoading.set(true);
-    this.userSv.requestDormOwner(formData).subscribe({
-      next: (res) => {
-        this.isLoading.set(false);
-        this.showToast(
-          'ส่งคำขอเรียบร้อยแล้ว! โปรดรอการอนุมัติจากผู้ดูแลระบบ',
-          'success'
-        );
-        this.navCtrl.navigateRoot('/');
-      },
-      error: async (err) => {
-        this.isLoading.set(false);
-        console.error('Error submitting registration', err);
 
-        // Handle pending request override logic
-        if (err.status === 409 && err.error?.isPending) {
-          const alert = await this.alertCtrl.create({
-            header: 'Warning',
-            message: err.error.message,
-            buttons: [
-              {
-                text: 'Cancel',
-                role: 'cancel',
-              },
-              {
-                text: 'Confirm Override',
-                handler: () => {
-                  this.onSubmit(true);
-                },
-              },
-            ],
-          });
-          await alert.present();
-          return;
-        }
+    if (useCreateFlow) {
+      // ── Admin: CREATE new owner via POST /user/dormOwner ──
+      if (override) formData.append('override', 'true');
 
-        const errMsg = err.error?.message || 'ส่งคำขอไม่สำเร็จ';
-        this.showToast(errMsg, 'danger');
-      },
-    });
+      this.userSv.requestDormOwner(formData).subscribe({
+        next: () => {
+          this.isLoading.set(false);
+          this.showToast('เพิ่มเจ้าของหอพักสำเร็จ', 'success');
+          this.navCtrl.navigateRoot('/member-management');
+        },
+        error: async (err) => {
+          this.isLoading.set(false);
+          console.error('Error creating owner', err);
+
+          if (err.status === 409 && err.error?.isPending) {
+            const alert = await this.alertCtrl.create({
+              header: 'มีคำขอรออยู่แล้ว',
+              message: err.error.message,
+              buttons: [
+                { text: 'ยกเลิก', role: 'cancel' },
+                { text: 'ยืนยันการแทนที่', handler: () => this.onSubmit(true) },
+              ],
+            });
+            await alert.present();
+            return;
+          }
+
+          this.showToast(err.error?.message || 'เพิ่มเจ้าของหอพักไม่สำเร็จ', 'danger');
+        },
+      });
+    } else {
+      // ── Owner updating self, or Admin updating existing owner via PUT /spec/user/:id ──
+      const currentUserData = this.currentUser();
+      const username = currentUserData?.USERNAME || '';
+      const phone = currentUserData?.PHONE_NUMBER || this.phone();
+
+      // PUT endpoint expects multipart with username + phone_number + owner fields
+      const updateData = new FormData();
+      updateData.append('username', username);
+      updateData.append('phone_number', phone);
+      updateData.append('first_name', this.firstName());
+      updateData.append('last_name', this.lastName());
+      updateData.append('facebook', this.facebook());
+      updateData.append('line', this.line());
+      updateData.append('instagram', this.instagram());
+      updateData.append('x', this.twitter());
+      updateData.append('telegram', this.telegram());
+      if (this.selectedFile) {
+        updateData.append('file', this.selectedFile);
+      }
+
+      this.userSv.profileUpdate(uidToSubmit, updateData).subscribe({
+        next: () => {
+          this.isLoading.set(false);
+          this.showToast(
+            isAdmin ? 'อัปเดตข้อมูลเจ้าของหอพักสำเร็จ' : 'อัปเดตข้อมูลสำเร็จ',
+            'success'
+          );
+          if (isAdmin) {
+            this.navCtrl.navigateRoot('/member-management');
+          } else {
+            this.navCtrl.back();
+          }
+        },
+        error: (err) => {
+          this.isLoading.set(false);
+          console.error('Error updating owner', err);
+          this.showToast(err.error?.message || 'อัปเดตข้อมูลไม่สำเร็จ', 'danger');
+        },
+      });
+    }
   }
 
   async showToast(message: string, color: 'success' | 'danger' | 'warning') {
