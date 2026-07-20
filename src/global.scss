@@ -145,3 +145,75 @@ capacitor-google-map {
     }
   }
 }
+
+/* Custom Danger Alert styling */
+.danger-alert {
+  --background: #ffffff;
+  --backdrop-opacity: 0.6;
+
+  .alert-wrapper {
+    border-radius: 16px !important;
+    box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.2) !important;
+  }
+
+  .alert-head {
+    padding-top: 24px;
+    padding-bottom: 8px;
+    text-align: center;
+    h2.alert-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #dc2626;
+    }
+  }
+
+  .alert-message {
+    font-size: 1rem;
+    color: #4b5563;
+    text-align: center;
+    padding-bottom: 24px;
+    line-height: 1.5;
+  }
+
+  .alert-input-group {
+    padding: 0 16px 16px 16px;
+  }
+
+  .alert-input {
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 12px;
+    background: #f9fafb;
+    color: #111827;
+    font-weight: 600;
+    text-align: center;
+
+    &:focus {
+      border-color: #ef4444;
+      box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+    }
+  }
+
+  .alert-button-group {
+    border-top: 1px solid #f3f4f6;
+
+    .alert-button {
+      flex: 1;
+      font-size: 1rem;
+      font-weight: 600;
+
+      .alert-button-inner {
+        justify-content: center;
+      }
+
+      &.alert-button-role-cancel {
+        color: #6b7280;
+        border-right: 1px solid #f3f4f6;
+      }
+
+      &.alert-button-role-destructive {
+        color: #ef4444;
+      }
+    }
+  }
+}

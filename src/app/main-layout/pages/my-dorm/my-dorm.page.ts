@@ -337,13 +337,13 @@ export class MyDormPage implements OnInit {
   async deleteDorm(dorm: DormSummary) {
     const alert = await this.alertCtrl.create({
       header: 'ลบหอพัก?',
-      message: `คุณแน่ใจหรือไม่ว่าต้องการลบ "${dorm.DORM_NAME}"? \nการกระทำนี้ไม่สามารถย้อนกลับได้\nกรุณาพิมพ์ \"ยืนยันลบหอพัก\" เพื่อยืนยัน`,
+      message: `คุณแน่ใจหรือไม่ว่าต้องการลบ "${dorm.DORM_NAME}"? \nการกระทำนี้ไม่สามารถย้อนกลับได้\nกรุณาพิมพ์ \"DELETE\" เพื่อยืนยัน`,
       cssClass: 'danger-alert',
       inputs: [
         {
           name: 'confirmText',
           type: 'text',
-          placeholder: 'พิมพ์ ยืนยันลบหอพัก',
+          placeholder: 'พิมพ์ DELETE',
         },
       ],
       buttons: [
@@ -352,7 +352,7 @@ export class MyDormPage implements OnInit {
           text: 'ลบ',
           role: 'destructive',
           handler: (data) => {
-            if (data.confirmText !== 'ยืนยันลบหอพัก') {
+            if (data.confirmText !== 'DELETE') {
               this.showToast('พิมพ์คำยืนยันไม่ถูกต้อง', 'danger');
               return false;
             }
