@@ -988,19 +988,14 @@ export class DormRegisterPage implements OnInit, OnDestroy {
           map: this.map,
           label: {
             text: zone.ZONE_NAME,
-            color: '#4285F4',
+            color: '#000000',
             fontSize: '14px',
             fontWeight: 'bold',
-            className: 'zone-marker-label',
+            className: 'mt-[3.5rem]',
           },
           icon: {
-            path: google.maps.SymbolPath.CIRCLE,
-            scale: 8,
-            fillColor: '#4285F4',
-            fillOpacity: 1,
-            strokeColor: '#ffffff',
-            strokeWeight: 2,
-            labelOrigin: new google.maps.Point(0, 2.5),
+            url: 'assets/icon/map-pin.png',
+            scaledSize: new google.maps.Size(35, 35),
           },
           clickable: false,
         });

@@ -109,6 +109,8 @@ export class TypeManagementPage implements OnInit {
   // Map state
   map: any = null;
   marker: any = null;
+  zoneMarkers: any[] = [];
+  zoneCircles: any[] = [];
 
   constructor(
     private dormServices: DormServices,
@@ -204,11 +206,51 @@ export class TypeManagementPage implements OnInit {
         zoom: 15,
         disableDefaultUI: true,
         clickableIcons: false,
+        styles: [
+          {
+            featureType: 'poi',
+            stylers: [{ visibility: 'off' }],
+          },
+        ],
       });
 
       if (this.refPoint()) {
         this.renderMarker(this.refPoint()!);
       }
+
+      // Render all existing zones with a different colored pin and label
+      this.dormZones().forEach((zone) => {
+        const m = new google.maps.Marker({
+          position: { lat: zone.lat, lng: zone.lng },
+          map: this.map,
+          label: {
+            text: zone.ZONE_NAME,
+            color: '#1f2937',
+            fontSize: '14px',
+            fontWeight: 'bold',
+            className: 'px-1 mt-[3.5rem]',
+          },
+          icon: {
+            url: 'assets/icon/map-pin.png',
+            scaledSize: new google.maps.Size(35, 35),
+          },
+          clickable: false,
+        });
+        this.zoneMarkers.push(m);
+
+        const circle = new google.maps.Circle({
+          strokeColor: '#facc15', // yellow
+          strokeOpacity: 0.6,
+          strokeWeight: 2,
+          fillColor: '#facc15',
+          fillOpacity: 0.15,
+          map: this.map,
+          center: { lat: zone.lat, lng: zone.lng },
+          radius: 500, // 500 meters
+          clickable: false,
+        });
+        this.zoneCircles.push(circle);
+      });
 
       this.map.addListener('click', (event: any) => {
         const latLng = { lat: event.latLng.lat(), lng: event.latLng.lng() };
@@ -240,6 +282,10 @@ export class TypeManagementPage implements OnInit {
   destroyMap() {
     this.map = null;
     this.marker = null;
+    this.zoneMarkers.forEach((m) => m.setMap(null));
+    this.zoneMarkers = [];
+    this.zoneCircles.forEach((c) => c.setMap(null));
+    this.zoneCircles = [];
   }
 
   editItem(item: any, type: string) {
