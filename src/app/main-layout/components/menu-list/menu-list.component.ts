@@ -124,7 +124,7 @@ export class MenuListComponent implements OnDestroy, AfterViewInit {
         icon: 'heart-outline',
         needsId: true,
         neddLogin: true,
-        forRole: [1, 2, 3],
+        forRole: [1],
       },
       {
         key: 'request-owner',
