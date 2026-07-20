@@ -152,6 +152,7 @@ export class DormRegisterPage implements OnInit, OnDestroy {
   dormOwners = signal<UserAllGetRes[]>([]);
   ownerSearchText = signal<string>('');
   isOwnerModalOpen = signal<boolean>(false);
+  dormStatus = signal<number | null>(null);
 
   filteredOwners = computed(() => {
     const search = this.ownerSearchText().toLowerCase().trim();
@@ -419,6 +420,8 @@ export class DormRegisterPage implements OnInit, OnDestroy {
               user_id: d.USER_ID,
             });
 
+            this.dormStatus.set(d.REQ_STATUS ?? null);
+
             // Ensure the original owner is in the dormOwners list so their name displays properly
             if (d.USER_ID && this.isAdmin()) {
               const currentOwners = this.dormOwners();
@@ -466,6 +469,7 @@ export class DormRegisterPage implements OnInit, OnDestroy {
 
             // Map Images (Previews only)
             if (d.image) this.images['FRONT'].preview = d.image;
+            if (d.DORM_LICENSE) this.images['LICENSE'].preview = d.DORM_LICENSE;
 
             // Map Room Component Images
             if (d.ceiling_img) this.images['CEILING'].preview = d.ceiling_img;
@@ -480,7 +484,9 @@ export class DormRegisterPage implements OnInit, OnDestroy {
               const validGallery = d.gallery.filter(
                 (url: string) => url && url.trim() !== ''
               );
-              const filledGallery: ImageState[] = Array(5).fill(null).map(() => ({ file: null, preview: null }));
+              const filledGallery: ImageState[] = Array(5)
+                .fill(null)
+                .map(() => ({ file: null, preview: null }));
               validGallery.forEach((url: string, i: number) => {
                 if (i < 5) filledGallery[i] = { file: null, preview: url };
               });
@@ -617,14 +623,24 @@ export class DormRegisterPage implements OnInit, OnDestroy {
           text: 'ถ่ายภาพ',
           icon: 'camera-outline',
           handler: () => {
-            this.processImageSelection(key, isOther, index, CameraSource.Camera);
+            this.processImageSelection(
+              key,
+              isOther,
+              index,
+              CameraSource.Camera
+            );
           },
         },
         {
           text: 'เลือกจากอัลบั้ม',
           icon: 'image-outline',
           handler: () => {
-            this.processImageSelection(key, isOther, index, CameraSource.Photos);
+            this.processImageSelection(
+              key,
+              isOther,
+              index,
+              CameraSource.Photos
+            );
           },
         },
       ];
@@ -634,7 +650,9 @@ export class DormRegisterPage implements OnInit, OnDestroy {
           text: 'เลือกหลายรูป (เรียงตามลำดับช่องว่าง)',
           icon: 'images-outline',
           handler: async () => {
-            const emptySlots = this.otherImages().filter((img) => !img.preview).length;
+            const emptySlots = this.otherImages().filter(
+              (img) => !img.preview
+            ).length;
             if (emptySlots === 0) {
               this.showToast('คุณอัปโหลดครบ 5 รูปแล้ว', 'warning');
               return;
@@ -650,7 +668,11 @@ export class DormRegisterPage implements OnInit, OnDestroy {
               let photoIndex = 0;
 
               // First try to fill the clicked slot if it's empty
-              if (index >= 0 && !newImgs[index].preview && photoIndex < result.photos.length) {
+              if (
+                index >= 0 &&
+                !newImgs[index].preview &&
+                photoIndex < result.photos.length
+              ) {
                 const photo = result.photos[photoIndex++];
                 const dataUrl = await this.getBase64FromPath(photo.webPath);
                 const file = await this.dataUrlToFile(
@@ -679,13 +701,22 @@ export class DormRegisterPage implements OnInit, OnDestroy {
           },
         });
       } else {
-        const componentKeys = ['CEILING', 'WALL', 'FLOOR', 'BED', 'BATHROOM', 'BALCONY'];
+        const componentKeys = [
+          'CEILING',
+          'WALL',
+          'FLOOR',
+          'BED',
+          'BATHROOM',
+          'BALCONY',
+        ];
         if (componentKeys.includes(key)) {
           buttons.push({
             text: 'เลือกหลายรูป (เติมช่องว่างรูปห้องที่เหลือ)',
             icon: 'images-outline',
             handler: async () => {
-              const emptyKeys = componentKeys.filter((k) => !this.images[k].preview);
+              const emptyKeys = componentKeys.filter(
+                (k) => !this.images[k].preview
+              );
               if (emptyKeys.length === 0) {
                 this.showToast('คุณอัปโหลดรูปภายในห้องครบแล้ว', 'warning');
                 return;
@@ -700,7 +731,10 @@ export class DormRegisterPage implements OnInit, OnDestroy {
                 let photoIndex = 0;
 
                 // First try to fill the clicked key if it's empty
-                if (!this.images[key].preview && photoIndex < result.photos.length) {
+                if (
+                  !this.images[key].preview &&
+                  photoIndex < result.photos.length
+                ) {
                   const photo = result.photos[photoIndex++];
                   const dataUrl = await this.getBase64FromPath(photo.webPath);
                   const file = await this.dataUrlToFile(
@@ -712,7 +746,10 @@ export class DormRegisterPage implements OnInit, OnDestroy {
 
                 // Fill remaining empty component slots
                 for (const k of componentKeys) {
-                  if (!this.images[k].preview && photoIndex < result.photos.length) {
+                  if (
+                    !this.images[k].preview &&
+                    photoIndex < result.photos.length
+                  ) {
                     const photo = result.photos[photoIndex++];
                     const dataUrl = await this.getBase64FromPath(photo.webPath);
                     const file = await this.dataUrlToFile(
@@ -908,7 +945,11 @@ export class DormRegisterPage implements OnInit, OnDestroy {
       const currentAddress = this.dormForm.get('address')?.value;
       if (!currentAddress || currentAddress.trim() === '') {
         try {
-          if (typeof google !== 'undefined' && google.maps && google.maps.Geocoder) {
+          if (
+            typeof google !== 'undefined' &&
+            google.maps &&
+            google.maps.Geocoder
+          ) {
             const geocoder = new google.maps.Geocoder();
             geocoder.geocode({ location: loc }, (results: any, status: any) => {
               if (status === 'OK' && results && results.length > 0) {
@@ -1107,7 +1148,7 @@ export class DormRegisterPage implements OnInit, OnDestroy {
     // Only append if file is newly selected
     if (this.images['FRONT'].file)
       formData.append('FRONT_DORM_IMG', this.images['FRONT'].file);
-    if (wasInitial && this.images['LICENSE'].file)
+    if ((wasInitial || this.dormStatus() !== 1) && this.images['LICENSE'].file)
       formData.append('LICENSE_IMG', this.images['LICENSE'].file);
 
     if (this.images['CEILING'].file)

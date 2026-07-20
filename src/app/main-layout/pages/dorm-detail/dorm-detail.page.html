@@ -568,26 +568,48 @@
     </div>
 
     <!-- Admin Request Actions -->
-    <div
-      class="preview-actions p-4 flex gap-4 bg-white rounded-xl mt-4 mb-16"
-      *ngIf="isAdminReq()"
-    >
-      <ion-button
-        expand="block"
-        fill="outline"
-        class="flex-1"
-        color="danger"
-        (click)="rejectRequest()"
-        ><p style="font-size: 16px">ปฏิเสธ</p></ion-button
+    <ng-container *ngIf="isAdminReq()">
+      <!-- Pending Request Buttons -->
+      <div
+        class="preview-actions p-4 flex gap-4 bg-white rounded-xl mt-4 mb-16"
+        *ngIf="dorm()?.REQ_STATUS === 1"
       >
-      <ion-button
-        expand="block"
-        class="flex-1"
-        color="success"
-        (click)="approveRequest()"
-        >อนุมัติ</ion-button
+        <ion-button
+          expand="block"
+          fill="outline"
+          class="flex-1"
+          color="danger"
+          (click)="rejectRequest()"
+          ><p style="font-size: 16px">ปฏิเสธ</p></ion-button
+        >
+        <ion-button
+          expand="block"
+          class="flex-1"
+          color="success"
+          (click)="approveRequest()"
+          >อนุมัติ</ion-button
+        >
+      </div>
+
+      <!-- Processed Request Status -->
+      <div
+        class="preview-actions p-4 flex justify-center items-center bg-white rounded-xl mt-4 mb-16"
+        *ngIf="dorm()?.REQ_STATUS !== 1"
       >
-    </div>
+        <div *ngIf="dorm()?.REQ_STATUS === 2" class="text-green-600 font-bold text-[18px] flex items-center gap-2">
+          <ion-icon name="checkmark-circle"></ion-icon>
+          อนุมัติแล้ว
+        </div>
+        <div *ngIf="dorm()?.REQ_STATUS === 3" class="text-red-600 font-bold text-[18px] flex items-center gap-2">
+          <ion-icon name="close-circle"></ion-icon>
+          ถูกปฏิเสธ
+        </div>
+        <div *ngIf="dorm()?.REQ_STATUS === 0 || dorm()?.REQ_STATUS === 4" class="text-gray-600 font-bold text-[18px] flex items-center gap-2">
+          <ion-icon name="information-circle"></ion-icon>
+          สถานะอื่น ๆ ({{ dorm()?.REQ_STATUS }})
+        </div>
+      </div>
+    </ng-container>
     <div class="h-[2rem]" *ngIf="isPreview() || isAdminReq()"></div>
   </ng-container>
 

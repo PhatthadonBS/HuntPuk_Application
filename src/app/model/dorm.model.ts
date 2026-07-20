@@ -96,6 +96,7 @@ export interface DormDetail {
   instagram: string;
   telegram: string;
   x: string;
+  REQ_STATUS?: number;
   facilities: { name: string; icon: string }[];
   gallery: string[];
   ceiling_img?: string;
