@@ -34,6 +34,7 @@ import {
   ToastController,
   AlertController,
   NavController,
+  IonPopover,
 } from '@ionic/angular/standalone';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { DormServices } from 'src/app/services/dormServices';
@@ -68,6 +69,7 @@ import {
   constructOutline,
   navigateOutline,
   chatbubbleOutline,
+  timeOutline,
 } from 'ionicons/icons';
 
 @Component({
@@ -101,6 +103,7 @@ import {
     FormsModule,
     RouterModule,
     LoadingUIComponent,
+    IonPopover,
   ],
 })
 export class DormDetailPage implements OnInit, OnDestroy {
@@ -178,7 +181,28 @@ export class DormDetailPage implements OnInit, OnDestroy {
       constructOutline,
       navigateOutline,
       chatbubbleOutline,
+      timeOutline,
     });
+  }
+
+  isFacPopoverOpen = false;
+  facPopoverEvent: any = null;
+  facPopoverText: string = '';
+  facPopoverTimeout: any;
+
+  presentFacPopover(event: Event, text: string) {
+    if (this.facPopoverTimeout) {
+      clearTimeout(this.facPopoverTimeout);
+    }
+    this.facPopoverEvent = event;
+    this.facPopoverText = text;
+    this.isFacPopoverOpen = true;
+  }
+
+  autoDismissSharedPopover() {
+    this.facPopoverTimeout = setTimeout(() => {
+      this.isFacPopoverOpen = false;
+    }, 500);
   }
 
   ngOnInit() {
@@ -603,6 +627,33 @@ export class DormDetailPage implements OnInit, OnDestroy {
       ],
     });
     await alert.present();
+  }
+
+  formatThaiDate(dateString: string | undefined): string {
+    if (!dateString) return '-';
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return '-';
+
+    const thaiMonths = [
+      'ม.ค.',
+      'ก.พ.',
+      'มี.ค.',
+      'เม.ย.',
+      'พ.ค.',
+      'มิ.ย.',
+      'ก.ค.',
+      'ส.ค.',
+      'ก.ย.',
+      'ต.ค.',
+      'พ.ย.',
+      'ธ.ค.',
+    ];
+
+    const day = date.getDate();
+    const month = thaiMonths[date.getMonth()];
+    const year = date.getFullYear() + 543;
+
+    return `${day} ${month} ${year}`;
   }
 
   goBackToEdit() {

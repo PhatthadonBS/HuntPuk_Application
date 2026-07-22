@@ -15,7 +15,10 @@
     ></app-filter-group>
 
     <!-- Shortcut Pin Button -->
-    <div class="shortcut-pin-wrapper" *ngIf="!searchQuery() && !isOpenMenu() && currentUser?.role">
+    <div
+      class="shortcut-pin-wrapper"
+      *ngIf="!searchQuery() && !isOpenMenu() && currentUser?.role"
+    >
       <ion-button class="shortcut-pin-btn" (click)="togglePinMode()">
         <ion-icon name="pin-outline" slot="start" color="dark"></ion-icon>
         กดเพื่อปักหมุดค้นหา
@@ -92,6 +95,10 @@
         </div>
       </div>
       <p class="address-text">
+        <ion-icon name="home-outline" class="text-[16px]"></ion-icon
+        >{{dorm.DORM_TYPE_NAME}}
+      </p>
+      <p class="address-text">
         <ion-icon name="navigate-outline" class="text-[16px]"></ion-icon>โซน{{
         dorm.zone }}
       </p>
@@ -107,8 +114,8 @@
           <span class="price-unit"> บาทต่อเดือน</span>
         </div>
         <p class="update-text" *ngIf="$any(dorm).update_at">
-          <ion-icon name="time-outline"></ion-icon>{{ $any(dorm).update_at |
-          date:'mediumDate' }}
+          <ion-icon name="time-outline"></ion-icon>{{
+          formatThaiDate($any(dorm).update_at) }}
         </p>
       </div>
       <div class="click-detail-msg" (click)="goToDormDetail(dorm.DORM_ID)">

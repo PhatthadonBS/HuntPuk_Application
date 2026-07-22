@@ -73,13 +73,6 @@ export const routes: Routes = [
           ),
       },
       {
-        path: 'owner-profile-update/:user_id',
-        loadComponent: () =>
-          import(
-            './main-layout/pages/owner-profile-update/owner-profile-update.page'
-          ).then((m) => m.OwnerProfileUpdatePage),
-      },
-      {
         path: 'my-dorm/:user_id',
         canActivate: [authGuard],
         loadComponent: () =>
@@ -122,6 +115,13 @@ export const routes: Routes = [
           ).then((m) => m.TypeManagementPage),
       },
     ],
+  },
+  {
+    path: 'owner-profile-update/:user_id',
+    loadComponent: () =>
+      import(
+        './main-layout/pages/owner-profile-update/owner-profile-update.page'
+      ).then((m) => m.OwnerProfileUpdatePage),
   },
 
   {

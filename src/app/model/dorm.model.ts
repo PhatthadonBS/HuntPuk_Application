@@ -74,6 +74,8 @@ export interface DormSummary {
   DORM_STATUS_NAME?: string;
   REQ_STATUS?: number;
   isFavorite?: boolean;
+  DORM_TYPE_ID?: number;
+  DORM_TYPE_NAME?: string;
 }
 
 export interface DormDetail {
@@ -124,6 +126,8 @@ export interface DormDetail {
   DORM_STATUS_ID: number;
   DORM_STATUS_NAME: string;
   DORM_LICENSE?: string;
+  UPDATE_AT?: string;
+  update_at?: string;
 }
 
 export interface DormDetailGetRes {

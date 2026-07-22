@@ -49,7 +49,10 @@
     </div>
 
     <div class="dorm-list-container">
-      <div class="minimal-dorm-card" *ngFor="let dorm of filteredDorms(); trackBy: trackByDormId">
+      <div
+        class="minimal-dorm-card"
+        *ngFor="let dorm of filteredDorms(); trackBy: trackByDormId"
+      >
         <!-- Row 1: Image Section -->
         <div class="image-container">
           <img
@@ -98,6 +101,9 @@
           <!-- Sec 2: Address -->
           <div class="section-2">
             <p class="address-text">
+              <ion-icon name="home-outline"></ion-icon>{{ dorm.DORM_TYPE_NAME }}
+            </p>
+            <p class="address-text">
               <ion-icon name="navigate-outline"></ion-icon>โซน{{ dorm.zone }}
             </p>
             <p class="address-text">
@@ -114,7 +120,7 @@
             </div>
             <div class="update-info" *ngIf="dorm.update_at">
               <ion-icon name="time-outline"></ion-icon>
-              <span>{{ dorm.update_at | date:'mediumDate' }}</span>
+              <span>{{ formatThaiDate(dorm.update_at) }}</span>
             </div>
           </div>
 
