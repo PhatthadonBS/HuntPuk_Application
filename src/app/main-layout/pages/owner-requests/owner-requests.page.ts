@@ -47,6 +47,7 @@ import {
   ellipsisVerticalOutline,
   chevronUpOutline,
   arrowUpOutline,
+  settingsOutline,
 } from 'ionicons/icons';
 import { UserServices } from 'src/app/services/userServices';
 import { UserDormOwnerGetRes } from 'src/app/model/user.model';
@@ -125,6 +126,7 @@ export class OwnerRequestsPage implements OnInit {
       ellipsisVerticalOutline,
       chevronUpOutline,
       arrowUpOutline,
+      settingsOutline,
     });
   }
 

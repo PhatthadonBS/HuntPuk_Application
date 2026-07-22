@@ -33,7 +33,7 @@
   </ion-refresher>
   <div class="content-wrapper">
     <!-- Search -->
-    <div class="searchbar-wrapper mb-3 bg-white rounded-xl shadow-sm py-2">
+    <div class="searchbar-wrapper mb-3 bg-white rounded-full shadow-sm">
       <ion-searchbar
         mode="ios"
         placeholder="ค้นหาชื่อ, นามสกุล, ชื่อผู้ใช้..."
@@ -46,10 +46,9 @@
     <!-- Filter -->
     <div class="mb-4 bg-white rounded-xl shadow-sm py-2 px-2">
       <ion-segment
-        mode="md"
+        mode="ios"
         [value]="selectedSegment()"
         (ionChange)="onSegmentChange($event)"
-        color="dark"
         class="sagment-custom"
       >
         <ion-segment-button [value]="0">
@@ -127,7 +126,7 @@
               shape="round"
             >
               <ion-icon
-                name="ellipsis-vertical-outline"
+                name="settings-outline"
                 slot="icon-only"
                 class="text-xl"
               ></ion-icon>

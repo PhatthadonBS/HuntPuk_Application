@@ -413,6 +413,12 @@ export class DormComparePage implements OnInit, OnDestroy {
         disableDefaultUI: true,
         zoomControl: false,
         clickableIcons: false,
+        styles: [
+          {
+            featureType: 'poi',
+            stylers: [{ visibility: 'off' }],
+          },
+        ],
       });
 
       this.dirService = new google.maps.DirectionsService();

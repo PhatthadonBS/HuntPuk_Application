@@ -30,8 +30,8 @@
   <div class="content-wrapper">
     <!-- Search and Tabs wrapper -->
     <div class="filter-relative-wrapper flex flex-col gap-4">
-      <div class="filter-group-container">
-        <div class="minimal-search-container mt-0">
+      <div class="rounded-full px-[1rem] bg-white">
+        <div class="minimal-search-container rounded-full">
           <ion-searchbar
             placeholder="ค้นหาผู้ใช้งาน..."
             [debounce]="300"
@@ -43,7 +43,7 @@
         </div>
       </div>
 
-      <div class="filter-group-container">
+      <div class="rounded-lgpy-1">
         <ion-segment
           [value]="selectedTab()"
           (ionChange)="onTabChange($event)"
@@ -131,7 +131,6 @@
                 class="m-0 h-auto p-0 action-btn"
               >
                 <ion-icon name="settings-outline" slot="start"></ion-icon>
-                จัดการ
               </ion-button>
             </div>
           </div>

@@ -55,36 +55,19 @@ $border-light: rgba(255, 255, 255, 0.4);
     z-index: 20;
     background: transparent;
     padding: 0 0 1.5rem 0;
-
-    .filter-group-container {
-      background: #ffffff;
-      border: 1px solid rgba(0, 0, 0, 0.05);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-      border-radius: 20px;
-      padding: 16px;
-    }
-  }
-
-  .minimal-search-container {
-    background: #f9fafb;
-    border-radius: 12px;
-    padding: 0px;
-    border: 1px solid #e5e7eb;
   }
 
   .minimal-searchbar {
-    --background: transparent;
-    --color: #374151;
-    --placeholder-color: #9ca3af;
-    --icon-color: #6b7280;
-    --clear-button-color: #6b7280;
+    --background: #e1e1e1;
+    --border-radius: 20px;
     padding: 0;
   }
 
   .minimal-segment {
-    --background: #f3f4f6;
+    --background: #e2e2e2;
     border-radius: 10px;
     padding: 4px;
+    width: 100%;
 
     ion-segment-button {
       --indicator-color: #ffffff;
