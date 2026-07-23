@@ -123,9 +123,11 @@ export class DormListPage implements OnInit, OnDestroy, ViewWillEnter {
   selectedScore = signal<number | null>(null);
   selectedZoneId = signal<string | null>(null); // Store Zone ID as string
   maxWater = signal<number | null>(null);
+  maxWaterLump = signal<number | null>(null);
   maxElect = signal<number | null>(null);
   sortByPrice = signal<string>('');
   sortByName = signal<string>('');
+  sortByScore = signal<string>('');
   initialParams = signal<FilterParams | null>(null);
   autoOpenFilter = signal<boolean>(false);
   showScrollBtn = signal<boolean>(false);
@@ -144,6 +146,7 @@ export class DormListPage implements OnInit, OnDestroy, ViewWillEnter {
     const score = this.selectedScore();
     const favs = this.favIds();
     const maxW = this.maxWater();
+    const maxWLump = this.maxWaterLump();
     const maxE = this.maxElect();
     const sort = this.sortByPrice();
     const sortName = this.sortByName();
@@ -162,8 +165,12 @@ export class DormListPage implements OnInit, OnDestroy, ViewWillEnter {
     if (max !== null) {
       dorms = dorms.filter((d) => d.start_price <= max);
     }
-    if (score !== null) {
-      dorms = dorms.filter((d) => Number(d.SCORE) >= score);
+    if (score !== null && score !== undefined && !isNaN(Number(score))) {
+      const numScore = Number(score);
+      dorms = dorms.filter((d) => {
+        const dScore = Number(d.SCORE) || 0;
+        return dScore >= numScore && dScore <= numScore + 0.9;
+      });
     }
     if (zoneId) {
       const targetZoneId = Number(zoneId);
@@ -182,15 +189,30 @@ export class DormListPage implements OnInit, OnDestroy, ViewWillEnter {
 
     if (maxW !== null) {
       dorms = dorms.filter((d: any) => {
-        const wUnit = d.WATER_UNIT !== undefined && d.WATER_UNIT !== null ? Number(d.WATER_UNIT) : null;
-        const wLump = d.WATER_LUMP !== undefined && d.WATER_LUMP !== null ? Number(d.WATER_LUMP) : null;
-        return (wUnit !== null && wUnit <= maxW) || (wLump !== null && wLump <= maxW);
+        const wUnit =
+          d.WATER_UNIT !== undefined && d.WATER_UNIT !== null
+            ? Number(d.WATER_UNIT)
+            : null;
+        return wUnit !== null && wUnit > 0 && wUnit <= maxW;
+      });
+    }
+
+    if (maxWLump !== null) {
+      dorms = dorms.filter((d: any) => {
+        const wLump =
+          d.WATER_LUMP !== undefined && d.WATER_LUMP !== null
+            ? Number(d.WATER_LUMP)
+            : null;
+        return wLump !== null && wLump > 0 && wLump <= maxWLump;
       });
     }
 
     if (maxE !== null) {
       dorms = dorms.filter((d: any) => {
-        const eUnit = d.ELECT_UNIT !== undefined && d.ELECT_UNIT !== null ? Number(d.ELECT_UNIT) : null;
+        const eUnit =
+          d.ELECT_UNIT !== undefined && d.ELECT_UNIT !== null
+            ? Number(d.ELECT_UNIT)
+            : null;
         return eUnit !== null && eUnit <= maxE;
       });
     }
@@ -209,6 +231,13 @@ export class DormListPage implements OnInit, OnDestroy, ViewWillEnter {
       });
     } else if (sort === 'desc') {
       dorms.sort((a, b) => b.start_price - a.start_price);
+    }
+
+    const sortScore = this.sortByScore();
+    if (sortScore === 'desc') {
+      dorms.sort((a, b) => Number(b.SCORE) - Number(a.SCORE));
+    } else if (sortScore === 'asc') {
+      dorms.sort((a, b) => Number(a.SCORE) - Number(b.SCORE));
     }
 
     return dorms;
@@ -340,6 +369,7 @@ export class DormListPage implements OnInit, OnDestroy, ViewWillEnter {
     this.maxElect.set(params.maxElect !== undefined ? params.maxElect : null);
     this.sortByPrice.set(params.sortByPrice || '');
     this.sortByName.set(params.sortByName || 'asc');
+    this.sortByScore.set(params.sortByScore || '');
     this.content?.scrollToTop(300);
     this.initialParams.set({
       search: params.search,
@@ -351,6 +381,7 @@ export class DormListPage implements OnInit, OnDestroy, ViewWillEnter {
       maxElect: this.maxElect(),
       sortByPrice: this.sortByPrice(),
       sortByName: this.sortByName(),
+      sortByScore: this.sortByScore(),
     });
   }
 
@@ -435,16 +466,26 @@ export class DormListPage implements OnInit, OnDestroy, ViewWillEnter {
     if (!dateString) return '-';
     const date = new Date(dateString);
     if (isNaN(date.getTime())) return '-';
-    
+
     const thaiMonths = [
-      'ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.',
-      'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'
+      'ม.ค.',
+      'ก.พ.',
+      'มี.ค.',
+      'เม.ย.',
+      'พ.ค.',
+      'มิ.ย.',
+      'ก.ค.',
+      'ส.ค.',
+      'ก.ย.',
+      'ต.ค.',
+      'พ.ย.',
+      'ธ.ค.',
     ];
-    
+
     const day = date.getDate();
     const month = thaiMonths[date.getMonth()];
     const year = date.getFullYear() + 543;
-    
+
     return `${day} ${month} ${year}`;
   }
 

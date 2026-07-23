@@ -76,6 +76,9 @@ export interface DormSummary {
   isFavorite?: boolean;
   DORM_TYPE_ID?: number;
   DORM_TYPE_NAME?: string;
+  WATER_UNIT?: number | string;
+  WATER_LUMP?: number | string;
+  ELECT_UNIT?: number | string;
 }
 
 export interface DormDetail {
@@ -182,7 +185,9 @@ export interface FilterParams {
   zone?: string;
   score?: number | null;
   maxWater?: number | null;
+  maxWaterLump?: number | null;
   maxElect?: number | null;
   sortByPrice?: string;
   sortByName?: string;
+  sortByScore?: string;
 }

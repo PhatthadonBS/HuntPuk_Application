@@ -54,25 +54,6 @@
         </div>
       </div>
 
-      <div class="btn-tooltip-wrapper" *ngIf="showSortByName">
-        <ion-button
-          class="action-btn sort-btn"
-          title="เรียงตามตัวอักษร"
-          (click)="toggleSortByName()"
-          (touchstart)="startPress('sort')"
-          (touchend)="endPress()"
-          (mousedown)="startPress('sort')"
-          (mouseup)="endPress()"
-          (mouseleave)="endPress()"
-        >
-          <ion-icon name="swap-horizontal-outline" slot="start"></ion-icon>
-          {{ sortByName === "desc" ? "ฮ-ก" : "ก-ฮ" }}
-        </ion-button>
-        <div class="custom-tooltip" *ngIf="activeTooltip === 'sort'">
-          เรียงตามตัวอักษร
-        </div>
-      </div>
-
       <div class="btn-tooltip-wrapper" *ngIf="showCompare">
         <ion-button
           class="action-btn compare-btn"
@@ -88,6 +69,40 @@
         </ion-button>
         <div class="custom-tooltip" *ngIf="activeTooltip === 'compare'">
           เปรียบเทียบ
+        </div>
+      </div>
+
+      <div class="btn-tooltip-wrapper" *ngIf="showSortByName">
+        <div class="action-btn sort-btn custom-sort-container">
+          <ion-icon
+            name="swap-horizontal-outline"
+            class="custom-sort-icon"
+          ></ion-icon>
+          <ion-select
+            interface="popover"
+            [interfaceOptions]="{ cssClass: 'sort-popover' }"
+            [(ngModel)]="activeSortOption"
+            (ionChange)="onSortOptionChange()"
+            class="custom-sort-select"
+          >
+            <ion-select-option value="char_asc">ก-ฮ</ion-select-option>
+            <ion-select-option value="char_desc">ฮ-ก</ion-select-option>
+            <ion-select-option value="price_asc"
+              >ราคา: น้อย-มาก</ion-select-option
+            >
+            <ion-select-option value="price_desc"
+              >ราคา: มาก-น้อย</ion-select-option
+            >
+            <ion-select-option value="score_desc"
+              >คะแนน: มาก-น้อย</ion-select-option
+            >
+            <ion-select-option value="score_asc"
+              >คะแนน: น้อย-มาก</ion-select-option
+            >
+          </ion-select>
+        </div>
+        <div class="custom-tooltip" *ngIf="activeTooltip === 'sort'">
+          เรียงลำดับ
         </div>
       </div>
     </div>
@@ -157,38 +172,30 @@
           </div>
         </div>
 
-        <!-- Sorting Selection -->
-        <div class="custom-field" *ngIf="role() && showSortByPrice">
-          <label class="field-label">เรียงตามราคา (เริ่มต้น/เดือน)</label>
-          <select [(ngModel)]="sortByPrice" class="native-input-elem">
-            <option value="">ไม่ระบุ</option>
-            <option value="asc">น้อยไปมาก</option>
-            <option value="desc">มากไปน้อย</option>
-          </select>
-        </div>
-
-        <div class="custom-field" *ngIf="role() && showSortByName">
-          <label class="field-label">เรียงตามชื่อ</label>
-          <select [(ngModel)]="sortByName" class="native-input-elem">
-            <option value="">ไม่ระบุ</option>
-            <option value="asc">ก - ฮ</option>
-            <option value="desc">ฮ - ก</option>
-          </select>
-        </div>
-
         <!-- Water and Electric Rate Filters -->
         <div class="price-range-container" *ngIf="role()">
           <div class="price-inputs">
             <div class="custom-field flex-1">
-              <label class="field-label">ค่าน้ำ (บาท/หน่วย หรือ เหมา)</label>
+              <label class="field-label">ค่าน้ำ (บาท/หน่วย)</label>
               <input
                 type="number"
                 [(ngModel)]="maxWater"
-                placeholder="เช่น 100"
+                placeholder="เช่น 20"
                 class="native-input-elem"
               />
             </div>
             <span class="price-divider"></span>
+            <div class="custom-field flex-1">
+              <label class="field-label">ค่าน้ำ (เหมาจ่าย)</label>
+              <input
+                type="number"
+                [(ngModel)]="maxWaterLump"
+                placeholder="เช่น 100"
+                class="native-input-elem"
+              />
+            </div>
+          </div>
+          <div class="price-inputs mt-2">
             <div class="custom-field flex-1 mt-[0.5rem]">
               <label class="field-label">ค่าไฟ (บาท/หน่วย)</label>
               <input
@@ -197,6 +204,9 @@
                 placeholder="เช่น 8"
                 class="native-input-elem mt-2"
               />
+            </div>
+            <span class="price-divider invisible"></span>
+            <div class="custom-field flex-1 mt-[0.5rem] invisible">
             </div>
           </div>
         </div>

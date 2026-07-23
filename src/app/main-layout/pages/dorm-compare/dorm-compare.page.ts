@@ -285,6 +285,10 @@ export class DormComparePage implements OnInit, OnDestroy {
     this.isModalOpen.set(false);
   }
 
+  goToDetail(id: number) {
+    this.navctrl.navigateForward(`/dorm-detail/${id}`);
+  }
+
   handleFilterApplied(params: FilterParams) {
     this.filterParams.set(params);
     this.loadAllDorms(); // Fetch filtered list

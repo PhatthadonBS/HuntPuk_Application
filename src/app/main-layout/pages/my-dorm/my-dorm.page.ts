@@ -27,6 +27,9 @@ import {
   IonRefresher,
   IonFab,
   IonFabButton,
+  IonModal,
+  IonAvatar,
+  IonSearchbar,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -47,10 +50,17 @@ import {
   warningOutline,
   searchOutline,
   arrowUpOutline,
+  chatbubbleOutline,
+  trash,
+  refreshCircleOutline,
 } from 'ionicons/icons';
 import { DormServices } from 'src/app/services/dormServices';
 import { AuthenService } from 'src/app/services/authenService';
-import { DormSummary, MasterType } from 'src/app/model/dorm.model';
+import {
+  DormSummary,
+  MasterType,
+  FilterParams,
+} from 'src/app/model/dorm.model';
 import { ActivatedRoute } from '@angular/router';
 import { finalize } from 'rxjs';
 import { LoadingUIComponent } from '../../components/loading-ui/loading-ui.component';
@@ -87,6 +97,9 @@ import { FilterGroupComponent } from '../../components/filter-group/filter-group
     FilterGroupComponent,
     IonFab,
     IonFabButton,
+    IonModal,
+    IonAvatar,
+    IonSearchbar,
   ],
 })
 export class MyDormPage implements OnInit {
@@ -94,39 +107,171 @@ export class MyDormPage implements OnInit {
   userRole = signal<number | null>(null);
   dorms = signal<DormSummary[]>([]);
   dormRequests = signal<DormSummary[]>([]);
+  isLoading = signal<boolean>(true);
+
+  // Filters state
   currentSegment = signal<'all' | 'requests'>('all');
-  isLoading = signal<boolean>(false);
   searchQuery = signal<string>('');
+  minPrice = signal<number | null>(null);
+  maxPrice = signal<number | null>(null);
+  selectedScore = signal<number | null>(null);
+  maxWater = signal<number | null>(null);
+  maxWaterLump = signal<number | null>(null);
+  maxElect = signal<number | null>(null);
+  sortByName = signal<string>('');
+  sortByPrice = signal<string>('');
+  sortByScore = signal<string>('');
+  selectedZoneId = signal<number | null>(null);
+  zones = signal<any[]>([]);
+  initialParams = signal<FilterParams | null>(null);
+
   showScrollBtn = signal<boolean>(false);
   dormStatuses = signal<MasterType[]>([]);
 
+  // Comments state (Admin)
+  isCommentsModalOpen = signal<boolean>(false);
+  commentsLoading = signal<boolean>(false);
+  dormComments = signal<any[]>([]);
+  selectedDormForComments = signal<number | null>(null);
+  commentSearchQuery = signal<string>('');
+
+  filteredComments = computed(() => {
+    const query = this.commentSearchQuery().toLowerCase().trim();
+    const comments = this.dormComments();
+
+    if (!query) return comments;
+
+    return comments.filter((c) => {
+      const username = (c.USERNAME || 'Unknown User').toLowerCase();
+      const content = (c.COMMENTS || '').toLowerCase();
+      return username.includes(query) || content.includes(query);
+    });
+  });
+
   @ViewChild(IonContent, { static: false }) content!: IonContent;
 
-  handleFilter(event: any) {
-    if (event && event.search !== undefined) {
-      this.searchQuery.set(event.search);
+  handleFilter(event: FilterParams) {
+    if (event) {
+      this.initialParams.set(event);
+      this.searchQuery.set(event.search || '');
+      this.minPrice.set(event.minPrice ?? null);
+      this.maxPrice.set(event.maxPrice ?? null);
+      this.selectedScore.set(event.score ?? null);
+      this.maxWater.set(event.maxWater ?? null);
+      this.maxWaterLump.set(event.maxWaterLump ?? null);
+      this.maxElect.set(event.maxElect ?? null);
+      this.sortByName.set(event.sortByName || '');
+      this.sortByPrice.set(event.sortByPrice || '');
+      this.sortByScore.set(event.sortByScore || '');
+      this.selectedZoneId.set(event.zone ? Number(event.zone) : null);
     }
   }
 
   filteredDorms = computed(() => {
-    const q = this.searchQuery().toLowerCase();
-    if (!q) return this.dorms();
-    return this.dorms().filter(
-      (d) =>
-        d.DORM_NAME.toLowerCase().includes(q) ||
-        (d.ADDRESS && d.ADDRESS.toLowerCase().includes(q))
-    );
+    return this.applyFiltersAndSort(this.dorms());
   });
 
   filteredRequests = computed(() => {
-    const q = this.searchQuery().toLowerCase();
-    if (!q) return this.dormRequests();
-    return this.dormRequests().filter(
-      (d) =>
-        d.DORM_NAME.toLowerCase().includes(q) ||
-        (d.ADDRESS && d.ADDRESS.toLowerCase().includes(q))
-    );
+    return this.applyFiltersAndSort(this.dormRequests());
   });
+
+  private applyFiltersAndSort(data: DormSummary[]): DormSummary[] {
+    let result = [...data];
+
+    const query = this.searchQuery().toLowerCase();
+    const min = this.minPrice();
+    const max = this.maxPrice();
+    const score = this.selectedScore();
+    const maxW = this.maxWater();
+    const maxWLump = this.maxWaterLump();
+    const maxE = this.maxElect();
+    const zoneId = this.selectedZoneId();
+    const sortPrice = this.sortByPrice();
+    const sortName = this.sortByName();
+    const sortScore = this.sortByScore();
+
+    if (query) {
+      result = result.filter((d) => d.DORM_NAME.toLowerCase().includes(query));
+    }
+    if (min !== null) {
+      result = result.filter((d) => d.start_price >= min);
+    }
+    if (max !== null) {
+      result = result.filter((d) => d.start_price <= max);
+    }
+    if (score !== null && score !== undefined && !isNaN(Number(score))) {
+      const numScore = Number(score);
+      result = result.filter((d) => {
+        const dScore = Number(d.SCORE) || 0;
+        return dScore >= numScore && dScore <= numScore + 0.9;
+      });
+    }
+    if (zoneId) {
+      const targetZoneId = Number(zoneId);
+      if (!isNaN(targetZoneId)) {
+        const targetZone = this.zones().find((z) => z.ZONE_ID === targetZoneId);
+        const targetZoneName = targetZone?.ZONE_NAME || '';
+        result = result.filter((d) => {
+          if (d.ZONE_ID !== undefined) {
+            return d.ZONE_ID === targetZoneId;
+          }
+          const dZone = (d.zone || d.ZONE_NAME)?.trim();
+          return dZone === targetZoneName;
+        });
+      }
+    }
+    if (maxW !== null) {
+      result = result.filter((d) => {
+        const wUnit =
+          d.WATER_UNIT !== undefined && d.WATER_UNIT !== null
+            ? Number(d.WATER_UNIT)
+            : null;
+        return wUnit !== null && wUnit > 0 && wUnit <= maxW;
+      });
+    }
+    if (maxWLump !== null) {
+      result = result.filter((d) => {
+        const wLump =
+          d.WATER_LUMP !== undefined && d.WATER_LUMP !== null
+            ? Number(d.WATER_LUMP)
+            : null;
+        return wLump !== null && wLump > 0 && wLump <= maxWLump;
+      });
+    }
+    if (maxE !== null) {
+      result = result.filter((d: any) => {
+        const eUnit =
+          d.ELECT_UNIT !== undefined && d.ELECT_UNIT !== null
+            ? Number(d.ELECT_UNIT)
+            : null;
+        return eUnit !== null && eUnit <= maxE;
+      });
+    }
+
+    if (sortName === 'asc') {
+      result.sort((a, b) => a.DORM_NAME.localeCompare(b.DORM_NAME, 'th'));
+    } else if (sortName === 'desc') {
+      result.sort((a, b) => b.DORM_NAME.localeCompare(a.DORM_NAME, 'th'));
+    }
+
+    if (sortPrice === 'asc') {
+      result.sort((a, b) => {
+        if (a.start_price === 0 && b.start_price !== 0) return 1;
+        if (b.start_price === 0 && a.start_price !== 0) return -1;
+        return a.start_price - b.start_price;
+      });
+    } else if (sortPrice === 'desc') {
+      result.sort((a, b) => b.start_price - a.start_price);
+    }
+
+    if (sortScore === 'desc') {
+      result.sort((a, b) => Number(b.SCORE) - Number(a.SCORE));
+    } else if (sortScore === 'asc') {
+      result.sort((a, b) => Number(a.SCORE) - Number(b.SCORE));
+    }
+
+    return result;
+  }
 
   constructor(
     private dormSv: DormServices,
@@ -155,10 +300,14 @@ export class MyDormPage implements OnInit {
       warningOutline,
       searchOutline,
       arrowUpOutline,
+      chatbubbleOutline,
+      trash,
+      refreshCircleOutline,
     });
   }
 
   ngOnInit() {
+    this.loadZones();
     const user = this.authSv.currentUserValue;
     if (user) {
       this.userRole.set(user.role);
@@ -169,6 +318,17 @@ export class MyDormPage implements OnInit {
       this.userId = Number(id);
       this.loadData();
     }
+  }
+
+  loadZones() {
+    this.dormSv.getZones().subscribe({
+      next: (res: any) => {
+        if (res.success && Array.isArray(res.data)) {
+          this.zones.set(res.data);
+        }
+      },
+      error: (err) => console.error('Error fetching zones', err),
+    });
   }
 
   ionViewWillEnter() {
@@ -299,15 +459,7 @@ export class MyDormPage implements OnInit {
       cssClass: 'minimal-action-sheet',
       buttons: [
         ...dynamicButtons,
-        {
-          text: 'ลบ',
-          role: 'destructive',
-          icon: 'trash-outline',
 
-          handler: () => {
-            this.deleteDorm(dorm);
-          },
-        },
         {
           text: 'ยกเลิก',
           role: 'cancel',
@@ -481,5 +633,76 @@ export class MyDormPage implements OnInit {
     if (this.content) {
       this.content.scrollToTop(500);
     }
+  }
+
+  // --- Manage Comments (Admin) ---
+
+  openManageComments(dorm: DormSummary) {
+    this.selectedDormForComments.set(dorm.DORM_ID);
+    this.isCommentsModalOpen.set(true);
+    this.loadComments(dorm.DORM_ID);
+  }
+
+  closeManageComments() {
+    this.isCommentsModalOpen.set(false);
+    this.selectedDormForComments.set(null);
+    this.dormComments.set([]);
+  }
+
+  private loadComments(dormId: number) {
+    this.commentsLoading.set(true);
+    this.dormSv
+      .getReviewsByDormId(dormId)
+      .pipe(finalize(() => this.commentsLoading.set(false)))
+      .subscribe({
+        next: (res) => {
+          if (res && res.success) {
+            this.dormComments.set(res.data || []);
+          } else {
+            this.dormComments.set([]);
+          }
+        },
+        error: (err) => {
+          console.error('Error loading comments:', err);
+          this.dormComments.set([]);
+        },
+      });
+  }
+
+  async deleteComment(reviewId: number) {
+    const alert = await this.alertCtrl.create({
+      header: 'ยืนยันการลบ',
+      message: 'คุณแน่ใจหรือไม่ว่าต้องการลบคอมเมนต์นี้?',
+      buttons: [
+        { text: 'ยกเลิก', role: 'cancel' },
+        {
+          text: 'ลบ',
+          role: 'destructive',
+          handler: () => {
+            this.commentsLoading.set(true);
+            this.dormSv.deleteReview(reviewId).subscribe({
+              next: (res) => {
+                if (res && res.success) {
+                  // Reload comments
+                  const dormId = this.selectedDormForComments();
+                  if (dormId) this.loadComments(dormId);
+                  // Reload dorms because score might have changed
+                  this.loadMyDorms();
+                  this.showToast('ลบคอมเมนต์เรียบร้อยแล้ว', 'success');
+                } else {
+                  this.commentsLoading.set(false);
+                  this.showToast('ไม่สามารถลบคอมเมนต์ได้', 'danger');
+                }
+              },
+              error: (err) => {
+                this.commentsLoading.set(false);
+                this.showToast('เกิดข้อผิดพลาดในการลบคอมเมนต์', 'danger');
+              },
+            });
+          },
+        },
+      ],
+    });
+    await alert.present();
   }
 }

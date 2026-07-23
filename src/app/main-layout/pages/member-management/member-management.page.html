@@ -86,7 +86,7 @@
               <ion-badge
                 [color]="getStatusColor(user.ACCOUNT_STATUS)"
                 mode="ios"
-                class="minimal-badge absolute -top-2 -left-2 shadow-sm z-10 scale-90 origin-top-left"
+                class="minimal-badge absolute -top-2 -left-2 z-10 scale-90 origin-top-left"
               >
                 {{ getStatusText(user.ACCOUNT_STATUS) }}
               </ion-badge>
@@ -104,10 +104,6 @@
                 alt="Profile Image"
                 (error)="$any($event.target).style.display = 'none'; $any($event.target).previousElementSibling.style.display = 'inline-block'"
               />
-              <div
-                class="role-indicator"
-                [class.is-owner]="user.ROLE_TYPE_ID === 2"
-              ></div>
             </div>
 
             <div class="flex-1 min-w-0 pl-1">

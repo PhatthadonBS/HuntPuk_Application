@@ -231,8 +231,8 @@ $border-light: rgba(255, 255, 255, 0.4);
       font-size: 1rem;
       font-weight: 700;
       color: #1f2937;
-      text-align: center;
-      padding: 20px 16px 12px;
+      text-align: left;
+      padding: 20px 24px 12px;
       border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     }
 
@@ -241,8 +241,8 @@ $border-light: rgba(255, 255, 255, 0.4);
       font-size: 1.05rem;
       font-weight: 500;
       color: #374151;
-      justify-content: center;
-      padding: 18px 16px;
+      justify-content: flex-start;
+      padding: 18px 24px;
       position: relative;
 
       &::after {

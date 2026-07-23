@@ -92,13 +92,15 @@
                   </h3>
                 </div>
 
-                <div class="action-btn-container ml-2 shrink-0">
+                <div class="action-btn-container ml-2 shrink-0 flex items-center justify-center">
                   <ion-button
                     fill="clear"
-                    class="manage-btn"
+                    color="medium"
+                    size="small"
+                    class="m-0 h-auto p-0 manage-btn"
                     (click)="openManageActionSheet(fac); $event.stopPropagation()"
                   >
-                    จัดการ
+                    <ion-icon name="settings-outline" slot="icon-only"></ion-icon>
                   </ion-button>
                 </div>
               </div>

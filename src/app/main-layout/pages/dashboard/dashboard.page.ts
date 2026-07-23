@@ -28,6 +28,10 @@ import {
   IonModal,
   IonSpinner,
   IonRefresher,
+  IonList,
+  IonItem,
+  IonAvatar,
+  IonLabel,
 } from '@ionic/angular/standalone';
 import { HttpClient } from '@angular/common/http';
 import { addIcons } from 'ionicons';
@@ -45,6 +49,9 @@ import {
   banOutline,
   arrowBackCircleOutline,
   warningOutline,
+  chevronForward,
+  mailOutline,
+  closeOutline
 } from 'ionicons/icons';
 import { environment } from 'src/environments/environment';
 import { NavController } from '@ionic/angular/standalone';
@@ -88,6 +95,15 @@ interface TopPopularDorm {
   views: number;
 }
 
+interface OwnerWithDorm {
+  userId: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  profileImage: string;
+  registeredDormsCount: number;
+}
+
 interface DashboardStats {
   dormCount: number;
   memberCount: number;
@@ -104,6 +120,7 @@ interface DashboardStats {
   dormTypeBreakdown: DormTypeBreakdown[];
   userStatusBreakdown: UserStatusBreakdown;
   viewsPerMonthBreakdown: ViewsPerMonthBreakdown[];
+  ownersWithDorms: OwnerWithDorm[];
 }
 
 @Component({
@@ -134,6 +151,10 @@ interface DashboardStats {
     IonRefresherContent,
     IonModal,
     IonSpinner,
+    IonList,
+    IonItem,
+    IonAvatar,
+    IonLabel,
   ],
 })
 export class DashboardPage implements OnInit {
@@ -154,6 +175,7 @@ export class DashboardPage implements OnInit {
   isViewModalOpen = false;
   isPopularModalOpen = false;
   isAllDormViewsModalOpen = false;
+  isOwnerDormsModalOpen = false;
 
   selectedYearForTable: number | null = null;
   monthlyTableData: any[] = [];
@@ -175,6 +197,9 @@ export class DashboardPage implements OnInit {
       banOutline,
       arrowBackCircleOutline,
       warningOutline,
+      chevronForward,
+      mailOutline,
+      closeOutline
     });
   }
 
@@ -252,6 +277,21 @@ export class DashboardPage implements OnInit {
     this.closeAllDormViewsModal();
     setTimeout(() => {
       this.navCtrl.navigateForward(`/dorm-detail/${dormId}`);
+    }, 300);
+  }
+
+  openOwnerDormsModal() {
+    this.isOwnerDormsModalOpen = true;
+  }
+
+  closeOwnerDormsModal() {
+    this.isOwnerDormsModalOpen = false;
+  }
+
+  goToOwnerProfile(userId: number) {
+    this.closeOwnerDormsModal();
+    setTimeout(() => {
+      this.navCtrl.navigateForward(`/owner-profile/${userId}`, { queryParams: { adminView: 'true' } });
     }, 300);
   }
 

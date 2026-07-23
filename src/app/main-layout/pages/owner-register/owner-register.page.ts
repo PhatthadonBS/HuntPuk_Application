@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -75,7 +75,7 @@ import {
     LoadingUIComponent,
   ],
 })
-export class OwnerRegisterPage implements OnInit {
+export class OwnerRegisterPage {
   // Form State
   firstName = signal<string>('');
   lastName = signal<string>('');
@@ -120,7 +120,7 @@ export class OwnerRegisterPage implements OnInit {
     });
   }
 
-  ngOnInit() {
+  ionViewWillEnter() {
     const idParam = this.route.snapshot.paramMap.get('user_id');
     if (idParam) {
       this.targetUserId = Number(idParam);

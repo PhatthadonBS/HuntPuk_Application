@@ -162,7 +162,11 @@ export class ForgetPasswordPage implements OnInit {
         this.isLoading.set(false);
       },
       error: (err) => {
-        this.errMsg.set(extractErrorMessage(err));
+        if (err.status === 429) {
+          this.errMsg.set('ส่งคำขอมากเกินไป กรุณารอ 3 นาทีแล้วลองอีกครั้ง');
+        } else {
+          this.errMsg.set(extractErrorMessage(err));
+        }
         this.isLoading.set(false);
       },
     });
@@ -209,7 +213,8 @@ export class ForgetPasswordPage implements OnInit {
         );
         this.isLoading.set(false);
         setTimeout(() => {
-          if (this.isAdminBypass()) {
+          const currentUser = this.authSv.currentUserValue;
+          if (this.isAdminBypass() || currentUser) {
             this.navCtrl.back();
           } else {
             this.navCtrl.navigateRoot('/login');

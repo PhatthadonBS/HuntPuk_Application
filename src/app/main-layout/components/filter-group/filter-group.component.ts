@@ -32,6 +32,8 @@ import {
   IonItem,
   IonLabel,
   IonImg,
+  IonSelect,
+  IonSelectOption,
 } from '@ionic/angular/standalone';
 import { DormSummary, DormZone, FilterParams } from 'src/app/model/dorm.model';
 import { NavController } from '@ionic/angular';
@@ -62,6 +64,8 @@ import { AuthenService } from 'src/app/services/authenService';
     IonItem,
     IonLabel,
     IonImg,
+    IonSelect,
+    IonSelectOption,
   ],
 })
 export class FilterGroupComponent implements OnInit, OnChanges, OnDestroy {
@@ -103,9 +107,12 @@ export class FilterGroupComponent implements OnInit, OnChanges, OnDestroy {
   selectedZone: string = '';
   selectedScore: number | null = null;
   maxWater: number | null = null;
+  maxWaterLump: number | null = null;
   maxElect: number | null = null;
-  sortByPrice: string = 'acs';
+  sortByPrice: string = '';
   sortByName: string = 'asc';
+  sortByScore: string = '';
+  activeSortOption: string = 'char_asc';
 
   private pressTimeout: any;
   activeTooltip: string = '';
@@ -188,6 +195,7 @@ export class FilterGroupComponent implements OnInit, OnChanges, OnDestroy {
           : '';
         this.selectedScore = this.parseNumber(this.initialParams.score);
         this.maxWater = this.parseNumber(this.initialParams.maxWater);
+        this.maxWaterLump = this.parseNumber(this.initialParams.maxWaterLump);
         this.maxElect = this.parseNumber(this.initialParams.maxElect);
         this.sortByPrice = this.initialParams.sortByPrice || '';
         this.sortByName = this.initialParams.sortByName || '';
@@ -205,9 +213,11 @@ export class FilterGroupComponent implements OnInit, OnChanges, OnDestroy {
         : '';
       this.selectedScore = this.parseNumber(this.initialParams.score);
       this.maxWater = this.parseNumber(this.initialParams.maxWater);
+      this.maxWaterLump = this.parseNumber(this.initialParams.maxWaterLump);
       this.maxElect = this.parseNumber(this.initialParams.maxElect);
       this.sortByPrice = this.initialParams.sortByPrice || '';
       this.sortByName = this.initialParams.sortByName || '';
+      this.sortByScore = this.initialParams.sortByScore || '';
     } else {
       this.searchQuery = '';
       this.minPrice = null;
@@ -215,27 +225,52 @@ export class FilterGroupComponent implements OnInit, OnChanges, OnDestroy {
       this.selectedZone = '';
       this.selectedScore = null;
       this.maxWater = null;
+      this.maxWaterLump = null;
       this.maxElect = null;
       this.sortByPrice = '';
       this.sortByName = '';
+      this.sortByScore = '';
     }
+    this.updateActiveSortOption();
   }
 
-  private syncParams(params: FilterParams) {
-    this.searchQuery = params.search || '';
-    this.minPrice = this.parseNumber(params.minPrice);
-    this.maxPrice = this.parseNumber(params.maxPrice);
-    this.selectedScore = this.parseNumber(params.score);
-    this.maxWater = this.parseNumber(params.maxWater);
-    this.maxElect = this.parseNumber(params.maxElect);
-    this.sortByPrice = params.sortByPrice || '';
-    this.sortByName = params.sortByName || '';
 
-    if (params.zone) {
-      this.selectedZone = params.zone.toString();
-    } else {
-      this.selectedZone = '';
+  private updateActiveSortOption() {
+    if (this.sortByPrice === 'asc') this.activeSortOption = 'price_asc';
+    else if (this.sortByPrice === 'desc') this.activeSortOption = 'price_desc';
+    else if (this.sortByScore === 'asc') this.activeSortOption = 'score_asc';
+    else if (this.sortByScore === 'desc') this.activeSortOption = 'score_desc';
+    else if (this.sortByName === 'desc') this.activeSortOption = 'char_desc';
+    else this.activeSortOption = 'char_asc'; // default
+  }
+
+  onSortOptionChange() {
+    this.sortByPrice = '';
+    this.sortByName = '';
+    this.sortByScore = '';
+
+    switch (this.activeSortOption) {
+      case 'price_asc':
+        this.sortByPrice = 'asc';
+        break;
+      case 'price_desc':
+        this.sortByPrice = 'desc';
+        break;
+      case 'score_asc':
+        this.sortByScore = 'asc';
+        break;
+      case 'score_desc':
+        this.sortByScore = 'desc';
+        break;
+      case 'char_asc':
+        this.sortByName = 'asc';
+        break;
+      case 'char_desc':
+        this.sortByName = 'desc';
+        break;
     }
+
+    this.emitFilters();
   }
 
   onInput(event: any) {
@@ -303,43 +338,7 @@ export class FilterGroupComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private emitFilters() {
-    const params: FilterParams = {};
-    if (this.searchQuery && this.searchQuery.trim()) {
-      params.search = this.searchQuery.trim();
-    }
-
-    if (this.minPrice !== null && this.minPrice !== undefined) {
-      params.minPrice = this.minPrice;
-    }
-
-    if (this.maxPrice !== null && this.maxPrice !== undefined) {
-      params.maxPrice = this.maxPrice;
-    }
-
-    if (this.selectedZone) {
-      params.zone = this.selectedZone;
-    }
-
-    if (this.selectedScore !== null && this.selectedScore !== undefined) {
-      params.score = this.selectedScore;
-    }
-
-    if (this.maxWater !== null && this.maxWater !== undefined) {
-      params.maxWater = this.maxWater;
-    }
-
-    if (this.maxElect !== null && this.maxElect !== undefined) {
-      params.maxElect = this.maxElect;
-    }
-
-    if (this.sortByPrice) {
-      params.sortByPrice = this.sortByPrice;
-    }
-
-    if (this.sortByName) {
-      params.sortByName = this.sortByName;
-    }
-
+    const params = this.getCurrentFilters();
     this.filterApplied.emit(params);
   }
 
@@ -350,12 +349,12 @@ export class FilterGroupComponent implements OnInit, OnChanges, OnDestroy {
     this.selectedScore = null;
     this.searchQuery = '';
     this.maxWater = null;
+    this.maxWaterLump = null;
     this.maxElect = null;
     this.sortByPrice = '';
     this.sortByName = '';
-
-    // Do not close the modal, allow the user to see the fields reset to their default values.
-    // They can then close the modal using the close button or by applying filters.
+    this.sortByScore = '';
+    this.activeSortOption = 'char_asc';
 
     setTimeout(() => {
       this.emitFilters();
@@ -365,11 +364,6 @@ export class FilterGroupComponent implements OnInit, OnChanges, OnDestroy {
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
-  }
-
-  toggleSortByName() {
-    this.sortByName = this.sortByName === 'asc' ? 'desc' : 'asc';
-    this.emitFilters();
   }
 
   startPress(tooltipId: string) {
@@ -384,5 +378,46 @@ export class FilterGroupComponent implements OnInit, OnChanges, OnDestroy {
       this.pressTimeout = null;
     }
     this.activeTooltip = '';
+  }
+
+  getCurrentFilters(): FilterParams {
+    const params: FilterParams = {};
+    if (this.searchQuery && this.searchQuery.trim()) {
+      params.search = this.searchQuery.trim();
+    }
+    if (this.minPrice !== null && this.minPrice !== undefined) {
+      params.minPrice = this.minPrice;
+    }
+    if (this.maxPrice !== null && this.maxPrice !== undefined) {
+      params.maxPrice = this.maxPrice;
+    }
+    if (this.selectedZone) {
+      params.zone = this.selectedZone;
+    }
+    if (this.selectedScore !== null && this.selectedScore !== undefined) {
+      const parsedScore = this.parseNumber(this.selectedScore);
+      if (parsedScore !== null) {
+        params.score = parsedScore;
+      }
+    }
+    if (this.maxWater !== null && this.maxWater !== undefined) {
+      params.maxWater = this.maxWater;
+    }
+    if (this.maxWaterLump !== null && this.maxWaterLump !== undefined) {
+      params.maxWaterLump = this.maxWaterLump;
+    }
+    if (this.maxElect !== null && this.maxElect !== undefined) {
+      params.maxElect = this.maxElect;
+    }
+    if (this.sortByPrice) {
+      params.sortByPrice = this.sortByPrice;
+    }
+    if (this.sortByName) {
+      params.sortByName = this.sortByName;
+    }
+    if (this.sortByScore) {
+      params.sortByScore = this.sortByScore;
+    }
+    return params;
   }
 }

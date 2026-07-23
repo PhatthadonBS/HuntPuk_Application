@@ -67,6 +67,11 @@ export class LoginPage {
     });
   }
 
+  ionViewWillEnter() {
+    this.loginForm.reset();
+    this.errMsg.set(null);
+  }
+
   onSubmit() {
     if (this.loginForm.invalid) return;
 

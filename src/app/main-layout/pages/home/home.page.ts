@@ -142,6 +142,13 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
       result.sort((a, b) => b.start_price - a.start_price);
     }
 
+    const sortScore = this.sortByScore();
+    if (sortScore === 'desc') {
+      result.sort((a, b) => Number(b.SCORE) - Number(a.SCORE));
+    } else if (sortScore === 'asc') {
+      result.sort((a, b) => Number(a.SCORE) - Number(b.SCORE));
+    }
+
     return result;
   });
 
@@ -168,7 +175,8 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
   maxWater = signal<number | null>(null);
   maxElect = signal<number | null>(null);
   sortByPrice = signal<string>('');
-  sortByName = signal<string>('');
+  sortByName = signal<string>('asc');
+  sortByScore = signal<string>('');
 
   isPinMode = signal(false);
   pinnedLocation = signal<{ lat: number; lng: number } | null>(null);
@@ -249,6 +257,7 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
     this.maxElect.set(null);
     this.sortByPrice.set('');
     this.sortByName.set('asc');
+    this.sortByScore.set('');
   }
 
   isOpenMenu() {
@@ -488,6 +497,7 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
     this.maxElect.set(params.maxElect !== undefined ? params.maxElect : null);
     this.sortByPrice.set(params.sortByPrice || '');
     this.sortByName.set(params.sortByName || 'asc');
+    this.sortByScore.set(params.sortByScore || '');
     this.zoneLabel.set('');
 
     this.clearPin(false);
@@ -501,7 +511,8 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
       this.maxWater() === null &&
       this.maxElect() === null &&
       !this.sortByPrice() &&
-      this.sortByName() === 'asc'
+      this.sortByName() === 'asc' &&
+      !this.sortByScore()
     ) {
       this.sheetOpen.set(false);
       this.selectedDormRaw.set(null);
@@ -909,6 +920,7 @@ export class HomePage implements ViewWillEnter, ViewWillLeave, OnDestroy {
       maxElect: this.maxElect(),
       sortByPrice: this.sortByPrice(),
       sortByName: this.sortByName(),
+      sortByScore: this.sortByScore(),
     };
   }
 

@@ -26,7 +26,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
     return next(clonedReq).pipe(
       catchError((error: HttpErrorResponse) => {
-        if (error.status === 401) {
+        if (error.status === 401 && !req.url.includes('/auth/login')) {
           // Token expired or invalid
           handleSessionExpired(alertCtrl, navCtrl);
         }
@@ -37,7 +37,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status === 401) {
+      if (error.status === 401 && !req.url.includes('/auth/login')) {
         handleSessionExpired(alertCtrl, navCtrl);
       }
       return throwError(() => error);

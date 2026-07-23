@@ -246,6 +246,17 @@ export class DormServices {
     );
   }
 
+  deleteReview(reviewId: number): Observable<any> {
+    const url = `${this.endPoint}/spec/review/${reviewId}`;
+    return this.http.delete<any>(url).pipe(
+      timeout(this.REQUEST_TIMEOUT),
+      catchError((err) => {
+        console.error('deleteReview error:', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
   getFacilities(): Observable<FacilityGetRes> {
     const url = `${this.endPoint}/dorms/facilities`;
     return this.http.get<FacilityGetRes>(url).pipe(

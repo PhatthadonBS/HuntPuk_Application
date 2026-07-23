@@ -207,7 +207,9 @@ export class OwnerProfilePage {
   }
 
   resetPasswd() {
-    return this.router.navigate(['/forgotPasswd']);
+    return this.router.navigate(['/forgotPasswd'], {
+      queryParams: { email: this.user()?.EMAIL },
+    });
   }
 
   async banUser() {

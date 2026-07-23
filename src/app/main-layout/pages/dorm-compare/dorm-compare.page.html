@@ -82,7 +82,9 @@
             (error)="dormImg.src = 'https://placehold.co/400x300?text=No+Image'"
           />
         </div>
-        <h3 class="text-center">{{ dorm.DORM_NAME }}</h3>
+        <h3 class="text-center" (click)="goToDetail(dorm.DORM_ID)" style="cursor: pointer; color: var(--ion-color-primary);">
+          {{ dorm.DORM_NAME }}
+        </h3>
       </div>
 
       <!-- ─── ROW 2: Dorm Type ─── -->
